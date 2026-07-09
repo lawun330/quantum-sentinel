@@ -24,7 +24,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cu126
 pip install jupyter
 
 # Others
-pip install numpy pandas scikit-learn matplotlib scipy
+pip install numpy pandas scikit-learn matplotlib scipy pyarrow fastparquet
 ```
 
 **Note**: [reproducible environment file](conda_environment.yaml)
