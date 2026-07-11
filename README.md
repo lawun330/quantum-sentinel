@@ -25,7 +25,7 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 ├── training-qs-net-pytorch_v2.0.ipynb  # day 8, 9 deliverables # more data, less epochs
 ├── training-qs-net-pytorch_v2.1.ipynb  # day 8, 9 deliverables # less data, more epochs
 ├── training-qs-net-pytorch_v2.2.ipynb  # day 8, 9 deliverables # class balanced on train
-├── maqt-unit-test-iris.ipynb           # day 10 deliverable
+├── maqt-loss-unit-test-iris.ipynb      # day 10 deliverable
 └── 
 ```
 
