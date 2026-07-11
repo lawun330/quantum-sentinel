@@ -22,8 +22,9 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 ├── encoding-data-iris.ipynb            # day 2 deliverable
 ├── training-iris.ipynb                 # day 3 deliverable
 ├── training-qs-net_v1.ipynb            # day 4, 5, 6, 7 deliverables
-├── training-qs-net-pytorch_v2.0.ipynb  # day 8, 9 deliverables
-├── training-qs-net-pytorch_v2.1.ipynb  # day 8, 9 deliverables
+├── training-qs-net-pytorch_v2.0.ipynb  # day 8, 9 deliverables # more data, less epochs
+├── training-qs-net-pytorch_v2.1.ipynb  # day 8, 9 deliverables # less data, more epochs
+├── training-qs-net-pytorch_v2.2.ipynb  # day 8, 9 deliverables # class balanced on train
 ├── maqt-unit-test-iris.ipynb           # day 10 deliverable
 └── 
 ```
