@@ -8,6 +8,7 @@ from scripts.data import (
     class_balance_table,
     load_split,
     plot_class_balance_pie,
+    plot_class_balance_bars,
     stratified_head,
 )
 from scripts.inference import estimate_lipschitz, predict_batch, qsnet_infer
@@ -53,6 +54,7 @@ __all__ = [
     "maqt_loss",
     "nonconformity_score",
     "plot_class_balance_pie",
+    "plot_class_balance_bars",
     "predict_batch",
     "prototype_summary",
     "qsnet_infer",

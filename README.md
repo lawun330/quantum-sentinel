@@ -13,8 +13,10 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 Modified versions of the following datasets:
 
 - [CIC IoT 2023 (Canadian Institute for Cybersecurity)](https://www.kaggle.com/datasets/himadri07/ciciot2023)
-- [Edge-IIoTset (Ferrag et al., IEEE Access 2022)](https://www.kaggle.com/datasets/mohamedamineferrag/edgeiiotset-cyber-security-dataset-of-iot-iiot)
-- [TON IoT (UNSW Canberra)](https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset)
+- [BoT IoT](https://research.unsw.edu.au/projects/bot-iot-dataset)
+- [UNSW-NB15](https://research.unsw.edu.au/projects/unsw-nb15-dataset)
+- [Edge-IIoTset (Ferrag et al., IEEE Access 2022)](https://www.kaggle.com/datasets/mohamedamineferrag/edgeiiotset-cyber-security-dataset-of-iot-iiot) (discarded later)
+- [TON IoT (UNSW Canberra)](https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset) (discarded later)
 
 ## File Structure
 
@@ -33,22 +35,23 @@ Modified versions of the following datasets:
 ├── training-qs-net_v1.ipynb            # day 4, 5, 6, 7 deliverables ## use PennyLane only
 │
 ├── training-qs-net-pytorch_v2.0.ipynb  # day 8, 9 deliverables ## use PennyLane + PyTorch
-│                                       ## 20k data, 2 epochs, 128 batch size
+│                                       ## TON IoT 20k data, 2 epochs, 128 batch size
 │                                       ## epoch curve uses last minibatch only
 │                                       ## measure grad during weight update, averages over epoch
 │
 ├── training-qs-net-pytorch_v2.1.ipynb  # day 8, 9 deliverables ## use PennyLane + PyTorch
-│                                       ## 5k data, 20 epochs, 64 batch size
+│                                       ## TON IoT 5k data, 20 epochs, 64 batch size
 │                                       ## epoch curve uses last minibatch only 
 │                                       ## measure grad during weight update, averages over epoch
 │
 ├── training-qs-net-pytorch_v2.2.ipynb  # day 8, 9 deliverables ## use PennyLane + PyTorch
-│                                       ## class-balanced 2k data, 15 epochs, 64 batch size
+│                                       ## TON IoT class-balanced 2k data, 15 epochs, 64 batch size
 │                                       ## added logging ## utilize "scripts/"
 │                                       ## epoch curve averages all minibatches
 │                                       ## measure grad after weight update, averages over epoch
 │
-├── maqt-loss-unit-test-iris.ipynb      # day 10 deliverable
+├── maqt-loss-unit-test-iris.ipynb          # day 10 deliverable
+├── Hilbert-geometry-diagnostics_v1.ipynb   # day 11 deliverable
 └── 
 ```
 

@@ -8,13 +8,13 @@ from sklearn.model_selection import train_test_split
 from scripts.utils import to_np_x
 
 
-def load_split(name, categories):
-    df = pd.read_parquet(f"data/TON_IoT/quantum/q8_{name}.parquet")
+def load_split(data_path, name, column_name, categories):
+    df = pd.read_parquet(f"{data_path}/{name}.parquet")
     df = df[df["label_multiclass"].notna()].copy()
 
     feature_cols = [c for c in df.columns if not c.startswith("label")]
     X = df[feature_cols].values
-    y = pd.Categorical(df["label_multiclass"], categories=categories).codes
+    y = pd.Categorical(df[column_name], categories=categories).codes
 
     return X, y
 
@@ -66,8 +66,7 @@ def class_balance_table(y, class_names):
     df["pct"] = 100 * df["count"] / df["count"].sum()
     return df
 
-
-def plot_class_balance_pie(y, class_names, title="Class balance", ax=None):
+def plot_class_balance_pie(y, class_names, title="Class balance", ax=None, min_pct=5.0):
     """
     Plot a pie chart of class frequencies for label vector y (zeros dropped).
     """
@@ -77,11 +76,37 @@ def plot_class_balance_pie(y, class_names, title="Class balance", ax=None):
     if ax is None:
         _, ax = plt.subplots(figsize=(8, 8))
 
-    ax.pie(
+    def autopct(p):
+        return f"{p:.1f}%" if p >= min_pct else ""
+    wedges, _, _ = ax.pie(
         df["count"],
-        labels=df["class"],
-        autopct=lambda p: f"{p:.1f}%\n({int(p * df['count'].sum() / 100)})",
+        labels=None,          # no long names on wedges
+        autopct=autopct,
         startangle=90,
+        pctdistance=0.7,
+    )
+    ax.legend(
+        wedges,
+        [f"{c}: {n} ({p:.1f}%)" for c, n, p in zip(df["class"], df["count"], df["pct"])],
+        title="class",
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        fontsize=9,
     )
     ax.set_title(title)
+    return ax
+
+
+def plot_class_balance_bars(y, class_names, title="Class balance", ax=None):
+    """
+    Plot a bar chart of class frequencies for label vector y (zeros dropped).
+    """
+    df = class_balance_table(y, class_names).sort_values("count")
+    if ax is None:
+        _, ax = plt.subplots(figsize=(8, 4))
+    ax.barh(df["class"], df["count"])
+    ax.set_xlabel("count")
+    ax.set_title(title)
+    for i, (n, p) in enumerate(zip(df["count"], df["pct"])):
+        ax.text(n, i, f" {n} ({p:.1f}%)", va="center", fontsize=8)
     return ax
