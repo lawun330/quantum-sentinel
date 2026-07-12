@@ -123,3 +123,36 @@ def maqt_loss(
 
     loss = l_ce + lambda1 * l_intra + lambda2 * l_inter
     return loss, l_ce, l_intra, l_inter
+
+
+def gradient_variance(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    lambda1=0.5,
+    lambda2=0.3,
+    device=None,
+):
+    """
+    Fresh grad of MAQT loss w.r.t. circuit theta, then variance.
+    """
+    device = device or theta.device
+    loss, _, _, _ = maqt_loss(
+        theta,
+        classifier_head,
+        ce_loss_fn,
+        X_batch,
+        y_batch,
+        prototypes,
+        forward_circuit,
+        lambda1=lambda1,
+        lambda2=lambda2,
+        device=device,
+    )
+    grads = torch.autograd.grad(loss, theta, retain_graph=False, create_graph=False)[0]
+    flat = grads.reshape(-1)
+    return float(flat.var().item()), grads

@@ -12,8 +12,15 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=30, delta=0.05, device
     """
     Estimate Lipschitz constant from data.
     """
-    X_np = to_np_x(X)
-    indices = np.random.choice(len(X_np), min(n_probe, len(X_np)), replace=False)
+    if torch.is_tensor(X):
+        X_np = X.detach().cpu().numpy()
+    else:
+        X_np = np.asarray(X, dtype=np.float32)
+    if X_np.ndim == 1:
+        X_np = X_np.reshape(1, -1)
+
+    n = X_np.shape[0]
+    indices = np.random.choice(n, min(n_probe, n), replace=False)
     ratios = []
 
     with torch.no_grad():

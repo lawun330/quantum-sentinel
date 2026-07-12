@@ -11,11 +11,13 @@ from scripts.data import (
     stratified_head,
 )
 from scripts.inference import estimate_lipschitz, predict_batch, qsnet_infer
+from scripts.logging import to_jsonable, write_history_log
 from scripts.loss import (
     ce_loss_term,
     compute_l_ce,
     compute_l_inter,
     compute_l_intra,
+    gradient_variance,
     inter_loss_term,
     intra_loss_term,
     maqt_loss,
@@ -43,6 +45,7 @@ __all__ = [
     "expectations_to_tensor",
     "fidelity",
     "get_torch_device",
+    "gradient_variance",
     "initialize_weights",
     "inter_loss_term",
     "intra_loss_term",
@@ -54,7 +57,9 @@ __all__ = [
     "prototype_summary",
     "qsnet_infer",
     "stratified_head",
+    "to_jsonable",
     "to_np_x",
     "to_torch_x",
     "trace_distance",
+    "write_history_log",
 ]
