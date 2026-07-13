@@ -1,0 +1,349 @@
+{
+  "notebook": "Hilbert-geometry-diagnostics_v1.ipynb",
+  "history": {
+    "loss": [
+      2.209299367982468,
+      2.1457546445639406,
+      2.089443298616522,
+      2.053601867022896,
+      2.0208640915340568,
+      1.973423338177591,
+      1.9420956471124962,
+      1.9061032654632588,
+      1.8782457216491173,
+      1.851933304185501
+    ],
+    "l_ce": [
+      2.1023707654741077,
+      2.0326343509886,
+      1.9822165038850572,
+      1.9475513166851468,
+      1.9113851123385959,
+      1.869055363867018,
+      1.834839900334676,
+      1.8028765122095745,
+      1.7790300581190321,
+      1.7503932184643216
+    ],
+    "l_intra": [
+      0.6114670535118089,
+      0.6161447724323711,
+      0.6075139910517828,
+      0.6051988330150826,
+      0.6091244251780307,
+      0.6011300794647023,
+      0.6039132748176597,
+      0.6021951145788678,
+      0.5964233916507031,
+      0.5978649773582745
+    ],
+    "l_inter": [
+      -0.6626830808251465,
+      -0.6498403088028158,
+      -0.655100669314755,
+      -0.6551628872326402,
+      -0.6502774446451818,
+      -0.6539902180725935,
+      -0.6490029687700338,
+      -0.6595693467858313,
+      -0.6633201076508881,
+      -0.6579746765265251
+    ],
+    "grad_var": [
+      9.219913287476326e-05,
+      0.0001028160327728579,
+      0.0001145119515260578,
+      0.00017952931213787652,
+      0.00016712243490878286,
+      0.0002653536357684061,
+      0.0002583273534481931,
+      0.0003155853030168348,
+      0.00026910784072242677,
+      0.0002437323855701834
+    ],
+    "barren_plateau": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "epoch_sec": [
+      296.1836462219999,
+      295.007476858,
+      297.077633763,
+      300.80482183899994,
+      298.4365101600001,
+      306.8880488529999,
+      326.9202227569999,
+      358.01405389200045,
+      337.31169485400005,
+      307.12874967399966
+    ],
+    "mean_intra_fid_proxy": [
+      0.38853294648819114,
+      0.3838552275676289,
+      0.39248600894821717,
+      0.3948011669849174,
+      0.39087557482196933,
+      0.3988699205352977,
+      0.39608672518234034,
+      0.39780488542113224,
+      0.4035766083492969,
+      0.4021350226417255
+    ],
+    "mean_inter_fid": [
+      0.4883897008459222,
+      0.49245015450246754,
+      0.49563033273420537,
+      0.49726693528484517,
+      0.4978016741125712,
+      0.49712102874188685,
+      0.4949274453888305,
+      0.49289262567125686,
+      0.491911659440786,
+      0.49158633283907804
+    ],
+    "fidelity_gap_proxy": [
+      -0.09985675435773106,
+      -0.10859492693483863,
+      -0.1031443237859882,
+      -0.10246576829992776,
+      -0.10692609929060187,
+      -0.09825110820658917,
+      -0.09884072020649015,
+      -0.09508774025012462,
+      -0.08833505109148915,
+      -0.08945131019735253
+    ]
+  },
+  "extra": {
+    "epochs": 10,
+    "batch_size": 64,
+    "lr": 0.01,
+    "lambda1": 0.5,
+    "lambda2": 0.3,
+    "noise_rate": 0.01,
+    "num_layers": 2,
+    "num_qubits": 8,
+    "num_classes": 8,
+    "n_train": 528,
+    "n_test": 150,
+    "barren_plateau_var": 1e-06,
+    "class_names": [
+      "backdoor_malware_ransomware",
+      "benign",
+      "bruteforce_password",
+      "ddos",
+      "dos",
+      "recon",
+      "spoofing_mitm",
+      "web_injection"
+    ],
+    "alpha": 0.05,
+    "q": 0.6262428059714773,
+    "n_cal": 150,
+    "cal_score_min": 0.36070113057857445,
+    "cal_score_max": 0.9496936951216776,
+    "cal_score_mean": 0.42434683653750593,
+    "L_phi": 2.858583439945642,
+    "Cf": 1.0,
+    "h1_last_mean_intra_fid_proxy": 0.4021350226417255,
+    "h1_last_mean_inter_fid": 0.49158633283907804,
+    "h1_last_fidelity_gap_proxy": -0.08945131019735253,
+    "train_total_sec": 3123.772858872,
+    "h1_mean_intra_fid": 0.39190820176376384,
+    "h1_mean_inter_fid": 0.4916704456789865,
+    "h1_fidelity_gap": -0.09976224391522265,
+    "h1_mean_inter_trace_distance": 0.6160543316143384,
+    "h1_per_class": {
+      "backdoor_malware_ransomware": {
+        "n": 50,
+        "mean_intra_fid_c": 0.3756002103980247,
+        "mean_intra_infidelity_c": 0.6243997896019753
+      },
+      "benign": {
+        "n": 50,
+        "mean_intra_fid_c": 0.3760121465329938,
+        "mean_intra_infidelity_c": 0.6239878534670062
+      },
+      "bruteforce_password": {
+        "n": 50,
+        "mean_intra_fid_c": 0.3410431195678092,
+        "mean_intra_infidelity_c": 0.6589568804321908
+      },
+      "ddos": {
+        "n": 50,
+        "mean_intra_fid_c": 0.5862189187872351,
+        "mean_intra_infidelity_c": 0.4137810812127649
+      },
+      "dos": {
+        "n": 50,
+        "mean_intra_fid_c": 0.5266434027492566,
+        "mean_intra_infidelity_c": 0.4733565972507434
+      },
+      "recon": {
+        "n": 50,
+        "mean_intra_fid_c": 0.3147168264027049,
+        "mean_intra_infidelity_c": 0.6852831735972951
+      },
+      "spoofing_mitm": {
+        "n": 50,
+        "mean_intra_fid_c": 0.3027456601177465,
+        "mean_intra_infidelity_c": 0.6972543398822535
+      },
+      "web_injection": {
+        "n": 50,
+        "mean_intra_fid_c": 0.3122853295543401,
+        "mean_intra_infidelity_c": 0.6877146704456599
+      }
+    },
+    "h1_pairs": [
+      {
+        "pair": "backdoor_malware_ransomware\u2194benign",
+        "pair_inter_fid": 0.6448248668446793,
+        "pair_trace_distance": 0.5442042532546091
+      },
+      {
+        "pair": "backdoor_malware_ransomware\u2194bruteforce_password",
+        "pair_inter_fid": 0.8460047351704613,
+        "pair_trace_distance": 0.33416621946418323
+      },
+      {
+        "pair": "backdoor_malware_ransomware\u2194ddos",
+        "pair_inter_fid": 0.10390583793371304,
+        "pair_trace_distance": 0.9148739219162331
+      },
+      {
+        "pair": "backdoor_malware_ransomware\u2194dos",
+        "pair_inter_fid": 0.134027206495101,
+        "pair_trace_distance": 0.8844558923310586
+      },
+      {
+        "pair": "backdoor_malware_ransomware\u2194recon",
+        "pair_inter_fid": 0.7767518300135251,
+        "pair_trace_distance": 0.37253234557695625
+      },
+      {
+        "pair": "backdoor_malware_ransomware\u2194spoofing_mitm",
+        "pair_inter_fid": 0.6084666111613982,
+        "pair_trace_distance": 0.5730434255995531
+      },
+      {
+        "pair": "backdoor_malware_ransomware\u2194web_injection",
+        "pair_inter_fid": 0.8540745429883854,
+        "pair_trace_distance": 0.3293256255118206
+      },
+      {
+        "pair": "benign\u2194bruteforce_password",
+        "pair_inter_fid": 0.7041378984892809,
+        "pair_trace_distance": 0.4915669437044727
+      },
+      {
+        "pair": "benign\u2194ddos",
+        "pair_inter_fid": 0.08501150559505594,
+        "pair_trace_distance": 0.9234418916750577
+      },
+      {
+        "pair": "benign\u2194dos",
+        "pair_inter_fid": 0.10069610797501041,
+        "pair_trace_distance": 0.902773766923473
+      },
+      {
+        "pair": "benign\u2194recon",
+        "pair_inter_fid": 0.6563876363662638,
+        "pair_trace_distance": 0.5110968024491203
+      },
+      {
+        "pair": "benign\u2194spoofing_mitm",
+        "pair_inter_fid": 0.7906388285221836,
+        "pair_trace_distance": 0.37190211980958887
+      },
+      {
+        "pair": "benign\u2194web_injection",
+        "pair_inter_fid": 0.6680603005906335,
+        "pair_trace_distance": 0.522324217466916
+      },
+      {
+        "pair": "bruteforce_password\u2194ddos",
+        "pair_inter_fid": 0.14879321487191566,
+        "pair_trace_distance": 0.892274172266899
+      },
+      {
+        "pair": "bruteforce_password\u2194dos",
+        "pair_inter_fid": 0.1745992946724335,
+        "pair_trace_distance": 0.8745981022313316
+      },
+      {
+        "pair": "bruteforce_password\u2194recon",
+        "pair_inter_fid": 0.8235774541508449,
+        "pair_trace_distance": 0.32634290323572646
+      },
+      {
+        "pair": "bruteforce_password\u2194spoofing_mitm",
+        "pair_inter_fid": 0.6470320105444229,
+        "pair_trace_distance": 0.5343606034709831
+      },
+      {
+        "pair": "bruteforce_password\u2194web_injection",
+        "pair_inter_fid": 0.88112250424943,
+        "pair_trace_distance": 0.2731719677540142
+      },
+      {
+        "pair": "ddos\u2194dos",
+        "pair_inter_fid": 0.9032860983245107,
+        "pair_trace_distance": 0.20129044775281202
+      },
+      {
+        "pair": "ddos\u2194recon",
+        "pair_inter_fid": 0.2618966660042445,
+        "pair_trace_distance": 0.7763734849815978
+      },
+      {
+        "pair": "ddos\u2194spoofing_mitm",
+        "pair_inter_fid": 0.11093716913501124,
+        "pair_trace_distance": 0.9104877427870466
+      },
+      {
+        "pair": "ddos\u2194web_injection",
+        "pair_inter_fid": 0.12922829717447987,
+        "pair_trace_distance": 0.9007481666966018
+      },
+      {
+        "pair": "dos\u2194recon",
+        "pair_inter_fid": 0.2885902916389721,
+        "pair_trace_distance": 0.7560144257985624
+      },
+      {
+        "pair": "dos\u2194spoofing_mitm",
+        "pair_inter_fid": 0.15769302185395306,
+        "pair_trace_distance": 0.8664784324473235
+      },
+      {
+        "pair": "dos\u2194web_injection",
+        "pair_inter_fid": 0.17678906598659755,
+        "pair_trace_distance": 0.8582362419547374
+      },
+      {
+        "pair": "recon\u2194spoofing_mitm",
+        "pair_inter_fid": 0.6066582685117194,
+        "pair_trace_distance": 0.5594789862696539
+      },
+      {
+        "pair": "recon\u2194web_injection",
+        "pair_inter_fid": 0.8132990103466613,
+        "pair_trace_distance": 0.32883745317199253
+      },
+      {
+        "pair": "spoofing_mitm\u2194web_injection",
+        "pair_inter_fid": 0.670282203400735,
+        "pair_trace_distance": 0.515120728699151
+      }
+    ]
+  }
+}
