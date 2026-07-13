@@ -66,6 +66,7 @@ def class_balance_table(y, class_names):
     df["pct"] = 100 * df["count"] / df["count"].sum()
     return df
 
+
 def plot_class_balance_pie(y, class_names, title="Class balance", ax=None, min_pct=5.0):
     """
     Plot a pie chart of class frequencies for label vector y (zeros dropped).
@@ -102,11 +103,18 @@ def plot_class_balance_bars(y, class_names, title="Class balance", ax=None):
     Plot a bar chart of class frequencies for label vector y (zeros dropped).
     """
     df = class_balance_table(y, class_names).sort_values("count")
+
     if ax is None:
-        _, ax = plt.subplots(figsize=(8, 4))
+        height = max(4, 0.4 * len(df))
+        _, ax = plt.subplots(figsize=(8, height))
+
     ax.barh(df["class"], df["count"])
-    ax.set_xlabel("count")
+    ax.set_xlabel("Count")
     ax.set_title(title)
+    ax.tick_params(axis="y", labelsize=8)
+
     for i, (n, p) in enumerate(zip(df["count"], df["pct"])):
         ax.text(n, i, f" {n} ({p:.1f}%)", va="center", fontsize=8)
+
+    plt.tight_layout()
     return ax

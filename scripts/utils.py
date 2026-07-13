@@ -29,7 +29,9 @@ def to_np_x(x):
 
 
 def expectations_to_tensor(z):
-    """Convert PennyLane expectation values to a 1D float tensor."""
+    """
+    Convert PennyLane expectation values to a 1D float tensor.
+    """
     if torch.is_tensor(z):
         return z.float().reshape(-1)
     return torch.stack(z).float()
