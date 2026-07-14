@@ -1,0 +1,47 @@
+{
+  "dataset": "TON_IoT",
+  "gates": {
+    "schema_contract": "pass",
+    "no_nan": "pass",
+    "split_disjoint": "pass",
+    "zero_day_isolation": "pass",
+    "label_sanity": "pass",
+    "encoder_leakage_safe": "pass",
+    "scaler_leakage_safe": "pass",
+    "row_conservation": "pass"
+  },
+  "passed": true,
+  "feature_columns": [
+    "duration",
+    "n_pkts_total",
+    "n_bytes_total",
+    "src_pkts",
+    "dst_pkts",
+    "src_bytes",
+    "dst_bytes",
+    "rate",
+    "rate_src",
+    "rate_dst",
+    "pkt_size_min",
+    "pkt_size_max",
+    "pkt_size_mean",
+    "pkt_size_std",
+    "iat",
+    "protocol",
+    "conn_state"
+  ],
+  "split_rows": {
+    "train": 60308,
+    "val": 8505,
+    "calibration": 8492,
+    "test": 8481,
+    "zeroday": 1
+  },
+  "dedup_audit": {
+    "rows_in": 89136,
+    "rows_after_projection_dedup": 87352,
+    "feature_dupes_removed": 1784,
+    "s7b_cross_split_dropped": 1565,
+    "split_row_sum": 85787
+  }
+}

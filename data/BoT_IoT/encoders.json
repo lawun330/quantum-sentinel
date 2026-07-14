@@ -1,0 +1,46 @@
+{
+ "fit_on": "train split only",
+ "frequency": {
+  "protocol": {
+   "type": "frequency",
+   "mapping": {
+    "tcp": 0.5618343604481396,
+    "dns": 0.43636754829488694,
+    "other": 0.001782722955631714,
+    "udp": 1.5368301341652707e-05
+   },
+   "unknown": 0.0
+  },
+  "conn_state": {
+   "type": "frequency",
+   "mapping": {
+    "rst": 0.5476417341591234,
+    "fin": 0.26816917426116893,
+    "established": 0.18249089428145507,
+    "syn": 0.0012909373126988274,
+    "other": 0.0002843135748205751,
+    "closed": 0.00012294641073322166
+   },
+   "unknown": 0.0
+  }
+ },
+ "impute_medians": {
+  "duration": 0.04839649978188923,
+  "n_pkts_total": 0.0,
+  "n_bytes_total": 0.10673338312259498,
+  "src_pkts": 0.0,
+  "dst_pkts": 0.0,
+  "src_bytes": 0.05015726709112405,
+  "dst_bytes": 0.0,
+  "rate": 0.025594447445313806,
+  "rate_src": 0.03649376052140099,
+  "rate_dst": 0.0,
+  "pkt_size_min": 0.0,
+  "pkt_size_max": 0.033371094171355004,
+  "pkt_size_mean": 0.08353365725959393,
+  "pkt_size_std": 0.16721928301621192,
+  "iat": 0.0,
+  "protocol": 0.5618343604481396,
+  "conn_state": 0.5476417341591234
+ }
+}

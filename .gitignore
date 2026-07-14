@@ -1,4 +1,4 @@
-.ipynb_checkpoints/
+*.ipynb_checkpoints/
 .vscode/
 .DS_Store
 .env
@@ -6,4 +6,5 @@
 .env.development.local
 .env.test.local
 .env.production.local
-__pycache__/
+*/__pycache__/
+*.zip

@@ -1,0 +1,73 @@
+{
+ "ranking_metric": "|pearson r| vs label_binary on train (baseline; Team C refines)",
+ "ranking": [
+  "n_pkts_total",
+  "duration",
+  "pkt_size_max",
+  "pkt_size_std",
+  "pkt_size_mean",
+  "n_bytes_total",
+  "pkt_size_min",
+  "protocol",
+  "conn_state",
+  "rate",
+  "iat",
+  "rate_dst",
+  "rate_src",
+  "src_pkts",
+  "dst_bytes",
+  "src_bytes",
+  "dst_pkts"
+ ],
+ "budgets": {
+  "4": [
+   "n_pkts_total",
+   "duration",
+   "pkt_size_max",
+   "pkt_size_std"
+  ],
+  "8": [
+   "n_pkts_total",
+   "duration",
+   "pkt_size_max",
+   "pkt_size_std",
+   "pkt_size_mean",
+   "n_bytes_total",
+   "pkt_size_min",
+   "protocol"
+  ],
+  "12": [
+   "n_pkts_total",
+   "duration",
+   "pkt_size_max",
+   "pkt_size_std",
+   "pkt_size_mean",
+   "n_bytes_total",
+   "pkt_size_min",
+   "protocol",
+   "conn_state",
+   "rate",
+   "iat",
+   "rate_dst"
+  ],
+  "16": [
+   "n_pkts_total",
+   "duration",
+   "pkt_size_max",
+   "pkt_size_std",
+   "pkt_size_mean",
+   "n_bytes_total",
+   "pkt_size_min",
+   "protocol",
+   "conn_state",
+   "rate",
+   "iat",
+   "rate_dst",
+   "rate_src",
+   "src_pkts",
+   "dst_bytes",
+   "src_bytes"
+  ]
+ },
+ "corr_pruned": []
+}

@@ -1,0 +1,30 @@
+{
+ "timing": [
+  "duration",
+  "pkt_size_min",
+  "pkt_size_max",
+  "pkt_size_mean",
+  "pkt_size_std",
+  "iat"
+ ],
+ "rate": [
+  "rate",
+  "rate_src",
+  "rate_dst"
+ ],
+ "volume": [
+  "src_pkts",
+  "dst_pkts",
+  "n_pkts_total",
+  "src_bytes",
+  "dst_bytes",
+  "n_bytes_total"
+ ],
+ "flags_state": [
+  "protocol",
+  "conn_state"
+ ],
+ "protocol": [],
+ "connection_ctx": [],
+ "other": []
+}

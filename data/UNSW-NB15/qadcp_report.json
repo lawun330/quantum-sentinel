@@ -1,0 +1,112 @@
+{
+ "dataset": "UNSW-NB15",
+ "seed": 42,
+ "checkpoint": "datasets/UNSW-NB15/unified/processed/UNSW-NB15_unified.parquet",
+ "mode": "unified",
+ "s0_validate": {
+  "rows": 103463,
+  "gates": "pass"
+ },
+ "s2_engineer": {
+  "families": {
+   "benign": 58449,
+   "exploits": 20372,
+   "fuzzers": 13088,
+   "recon": 5481,
+   "dos": 2980,
+   "shellcode": 1253,
+   "generic": 979,
+   "analysis": 382,
+   "backdoor_malware_ransomware": 319,
+   "worms": 160
+  }
+ },
+ "s3_groups": {
+  "timing": 6,
+  "rate": 3,
+  "volume": 6,
+  "flags_state": 2
+ },
+ "s7_split": {
+  "train": 71435,
+  "val": 10205,
+  "calibration": 10205,
+  "test": 10205,
+  "zeroday": 1413
+ },
+ "s7_zero_day_labels": [
+  "Shellcode",
+  "Worms"
+ ],
+ "s7b_postprune_dupes_dropped": {
+  "train": 341,
+  "val": 84,
+  "calibration": 93,
+  "test": 119,
+  "zeroday": 197
+ },
+ "s6_quantum": {
+  "corr_pruned": 0,
+  "n_features": 17,
+  "budgets": {
+   "4": 4,
+   "8": 8,
+   "12": 12,
+   "16": 16
+  }
+ },
+ "s5_balance": {
+  "train": 71094,
+  "train_balanced": 50285,
+  "capped_classes": [
+   "Normal"
+  ]
+ },
+ "s8_gates": "pass (disjoint splits, zero-day isolated, rare classes kept, 0 NaN)",
+ "per_class_split": {
+  "train": {
+   "Normal": 40809,
+   "Exploits": 14219,
+   "Fuzzers": 9046,
+   "Reconnaissance": 3823,
+   "DoS": 2061,
+   "Generic": 674,
+   "Analysis": 255,
+   "Backdoor": 207
+  },
+  "val": {
+   "Normal": 5824,
+   "Exploits": 2022,
+   "Fuzzers": 1285,
+   "Reconnaissance": 542,
+   "DoS": 286,
+   "Generic": 95,
+   "Analysis": 36,
+   "Backdoor": 31
+  },
+  "calibration": {
+   "Normal": 5820,
+   "Exploits": 2029,
+   "Fuzzers": 1279,
+   "Reconnaissance": 544,
+   "DoS": 284,
+   "Generic": 92,
+   "Analysis": 33,
+   "Backdoor": 31
+  },
+  "test": {
+   "Normal": 5814,
+   "Exploits": 2027,
+   "Fuzzers": 1260,
+   "Reconnaissance": 542,
+   "DoS": 287,
+   "Generic": 91,
+   "Analysis": 36,
+   "Backdoor": 29
+  },
+  "zeroday": {
+   "Shellcode": 1062,
+   "Worms": 154
+  }
+ }
+}

@@ -1,0 +1,143 @@
+{
+ "fit_on": "train split only (leakage-safe)",
+ "robust": {
+  "duration": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "n_pkts_total": {
+   "median": 13.94929510464177,
+   "iqr": 2.092715004446722
+  },
+  "n_bytes_total": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "src_pkts": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "dst_pkts": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "src_bytes": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "dst_bytes": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "rate": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "rate_src": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "rate_dst": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "pkt_size_min": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "pkt_size_max": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "pkt_size_mean": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "pkt_size_std": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "iat": {
+   "median": 0.0,
+   "iqr": 1.0
+  },
+  "protocol": {
+   "median": 0.9012685176971524,
+   "iqr": 1.0
+  },
+  "conn_state": {
+   "median": 0.996717821343032,
+   "iqr": 1.0
+  }
+ },
+ "angle_[0,pi]": {
+  "protocol": {
+   "min": -0.901179810165883,
+   "max": 0.0
+  },
+  "pkt_size_max": {
+   "min": 0.0,
+   "max": 4.09359450935997
+  },
+  "n_pkts_total": {
+   "min": -6.665644903869614,
+   "max": 0.4446313910245264
+  },
+  "duration": {
+   "min": 0.0,
+   "max": 6.230481447578482
+  },
+  "rate": {
+   "min": 0.0,
+   "max": 6.230481447578482
+  },
+  "n_bytes_total": {
+   "min": 0.0,
+   "max": 9.723814596788174
+  },
+  "conn_state": {
+   "min": -0.9964516987492238,
+   "max": 0.0
+  },
+  "dst_pkts": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "src_pkts": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "rate_src": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "dst_bytes": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "src_bytes": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "rate_dst": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "pkt_size_mean": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "pkt_size_min": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "iat": {
+   "min": 0.0,
+   "max": 0.0
+  },
+  "pkt_size_std": {
+   "min": 0.0,
+   "max": 0.0
+  }
+ }
+}

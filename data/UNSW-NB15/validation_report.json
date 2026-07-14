@@ -1,0 +1,47 @@
+{
+  "dataset": "UNSW-NB15",
+  "gates": {
+    "schema_contract": "pass",
+    "no_nan": "pass",
+    "split_disjoint": "pass",
+    "zero_day_isolation": "pass",
+    "label_sanity": "pass",
+    "encoder_leakage_safe": "pass",
+    "scaler_leakage_safe": "pass",
+    "row_conservation": "pass"
+  },
+  "passed": true,
+  "feature_columns": [
+    "duration",
+    "n_pkts_total",
+    "n_bytes_total",
+    "src_pkts",
+    "dst_pkts",
+    "src_bytes",
+    "dst_bytes",
+    "rate",
+    "rate_src",
+    "rate_dst",
+    "pkt_size_min",
+    "pkt_size_max",
+    "pkt_size_mean",
+    "pkt_size_std",
+    "iat",
+    "protocol",
+    "conn_state"
+  ],
+  "split_rows": {
+    "train": 71094,
+    "val": 10121,
+    "calibration": 10112,
+    "test": 10086,
+    "zeroday": 1216
+  },
+  "dedup_audit": {
+    "rows_in": 122657,
+    "rows_after_projection_dedup": 103463,
+    "feature_dupes_removed": 19194,
+    "s7b_cross_split_dropped": 834,
+    "split_row_sum": 102629
+  }
+}

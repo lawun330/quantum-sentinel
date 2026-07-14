@@ -1,0 +1,113 @@
+{
+ "dataset": "Edge-IIoTset",
+ "seed": 42,
+ "checkpoint": "datasets/Edge-IIoTset/unified/processed/Edge-IIoTset_unified.parquet",
+ "mode": "unified",
+ "s0_validate": {
+  "rows": 16141,
+  "gates": "pass"
+ },
+ "s2_engineer": {
+  "families": {
+   "ddos": 14603,
+   "recon": 714,
+   "benign": 392,
+   "web_injection": 224,
+   "backdoor_malware_ransomware": 146,
+   "spoofing_mitm": 47,
+   "bruteforce_password": 15
+  }
+ },
+ "s3_groups": {
+  "timing": 6,
+  "rate": 3,
+  "volume": 6,
+  "flags_state": 2
+ },
+ "s7_split": {
+  "train": 11273,
+  "val": 1611,
+  "calibration": 1611,
+  "test": 1611,
+  "zeroday": 35
+ },
+ "s7_zero_day_labels": [
+  "Fingerprinting",
+  "Ransomware"
+ ],
+ "s7b_postprune_dupes_dropped": {
+  "train": 115,
+  "val": 36,
+  "calibration": 39,
+  "test": 41,
+  "zeroday": 33
+ },
+ "s6_quantum": {
+  "corr_pruned": 0,
+  "n_features": 17,
+  "budgets": {
+   "4": 4,
+   "8": 8,
+   "12": 12,
+   "16": 16
+  }
+ },
+ "s5_balance": {
+  "train": 11158,
+  "train_balanced": 11158,
+  "capped_classes": []
+ },
+ "s8_gates": "pass (disjoint splits, zero-day isolated, rare classes kept, 0 NaN)",
+ "per_class_split": {
+  "train": {
+   "DDoS_UDP": 10133,
+   "Vulnerability_scanner": 486,
+   "Normal": 221,
+   "SQL_injection": 108,
+   "DDoS_HTTP": 73,
+   "Backdoor": 65,
+   "MITM": 32,
+   "XSS": 18,
+   "Uploading": 16,
+   "Password": 4,
+   "DDoS_TCP": 1,
+   "DDoS_ICMP": 1
+  },
+  "val": {
+   "DDoS_UDP": 1448,
+   "Vulnerability_scanner": 69,
+   "Normal": 29,
+   "SQL_injection": 11,
+   "MITM": 5,
+   "Backdoor": 4,
+   "DDoS_HTTP": 4,
+   "Password": 2,
+   "XSS": 2,
+   "Uploading": 1
+  },
+  "calibration": {
+   "DDoS_UDP": 1448,
+   "Vulnerability_scanner": 65,
+   "Normal": 25,
+   "Backdoor": 10,
+   "SQL_injection": 9,
+   "DDoS_HTTP": 8,
+   "MITM": 5,
+   "XSS": 2
+  },
+  "test": {
+   "DDoS_UDP": 1448,
+   "Vulnerability_scanner": 65,
+   "Normal": 28,
+   "SQL_injection": 9,
+   "Backdoor": 6,
+   "MITM": 5,
+   "DDoS_HTTP": 5,
+   "XSS": 3,
+   "Password": 1
+  },
+  "zeroday": {
+   "Ransomware": 2
+  }
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "author": "AK (@Thedaemon-AK)",
+ "seed": 42,
+ "n_components": 8,
+ "mode": "unified",
+ "fit_on": "train.parquet only (leakage-safe)",
+ "explained_variance_train": 0.9982,
+ "outputs": [
+  "quantum/pca8_train.parquet",
+  "quantum/pca8_val.parquet",
+  "quantum/pca8_calibration.parquet",
+  "quantum/pca8_test.parquet",
+  "quantum/pca8_zeroday.parquet"
+ ],
+ "rows": {
+  "train": 71094,
+  "val": 10121,
+  "calibration": 10112,
+  "test": 10086,
+  "zeroday": 1216
+ }
+}

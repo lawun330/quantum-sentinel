@@ -1,0 +1,86 @@
+{
+ "dataset": "Edge-IIoTset",
+ "seed": 42,
+ "mode": "unified",
+ "config": {
+  "weights": {
+   "simA": 0.5,
+   "transferB": 0.3,
+   "isolationC": 0.2
+  },
+  "tier_edges": [
+   0.35,
+   0.6
+  ],
+  "knn_k": 10,
+  "sample_per_family": 5000,
+  "centroid_norm_ref_p95": 8.4016
+ },
+ "families": [
+  {
+   "family": "backdoor_malware_ransomware",
+   "mode": "holdout",
+   "n_rows": 2,
+   "nearest_train_family": "web_injection",
+   "centroid_distance": 0.1926,
+   "knn_overlap": 0.0,
+   "simA": 0.5115,
+   "transfer_recallB": 0.5,
+   "cluster_isolationC": 0.0,
+   "difficulty_score": 0.4057,
+   "tier": "Medium"
+  },
+  {
+   "family": "backdoor_malware_ransomware",
+   "mode": "loo",
+   "n_rows": 65,
+   "nearest_train_family": "web_injection",
+   "centroid_distance": 0.3002,
+   "knn_overlap": 0.0,
+   "simA": 0.5179,
+   "transfer_recallB": 0.4,
+   "cluster_isolationC": 0.0,
+   "difficulty_score": 0.4389,
+   "tier": "Medium"
+  },
+  {
+   "family": "ddos",
+   "mode": "loo",
+   "n_rows": 5000,
+   "nearest_train_family": "web_injection",
+   "centroid_distance": 6.2289,
+   "knn_overlap": 0.001,
+   "simA": 0.8702,
+   "transfer_recallB": 0.9948,
+   "cluster_isolationC": 0.9912,
+   "difficulty_score": 0.6349,
+   "tier": "Hard"
+  },
+  {
+   "family": "recon",
+   "mode": "loo",
+   "n_rows": 486,
+   "nearest_train_family": "bruteforce_password",
+   "centroid_distance": 0.5447,
+   "knn_overlap": 0.0,
+   "simA": 0.5324,
+   "transfer_recallB": 0.9835,
+   "cluster_isolationC": 0.7531,
+   "difficulty_score": 0.4218,
+   "tier": "Medium"
+  },
+  {
+   "family": "web_injection",
+   "mode": "loo",
+   "n_rows": 142,
+   "nearest_train_family": "backdoor_malware_ransomware",
+   "centroid_distance": 0.3002,
+   "knn_overlap": 0.0,
+   "simA": 0.5179,
+   "transfer_recallB": 0.5775,
+   "cluster_isolationC": 0.0,
+   "difficulty_score": 0.3857,
+   "tier": "Medium"
+  }
+ ]
+}

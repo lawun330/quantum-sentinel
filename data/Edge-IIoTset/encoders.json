@@ -1,0 +1,47 @@
+{
+ "fit_on": "train split only",
+ "frequency": {
+  "protocol": {
+   "type": "frequency",
+   "mapping": {
+    "mqtt": 0.9012685176971524,
+    "tcp": 0.09332032289541382,
+    "udp": 0.004612791626009048,
+    "arp": 0.0003548301250776191,
+    "other": 0.0003548301250776191,
+    "icmp": 8.870753126940477e-05
+   },
+   "unknown": 0.0
+  },
+  "conn_state": {
+   "type": "frequency",
+   "mapping": {
+    "other": 0.996717821343032,
+    "fin": 0.0016854430941186907,
+    "syn": 0.0007096602501552382,
+    "rst": 0.0006209527188858334,
+    "established": 0.00026612259380821434
+   },
+   "unknown": 0.0
+  }
+ },
+ "impute_medians": {
+  "duration": 0.0,
+  "n_pkts_total": 13.93583258986225,
+  "n_bytes_total": 0.0,
+  "src_pkts": 0.0,
+  "dst_pkts": 0.0,
+  "src_bytes": 0.0,
+  "dst_bytes": 0.0,
+  "rate": 0.0,
+  "rate_src": 0.0,
+  "rate_dst": 0.0,
+  "pkt_size_min": 0.0,
+  "pkt_size_max": 0.0,
+  "pkt_size_mean": 0.0,
+  "pkt_size_std": 0.0,
+  "iat": 0.0,
+  "protocol": 0.9012685176971524,
+  "conn_state": 0.996717821343032
+ }
+}

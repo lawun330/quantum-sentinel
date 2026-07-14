@@ -1,0 +1,110 @@
+{
+ "dataset": "TON_IoT",
+ "seed": 42,
+ "checkpoint": "datasets/TON_IoT/unified/processed/TON_IoT_unified.parquet",
+ "mode": "unified",
+ "s0_validate": {
+  "rows": 87352,
+  "gates": "pass"
+ },
+ "s2_engineer": {
+  "families": {
+   "web_injection": 26788,
+   "benign": 21774,
+   "bruteforce_password": 14504,
+   "ddos": 11280,
+   "dos": 6048,
+   "recon": 4213,
+   "backdoor_malware_ransomware": 1743,
+   "spoofing_mitm": 1002
+  }
+ },
+ "s3_groups": {
+  "timing": 6,
+  "rate": 3,
+  "volume": 6,
+  "flags_state": 2
+ },
+ "s7_split": {
+  "train": 61142,
+  "val": 8734,
+  "calibration": 8734,
+  "test": 8734,
+  "zeroday": 8
+ },
+ "s7_zero_day_labels": [
+  "ransomware"
+ ],
+ "s7b_postprune_dupes_dropped": {
+  "train": 834,
+  "val": 229,
+  "calibration": 242,
+  "test": 253,
+  "zeroday": 7
+ },
+ "s6_quantum": {
+  "corr_pruned": 0,
+  "n_features": 17,
+  "budgets": {
+   "4": 4,
+   "8": 8,
+   "12": 12,
+   "16": 16
+  }
+ },
+ "s5_balance": {
+  "train": 60308,
+  "train_balanced": 60308,
+  "capped_classes": []
+ },
+ "s8_gates": "pass (disjoint splits, zero-day isolated, rare classes kept, 0 NaN)",
+ "per_class_split": {
+  "train": {
+   "normal": 15243,
+   "injection": 13084,
+   "password": 9886,
+   "ddos": 7893,
+   "xss": 5651,
+   "dos": 3997,
+   "scanning": 2860,
+   "backdoor": 994,
+   "mitm": 700
+  },
+  "val": {
+   "normal": 2177,
+   "injection": 1868,
+   "password": 1389,
+   "ddos": 1127,
+   "xss": 808,
+   "dos": 522,
+   "scanning": 400,
+   "backdoor": 114,
+   "mitm": 100
+  },
+  "calibration": {
+   "normal": 2176,
+   "injection": 1870,
+   "password": 1393,
+   "ddos": 1125,
+   "xss": 807,
+   "dos": 529,
+   "scanning": 394,
+   "backdoor": 99,
+   "mitm": 99
+  },
+  "test": {
+   "normal": 2177,
+   "injection": 1870,
+   "password": 1391,
+   "ddos": 1125,
+   "xss": 807,
+   "dos": 516,
+   "scanning": 401,
+   "mitm": 100,
+   "backdoor": 94
+  },
+  "zeroday": {
+   "ransomware": 1
+  }
+ }
+}

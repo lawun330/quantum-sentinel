@@ -1,0 +1,47 @@
+{
+  "dataset": "Edge-IIoTset",
+  "gates": {
+    "schema_contract": "pass",
+    "no_nan": "pass",
+    "split_disjoint": "pass",
+    "zero_day_isolation": "pass",
+    "label_sanity": "pass",
+    "encoder_leakage_safe": "pass",
+    "scaler_leakage_safe": "pass",
+    "row_conservation": "pass"
+  },
+  "passed": true,
+  "feature_columns": [
+    "duration",
+    "n_pkts_total",
+    "n_bytes_total",
+    "src_pkts",
+    "dst_pkts",
+    "src_bytes",
+    "dst_bytes",
+    "rate",
+    "rate_src",
+    "rate_dst",
+    "pkt_size_min",
+    "pkt_size_max",
+    "pkt_size_mean",
+    "pkt_size_std",
+    "iat",
+    "protocol",
+    "conn_state"
+  ],
+  "split_rows": {
+    "train": 11158,
+    "val": 1575,
+    "calibration": 1572,
+    "test": 1570,
+    "zeroday": 2
+  },
+  "dedup_audit": {
+    "rows_in": 152210,
+    "rows_after_projection_dedup": 16141,
+    "feature_dupes_removed": 136069,
+    "s7b_cross_split_dropped": 264,
+    "split_row_sum": 15877
+  }
+}
