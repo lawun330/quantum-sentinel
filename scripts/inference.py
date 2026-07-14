@@ -5,7 +5,21 @@ import torch
 
 from scripts.constants import DEFAULT_CF, DEFAULT_NOISE_RATE, ZERO_DAY
 from scripts.quantum_metrics import fidelity, trace_distance
-from scripts.utils import to_np_x, to_torch_x
+from scripts.utils import expectations_to_tensor, to_np_x, to_torch_x
+
+
+def predict_labels(X, y, theta, classifier_head, forward_circuit, device):
+    """
+    Predict class labels via circuit expectations + classical head.
+    """
+    preds = []
+    with torch.no_grad():
+        for x in X:
+            z, _ = forward_circuit(to_torch_x(x, device=device), theta)
+            z = expectations_to_tensor(z)
+            preds.append(int(classifier_head(z).argmax().item()))
+    y_true = to_np_x(y).astype(int)
+    return y_true, np.asarray(preds)
 
 
 def estimate_lipschitz(X, theta, forward_circuit, n_probe=30, delta=0.05, device=None):

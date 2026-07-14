@@ -1,5 +1,6 @@
 """QS-Net PyTorch modules extracted from training-qs-net-pytorch_v2.0.ipynb."""
 
+from scripts.attacks import ce_loss_on_x, eval_attacked, fgsm_attack, pgd_attack
 from scripts.circuit import build_forward_circuit, create_quantum_device, initialize_weights
 from scripts.conformal import calibrate_threshold, nonconformity_score
 from scripts.constants import DEFAULT_CF, DEFAULT_NOISE_RATE, ZERO_DAY
@@ -11,7 +12,8 @@ from scripts.data import (
     plot_class_balance_bars,
     stratified_head,
 )
-from scripts.inference import estimate_lipschitz, predict_batch, qsnet_infer
+from scripts.hilbert import hilbert_geometry_diagnostics, print_h1_report
+from scripts.inference import estimate_lipschitz, predict_batch, predict_labels, qsnet_infer
 from scripts.logging import to_jsonable, write_history_log
 from scripts.loss import (
     ce_loss_term,
@@ -35,6 +37,7 @@ __all__ = [
     "balanced_sample",
     "build_forward_circuit",
     "calibrate_threshold",
+    "ce_loss_on_x",
     "ce_loss_term",
     "class_balance_table",
     "compute_l_ce",
@@ -43,19 +46,25 @@ __all__ = [
     "compute_prototypes",
     "create_quantum_device",
     "estimate_lipschitz",
+    "eval_attacked",
     "expectations_to_tensor",
+    "fgsm_attack",
     "fidelity",
     "get_torch_device",
     "gradient_variance",
+    "hilbert_geometry_diagnostics",
     "initialize_weights",
     "inter_loss_term",
     "intra_loss_term",
     "load_split",
     "maqt_loss",
     "nonconformity_score",
+    "pgd_attack",
     "plot_class_balance_pie",
     "plot_class_balance_bars",
     "predict_batch",
+    "predict_labels",
+    "print_h1_report",
     "prototype_summary",
     "qsnet_infer",
     "stratified_head",
