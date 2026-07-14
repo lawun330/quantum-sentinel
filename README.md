@@ -51,7 +51,11 @@ Modified versions of the following datasets:
 │                                       ## measure grad after weight update, averages over epoch
 │
 ├── maqt-loss-unit-test-iris.ipynb          # day 10 deliverable
-├── Hilbert-geometry-diagnostics_v1.ipynb   # day 11 deliverable
+├── Hilbert-geometry-diagnostics_v1.ipynb   # day 11 deliverable ## CICIoT2023
+├── fgsm-pgd-prototype.ipynb                # day 12 deliverable
+│                                           ## CICIoT2023 class-weighted 200 data, 10 epochs, 32 batch size
+├── fgsm-pgd-kaggle.ipynb                   # day 12 deliverable
+│                                           ## CICIoT2023 class-weighted all data, 10 epochs, 128 batch size
 └── 
 ```
 
