@@ -52,10 +52,12 @@ Modified versions of the following datasets:
 │
 ├── maqt-loss-unit-test-iris.ipynb          # day 10 deliverable
 ├── Hilbert-geometry-diagnostics_v1.ipynb   # day 11 deliverable ## CICIoT2023
-├── fgsm-pgd-prototype.ipynb                # day 12 deliverable
+├── fgsm-pgd-dummy.ipynb                    # day 12 deliverable
 │                                           ## CICIoT2023 class-weighted 200 data, 10 epochs, 32 batch size
-├── fgsm-pgd-kaggle.ipynb                   # day 12 deliverable
+│
+├── fgsm-pgd-kaggle.ipynb                   # day 12 deliverable (timeout Kaggle version)
 │                                           ## CICIoT2023 class-weighted all data, 10 epochs, 128 batch size
+│
 ├── tune-lambdas.ipynb                      # day 13 deliverable ## CICIoT2023
 ├── training-qs-net-prototypes_v3.0.ipynb   # day 14 deliverable
 │                                           ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch
