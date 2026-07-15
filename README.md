@@ -56,13 +56,17 @@ Modified versions of the following datasets:
 │                                           ## CICIoT2023 class-weighted 200 data, 10 epochs, 32 batch size
 ├── fgsm-pgd-kaggle.ipynb                   # day 12 deliverable
 │                                           ## CICIoT2023 class-weighted all data, 10 epochs, 128 batch size
-└── 
+├── tune-lambdas.ipynb                      # day 13 deliverable ## CICIoT2023
+├── training-qs-net-prototypes_v3.0.ipynb   # day 14 deliverable
+│                                           ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch
+└──
 ```
 
-## Changes with Versions
+## Changes with Versions for QS-Net
 
-- **v1:** first working QS-Net; simpler quantum backend; noise bolted on afterward; fixed readout; PennyLane trains everything.
+- **v1:** first working version; simpler quantum backend; noise bolted on afterward; fixed readout; PennyLane trains everything.
 - **v2.x:** same algorithms, but rebuilt so noise and mixed states are native; classification uses a learnable head; training rides PyTorch; (later: balancing, better epoch logging, file logs).
+- **v3.x:** early stopping, richer logging, class-weighted MAQT train, val monitoring, dual known-test eval (head + pipeline); more script modularization.
 
 ## Tech Stack
 
