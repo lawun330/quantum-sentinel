@@ -7,6 +7,26 @@ from scripts.quantum_metrics import fidelity, trace_distance
 from scripts.utils import to_np_x, to_torch_x
 
 
+def fidelity_gap_proxy(prototypes, l_intra):
+    """
+    Cheap H1 proxy for logging during training.
+    mean_intra ≈ 1 - L_intra; mean_inter = mean pairwise F(ρ_c, ρ_c').
+    """
+    classes = sorted(prototypes)
+    inter_fids = []
+    for i, c in enumerate(classes):
+        for c2 in classes[i + 1 :]:
+            f = fidelity(prototypes[c], prototypes[c2])
+            inter_fids.append(float(f.real.item() if torch.is_tensor(f) else f))
+    mean_intra_fid_proxy = 1.0 - float(l_intra)
+    mean_inter_fid = float(np.mean(inter_fids)) if inter_fids else float("nan")
+    return {
+        "mean_intra_fid_proxy": mean_intra_fid_proxy,
+        "mean_inter_fid": mean_inter_fid,
+        "fidelity_gap_proxy": mean_intra_fid_proxy - mean_inter_fid,
+    }
+
+
 @torch.no_grad()
 def hilbert_geometry_diagnostics(
     theta,

@@ -1,0 +1,133 @@
+{
+  "notebook": "tune-lambdas-demo.ipynb",
+  "history": {
+    "sensitivity": [
+      {
+        "lambda1": 0.0,
+        "lambda2": 0.0,
+        "epochs": 10,
+        "train_sec": 6559.423949935001,
+        "val_macro_f1_last": 0.279026141755363,
+        "val_macro_f1_best": 0.281491624990077,
+        "l_intra_last": 0.20099677408867778,
+        "l_inter_last": -0.8183686247257902,
+        "grad_var_last": 0.001459298083318572,
+        "grad_var_min": 0.0007284317762241699,
+        "barren_plateau_any": false,
+        "barren_plateau_ok": true
+      },
+      {
+        "lambda1": 0.0,
+        "lambda2": 0.1,
+        "epochs": 10,
+        "train_sec": 6559.4767648709985,
+        "val_macro_f1_last": 0.279026141755363,
+        "val_macro_f1_best": 0.281491624990077,
+        "l_intra_last": 0.20099677408867778,
+        "l_inter_last": -0.8183686247257902,
+        "grad_var_last": 0.001459298083318572,
+        "grad_var_min": 0.0007284317762241699,
+        "barren_plateau_any": false,
+        "barren_plateau_ok": true
+      },
+      {
+        "lambda1": 0.1,
+        "lambda2": 0.0,
+        "epochs": 10,
+        "train_sec": 6857.547285050001,
+        "val_macro_f1_last": 0.282175039641103,
+        "val_macro_f1_best": 0.282175039641103,
+        "l_intra_last": 0.19939198875571992,
+        "l_inter_last": -0.8173168946143597,
+        "grad_var_last": 0.0016406688355345977,
+        "grad_var_min": 0.0007487616458092816,
+        "barren_plateau_any": false,
+        "barren_plateau_ok": true
+      },
+      {
+        "lambda1": 0.1,
+        "lambda2": 0.1,
+        "epochs": 10,
+        "train_sec": 6732.391448871,
+        "val_macro_f1_last": 0.282175039641103,
+        "val_macro_f1_best": 0.282175039641103,
+        "l_intra_last": 0.19939198875571992,
+        "l_inter_last": -0.8173168946143597,
+        "grad_var_last": 0.0016406688355345977,
+        "grad_var_min": 0.0007487616458092816,
+        "barren_plateau_any": false,
+        "barren_plateau_ok": true
+      }
+    ]
+  },
+  "extra": {
+    "dataset": "CICIoT2023",
+    "data_path": "data/CICIoT2023/quantum",
+    "split_prefix": "q8",
+    "seed": 42,
+    "epochs": 10,
+    "batch_size": 64,
+    "lr": 0.05,
+    "n_train": 1000,
+    "n_val": 50,
+    "num_qubits": 8,
+    "num_layers": 2,
+    "noise_rate": 0.01,
+    "barren_plateau_var": 1e-06,
+    "lambda1_grid": [
+      0.0,
+      0.1
+    ],
+    "lambda2_grid": [
+      0.0,
+      0.1
+    ],
+    "best_row": {
+      "lambda1": 0.1,
+      "lambda2": 0.0,
+      "epochs": 10,
+      "train_sec": 6857.547285050001,
+      "val_macro_f1_last": 0.282175039641103,
+      "val_macro_f1_best": 0.282175039641103,
+      "l_intra_last": 0.19939198875571992,
+      "l_inter_last": -0.8173168946143597,
+      "grad_var_last": 0.0016406688355345977,
+      "grad_var_min": 0.0007487616458092816,
+      "barren_plateau_any": false,
+      "barren_plateau_ok": true
+    },
+    "class_names": [
+      "Backdoor_Malware",
+      "BenignTraffic",
+      "BrowserHijacking",
+      "CommandInjection",
+      "DDoS-ACK_Fragmentation",
+      "DDoS-HTTP_Flood",
+      "DDoS-ICMP_Flood",
+      "DDoS-ICMP_Fragmentation",
+      "DDoS-PSHACK_Flood",
+      "DDoS-RSTFINFlood",
+      "DDoS-SYN_Flood",
+      "DDoS-SlowLoris",
+      "DDoS-SynonymousIP_Flood",
+      "DDoS-TCP_Flood",
+      "DDoS-UDP_Flood",
+      "DDoS-UDP_Fragmentation",
+      "DNS_Spoofing",
+      "DictionaryBruteForce",
+      "DoS-HTTP_Flood",
+      "DoS-SYN_Flood",
+      "DoS-TCP_Flood",
+      "DoS-UDP_Flood",
+      "MITM-ArpSpoofing",
+      "Recon-HostDiscovery",
+      "Recon-OSScan",
+      "Recon-PingSweep",
+      "Recon-PortScan",
+      "SqlInjection",
+      "Uploading_Attack",
+      "VulnerabilityScan",
+      "XSS"
+    ]
+  }
+}
