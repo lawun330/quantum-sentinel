@@ -58,7 +58,11 @@ Modified versions of the following datasets:
 ├── fgsm-pgd-kaggle.ipynb                   # day 12 deliverable (timeout Kaggle version)
 │                                           ## CICIoT2023 class-weighted all data, 10 epochs, 128 batch size
 │
-├── tune-lambdas.ipynb                      # day 13 deliverable ## CICIoT2023
+├── tune-lambdas-demo.ipynb                 # day 13 deliverable
+├── tune-lambdas-ciciot2023.ipynb           ## CICIoT2023 class-weighted 0.5% of all data, 10 epochs, 64 batch size
+├── tune-lambdas-unsw-nb15.ipynb            ## UNSW-NB15 class-weighted 0.5% of all data, 10 epochs, 32 batch size
+├── tune-lambdas-bot-iot.ipynb              ## BoT_IoT class-weighted 0.5% of all data, 10 epochs, 64 batch size
+│
 ├── training-qs-net-prototypes_v3.0.ipynb   # day 14 deliverable
 │                                           ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch
 └──
