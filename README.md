@@ -26,6 +26,7 @@ Modified versions of the following datasets:
 ├── data/
 ├── img/
 ├── documents/
+├── legacy_scripts/
 ├── scripts/
 │
 ├── setup-guide.md                      # day 1 deliverable
