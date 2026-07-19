@@ -1,0 +1,75 @@
+{
+  "history": {
+    "loss": [
+      2.0803627967834473,
+      1.977750796927577,
+      2.0230991134137293
+    ],
+    "L_CE": [
+      2.0803627967834473,
+      1.9841617345809937,
+      2.0136377811431885
+    ],
+    "L_intra": [
+      0.0,
+      0.2751924542470314,
+      0.30223010182431986
+    ],
+    "L_inter": [
+      0.0,
+      -0.48002388258977546,
+      -0.47217906213873
+    ],
+    "grad_var": [
+      4.354841075837612e-05,
+      9.089239028980955e-05,
+      0.00019386083295103163
+    ],
+    "intra_fid_gap": [
+      1.0,
+      0.7248075457529686,
+      0.6977698981756801
+    ],
+    "inter_trace_dist": [
+      0.4800238825897755,
+      0.47217906213872995,
+      0.4664809719474648
+    ],
+    "epoch_sec": [
+      5.046695622000016,
+      9.38114137399998,
+      9.369854999000154
+    ]
+  },
+  "extra": {
+    "data_path": "data/UNSW-NB15/quantum",
+    "dataset": "UNSW-NB15",
+    "split_prefix": "q8",
+    "target_col": "label_multiclass",
+    "n_train": 40,
+    "class_names": [
+      "Analysis",
+      "Backdoor",
+      "DoS",
+      "Exploits",
+      "Fuzzers",
+      "Generic",
+      "Normal",
+      "Reconnaissance"
+    ],
+    "epochs": 3,
+    "batch_size": 64,
+    "lr": 0.05,
+    "lambda1": 0.5,
+    "lambda2": 0.3,
+    "use_weighted_sampler": true,
+    "noise_rate": 0.01,
+    "num_layers": 2,
+    "num_qubits": 8,
+    "num_classes": 8,
+    "train_total_sec": 23.79769199500015,
+    "loss_last": 2.0230991134137293,
+    "barren_plateau_var": 1e-06,
+    "barren_plateau_any": false
+  }
+}

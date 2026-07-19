@@ -1,0 +1,98 @@
+{
+  "history": {
+    "loss": [
+      3.4389567375183105,
+      3.3659366947807503,
+      3.1204194613421588
+    ],
+    "L_CE": [
+      3.4389567375183105,
+      3.3866958618164062,
+      3.1643651326497397
+    ],
+    "L_intra": [
+      0.32432197913526645,
+      0.47422073616176014,
+      0.42050160358039174
+    ],
+    "L_inter": [
+      -0.5818110386062338,
+      -0.8595651170551202,
+      -0.8473215769925903
+    ],
+    "grad_var": [
+      7.749078819567028e-05,
+      0.00022650655591860414,
+      0.00042983606302489835
+    ],
+    "intra_fid_gap": [
+      0.6756780208647335,
+      0.5257792638382398,
+      0.5794983964196082
+    ],
+    "inter_trace_dist": [
+      0.8631026202038116,
+      0.85068412953828,
+      0.8410797987162354
+    ],
+    "epoch_sec": [
+      38.07457251100004,
+      50.832086750999906,
+      93.52549081400002
+    ]
+  },
+  "extra": {
+    "data_path": "data/CICIoT2023/quantum",
+    "dataset": "CICIoT2023",
+    "split_prefix": "q8",
+    "target_col": "label_multiclass",
+    "n_train": 155,
+    "class_names": [
+      "Backdoor_Malware",
+      "BenignTraffic",
+      "BrowserHijacking",
+      "CommandInjection",
+      "DDoS-ACK_Fragmentation",
+      "DDoS-HTTP_Flood",
+      "DDoS-ICMP_Flood",
+      "DDoS-ICMP_Fragmentation",
+      "DDoS-PSHACK_Flood",
+      "DDoS-RSTFINFlood",
+      "DDoS-SYN_Flood",
+      "DDoS-SlowLoris",
+      "DDoS-SynonymousIP_Flood",
+      "DDoS-TCP_Flood",
+      "DDoS-UDP_Flood",
+      "DDoS-UDP_Fragmentation",
+      "DNS_Spoofing",
+      "DictionaryBruteForce",
+      "DoS-HTTP_Flood",
+      "DoS-SYN_Flood",
+      "DoS-TCP_Flood",
+      "DoS-UDP_Flood",
+      "MITM-ArpSpoofing",
+      "Recon-HostDiscovery",
+      "Recon-OSScan",
+      "Recon-PingSweep",
+      "Recon-PortScan",
+      "SqlInjection",
+      "Uploading_Attack",
+      "VulnerabilityScan",
+      "XSS"
+    ],
+    "epochs": 3,
+    "batch_size": 64,
+    "lr": 0.05,
+    "lambda1": 0.5,
+    "lambda2": 0.3,
+    "use_weighted_sampler": true,
+    "noise_rate": 0.01,
+    "num_layers": 2,
+    "num_qubits": 8,
+    "num_classes": 31,
+    "train_total_sec": 182.43215007599997,
+    "loss_last": 3.1204194613421588,
+    "barren_plateau_var": 1e-06,
+    "barren_plateau_any": false
+  }
+}
