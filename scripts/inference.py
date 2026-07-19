@@ -23,9 +23,17 @@ def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_
     return y_true, np.concatenate(preds)
 
 
-def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta=DEFAULT_DELTA, device=None, batch_size=DEFAULT_BATCH_SIZE):
+def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta=DEFAULT_DELTA,
+                       device=None, batch_size=DEFAULT_BATCH_SIZE, percentile=None, return_ratios=False):
     """
-    Batched estimation of Lipschitz constant from data.
+    Batched estimation of encoder Lipschitz constant from data.
+
+    For each probe x, forms a δ-perturbed twin and records
+    D_tr(ρ(x), ρ(x+δξ)) / δ.
+
+    - By default returns the max ratio (legacy).
+    - Pass percentile (e.g. 95) for the Day-16 robust estimator; 
+    - Set return_ratios=True to also get the full ratio distribution.
     """
     X_np = to_np_batch_x(X)
     if X_np.ndim == 1:
@@ -45,7 +53,17 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
             for j in range(r1.shape[0]):
                 ratios.append(trace_distance(r1[j], r2[j]) / delta)
 
-    return float(torch.max(torch.stack(ratios)).item())
+    ratios_t = torch.stack(ratios)
+    ratios_np = np.asarray([float(r.item()) for r in ratios_t], dtype=np.float64)
+
+    if percentile is None:
+        L_phi = float(torch.max(ratios_t).item())
+    else:
+        L_phi = float(np.percentile(ratios_np, percentile))
+
+    if return_ratios:
+        return L_phi, ratios_np
+    return L_phi
 
 
 def qsnet_infer_single(x, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_RATE,

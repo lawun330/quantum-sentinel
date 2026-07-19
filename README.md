@@ -70,6 +70,11 @@ Modified versions of the following datasets:
 │
 ├── training-qs-net_v3.0.ipynb  ## FULL END-2-END PIPELINE
 │                               ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
+│
+├── # day 16 deliverable
+├── estimate-lipschitz_ciciot2023.ipynb     ## capped sample(5), 10 epochs
+├── estimate-lipschitz_unsw-nb15.ipynb      ## capped sample(), 10 epochs
+├── estimate-lipschitz_bot-iot.ipynb        ## capped sample(), 10 epochs
 └──
 ```
 
