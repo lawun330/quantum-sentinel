@@ -8,32 +8,45 @@ from scripts.constants import DEFAULT_BATCH_SIZE, DEFAULT_EMA_MOMENTUM
 
 class PrototypeBank:
     """
-    Running average of rho(x) per class during MAQT minibatches.
+    Exact class-means (prototypes) of rho under frozen theta.
 
-    For the final, unbiased prototype set.
+    For the final, unbiased prototypes.
     """
 
     def __init__(self, classes):
         self.classes = sorted(classes)
-        self.reset()
+        self.protos = {}
 
-    def reset(self):
-        self._sums = {c: None for c in self.classes}
-        self._counts = {c: 0 for c in self.classes}
+    def compute(self, theta, X, y, forward_circuit, device=None, batch_size=DEFAULT_BATCH_SIZE):
+        """Fill self.protos with exact class means. Returns self.protos."""
+        self.protos = {}
+        y_labels = to_np_y(y).astype(int)
+        with torch.no_grad():
+            for c in self.classes:
+                mask = y_labels == c
+                if not mask.any():
+                    continue
+                X_c = X[mask]
+                proto_sum = None
+                count = 0
+                for i in range(0, len(X_c), batch_size):
+                    x_chunk = to_torch_batch_x(X_c[i:i + batch_size], device=device)
+                    _, rho_chunk = forward_circuit(x_chunk, theta)
+                    chunk_sum = rho_chunk.sum(dim=0)
 
-    def update(self, label, rho):
-        if self._sums[label] is None:
-            self._sums[label] = rho.detach().clone()
-        else:
-            self._sums[label] = self._sums[label] + rho.detach()
-        self._counts[label] += 1
+                    if proto_sum is None:
+                        proto_sum = chunk_sum.detach().clone()
+                    else:
+                        proto_sum = proto_sum + chunk_sum.detach()
 
-    def means(self):
-        return {
-            c: self._sums[c] / self._counts[c]
-            for c in self.classes
-            if self._counts[c] > 0
-        }
+                    count += len(x_chunk)
+
+                    del rho_chunk, chunk_sum    # free memory
+
+                self.protos[c] = proto_sum / count
+                del proto_sum   # free memory
+
+        return self.protos
 
 
 class EMAPrototypeBank:
@@ -41,7 +54,7 @@ class EMAPrototypeBank:
     Note: EMA-target methods such as MoCo and DINO avoid using a same-step updated target,
     instead employing a delayed target to reduce the risk of representational collapse.
 
-    Exponential-moving-average of rho(x) per class, updated every minibatch. 
+    Exponential-moving-average class-means (prototypes) of rho(x), updated every minibatch. 
     
     For the live supervision signal inside the training loop's loss.
     """
@@ -76,42 +89,6 @@ class EMAPrototypeBank:
                     + (1 - self.momentum) * batch_mean.detach()
                 )
         return self.protos
-
-
-def compute_prototypes(theta, X, y, classes, forward_circuit, device=None, batch_size=DEFAULT_BATCH_SIZE):
-    """
-    Build final class prototypes by averaging states over training samples with the frozen theta.
-    """
-    prototypes = {}
-    y_labels = to_np_y(y).astype(int)
-
-    with torch.no_grad():
-        for c in classes:
-            mask = y_labels == c
-            if not mask.any():
-                continue
-
-            X_c = X[mask]
-            proto_sum = None
-            count = 0
-
-            for i in range(0, len(X_c), batch_size):
-                x_chunk = to_torch_batch_x(X_c[i:i + batch_size], device=device)
-
-                _, rho_chunk = forward_circuit(x_chunk, theta)
-                chunk_sum = rho_chunk.sum(dim=0)
-
-                if proto_sum is None:
-                    proto_sum = chunk_sum.detach().clone()
-                else:
-                    proto_sum = proto_sum + chunk_sum.detach()
-                count += len(x_chunk)
-                del rho_chunk, chunk_sum   # free memory
-
-            prototypes[c] = proto_sum / count
-            del proto_sum   # free memory
-
-    return prototypes
 
 
 def prototype_summary(prototypes, class_names=None):

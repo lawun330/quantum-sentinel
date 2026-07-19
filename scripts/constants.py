@@ -1,7 +1,11 @@
 """Shared constants for QS-Net training and inference."""
 
+# training
 DEFAULT_SEED = 42                       # (data.py, hilbert.py)
 DEFAULT_BATCH_SIZE = 64                 # (inference.py, hilbert.py, conformal.py, prototypes.py, attacks.py)
+DEFAULT_LR = 0.05                       # learning rate # (train.py)
+DEFAULT_EPOCHS = 10                     # epochs # (train.py)
+DEFAULT_GRAD_CLIP_NORM = 1.0            # gradient clip norm # (train.py)
 
 # plotting
 DEFAULT_MIN_PCT = 5.0                   # pie chart label cutoff % # (data.py)

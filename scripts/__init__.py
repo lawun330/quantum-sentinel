@@ -48,7 +48,6 @@ from scripts.loss import (
 from scripts.prototypes import (
     EMAPrototypeBank,
     PrototypeBank,
-    compute_prototypes,
     prototype_summary,
 )
 from scripts.quantum_metrics import fidelity, trace_distance
@@ -80,7 +79,6 @@ __all__ = [
     "compute_l_ce",
     "compute_l_inter",
     "compute_l_intra",
-    "compute_prototypes",
     "create_quantum_device",
     "curriculum_weight",
     "default_score_fn",
