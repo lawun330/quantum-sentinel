@@ -34,18 +34,18 @@ Modified versions of the following datasets:
 ├── training-iris.ipynb                 # day 3 deliverable
 │
 ├── # day 4, 5, 6, 7 deliverables ## TON IoT
-├── training-qs-net_v1.ipynb            ## FULL END-2-END PIPELINE
+├── training-qs-net_v1.ipynb            ## FULL END2END PIPELINE
 │
 ├── # day 8, 9 deliverables ## use PennyLane + PyTorch ## TON IoT
-├── training-qs-net-pytorch_v2.0.ipynb  ## FULL END-2-END PIPELINE
+├── training-qs-net-pytorch_v2.0.ipynb  ## FULL END2END PIPELINE
 │                                       ## epoch curve uses last minibatch only
 │                                       ## measure grad during weight update, averages over epoch
 │
-├── training-qs-net-pytorch_v2.1.ipynb  ## FULL END-2-END PIPELINE
+├── training-qs-net-pytorch_v2.1.ipynb  ## FULL END2END PIPELINE
 │                                       ## epoch curve uses last minibatch only 
 │                                       ## measure grad during weight update, averages over epoch
 │
-├── training-qs-net-pytorch_v2.2.ipynb  ## FULL END-2-END PIPELINE
+├── training-qs-net-pytorch_v2.2.ipynb  ## FULL END2END PIPELINE
 │                                       ## added logging ## utilize "legacy_scripts/"
 │                                       ## epoch curve averages all minibatches
 │                                       ## measure grad after weight update, averages over epoch
@@ -68,13 +68,15 @@ Modified versions of the following datasets:
 ├── qs-net-prototypes_unsw-nb15.ipynb
 ├── qs-net-prototypes_bot-iot.ipynb
 │
-├── training-qs-net_v3.0.ipynb  ## FULL END-2-END PIPELINE
+├── training-qs-net_v3.0.ipynb  ## FULL END2END PIPELINE
 │                               ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
 │
 ├── # day 16 deliverable
-├── estimate-lipschitz_ciciot2023.ipynb     ## capped sample(5), 10 epochs
-├── estimate-lipschitz_unsw-nb15.ipynb      ## capped sample(), 10 epochs
-├── estimate-lipschitz_bot-iot.ipynb        ## capped sample(), 10 epochs
+├── estimate-lipschitz_ciciot2023.ipynb     ## capped sample(100), ~2800 data, 10 epochs
+├── estimate-lipschitz_unsw-nb15.ipynb      ## capped sample(400), ~2800 data, 10 epochs
+├── estimate-lipschitz_bot-iot.ipynb        ## capped sample(700), ~2800 data, 10 epochs
+│
+├── training-qs-net_v4.0.ipynb ## FULL END2END PIPELINE
 └──
 ```
 
