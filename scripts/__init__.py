@@ -50,7 +50,13 @@ from scripts.prototypes import (
     PrototypeBank,
     prototype_summary,
 )
-from scripts.quantum_metrics import fidelity, trace_distance
+from scripts.quantum_metrics import (
+    fidelity,
+    fidelity_pairwise,
+    max_fidelity_to_prototypes,
+    stack_prototypes,
+    trace_distance,
+)
 from scripts.sweep import default_score_fn, run_sweep
 from scripts.utils import (
     expectations_to_tensor,
@@ -88,6 +94,7 @@ __all__ = [
     "fgsm_attack",
     "fidelity",
     "fidelity_gap_proxy",
+    "fidelity_pairwise",
     "focal_ce",
     "get_torch_device",
     "gradient_variance",
@@ -100,6 +107,7 @@ __all__ = [
     "load_split",
     "logits_from_batch",
     "maqt_loss",
+    "max_fidelity_to_prototypes",
     "nonconformity_score",
     "pgd_attack",
     "plot_class_balance_bars",
@@ -111,6 +119,7 @@ __all__ = [
     "qsnet_infer_single",
     "robustness_ablation",
     "run_sweep",
+    "stack_prototypes",
     "stratified_head",
     "to_jsonable",
     "to_np_batch_x",
