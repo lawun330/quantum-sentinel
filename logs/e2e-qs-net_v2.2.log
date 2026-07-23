@@ -1,5 +1,5 @@
 {
-  "notebook": "training-qs-net-pytorch_v2.2.ipynb",
+  "notebook": "e2e-qs-net_v2.2.ipynb",
   "history": {
     "loss": [
       2.479190552512664,
