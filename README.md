@@ -65,15 +65,19 @@ Modified versions of the following datasets:
 │   ├── 14.maqt-prototypes_unsw-nb15.ipynb
 │   └── 14.maqt-prototypes_bot-iot.ipynb
 │
-├── 15.depolarizing-channel.ipynb           # day 15 deliverable
+├── 15.depolarizing-channel.ipynb           # day 15 deliverable ## no dataset
 │
 ├── # day 16 deliverable
 │   ├── 16.estimate-lipschitz_ciciot2023.ipynb     ## capped sample(100), ~2800 data, 10 epochs
 │   ├── 16.estimate-lipschitz_unsw-nb15.ipynb      ## capped sample(400), ~2800 data, 10 epochs
 │   └── 16.estimate-lipschitz_bot-iot.ipynb        ## capped sample(700), ~2800 data, 10 epochs
 │
-├── # day 17 deliverable
+├── 17.certified-radius.ipynb               # day 17 deliverable ## CICIoT2023
+│
 ├── # day 18 deliverable
+│   ├── 18.fin-fout-epsstar_ciciot2023.ipynb       ##
+│   ├── 18.fin-fout-epsstar_unsw-nb15.ipynb        ##
+│   └── 18.fin-fout-epsstar_bot-iot.ipynb          ##
 │
 ├── e2e-qs-net_v3.0.ipynb   ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
 ├── e2e-qs-net_v4.0.ipynb   ##
