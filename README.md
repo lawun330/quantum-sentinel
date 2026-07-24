@@ -65,7 +65,7 @@ Modified versions of the following datasets:
 │   ├── 14.maqt-prototypes_unsw-nb15.ipynb
 │   └── 14.maqt-prototypes_bot-iot.ipynb
 │
-├── # day 15 deliverable
+├── 15.depolarizing-channel.ipynb           # day 15 deliverable
 │
 ├── # day 16 deliverable
 │   ├── 16.estimate-lipschitz_ciciot2023.ipynb     ## capped sample(100), ~2800 data, 10 epochs

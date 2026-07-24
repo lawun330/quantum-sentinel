@@ -100,3 +100,20 @@ def trace_distance(rho_a, rho_b):
         td = td.real if torch.is_complex(td) else td
         return torch.clamp(td, 0.0, 1.0)
     return min(max(float(td), 0.0), 1.0)
+
+
+def depolarizing_channel(rho, p):
+    """
+    Global n-qubit depolarizing channel for Proposition 1.
+
+    Contracts every pair of states by exactly (1-p) under the trace distance.
+    """
+    if not (0.0 <= float(p) <= 1.0):
+        raise ValueError(f"p must be in [0, 1], got {p}")
+
+    rho = _as_complex_hermitian(rho)
+    d = rho.shape[-1]
+    eye = torch.eye(d, dtype=rho.dtype, device=rho.device)
+    while eye.ndim < rho.ndim:
+        eye = eye.unsqueeze(0)
+    return (1.0 - p) * rho + p * eye / d

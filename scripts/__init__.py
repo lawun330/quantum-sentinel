@@ -51,6 +51,7 @@ from scripts.prototypes import (
     prototype_summary,
 )
 from scripts.quantum_metrics import (
+    depolarizing_channel,
     fidelity,
     fidelity_pairwise,
     max_fidelity_to_prototypes,
@@ -88,6 +89,7 @@ __all__ = [
     "create_quantum_device",
     "curriculum_weight",
     "default_score_fn",
+    "depolarizing_channel",
     "estimate_lipschitz",
     "eval_attacked",
     "expectations_to_tensor",
