@@ -1,4 +1,14 @@
-"""Quantum state distance and similarity metrics."""
+"""Quantum state distance and similarity metrics.
+
+Fidelity convention (see Theoretical_Results.pdf, Section 1): all fidelities
+returned by this module are the NON-SQUARED Uhlmann fidelity
+    F(rho, sigma) = tr( sqrt( sqrt(rho) sigma sqrt(rho) ) )  in [0, 1].
+pennylane's qml.math.fidelity() returns the SQUARED quantity F^2, so fidelity()
+takes an explicit sqrt() to convert. fidelity_pairwise() is a from-scratch batched
+implementation and must NOT square its result. Every fidelity-based quantity in the
+codebase (nonconformity score, F_in/F_out, intra/inter-class diagnostics, Proposition
+2's epsilon*) depends on this convention being consistent everywhere.
+"""
 
 import pennylane as qp
 import torch
@@ -8,20 +18,17 @@ from scripts.constants import DEFAULT_EPS
 
 def fidelity(rho_a, rho_b, eps=DEFAULT_EPS):
     """
-    Non-squared Uhlmann fidelity between two density matrices, clamped to [0, 1-eps] to avoid numerical instability.
-
-    PennyLane returns the squared Uhlmann fidelity -> take the square root.
-
-    F(rho, sigma) = tr( sqrt( sqrt(rho) * sigma * sqrt(rho) ) )
+    Non-squared Uhlmann fidelity F(rho,sigma) = tr(sqrt(sqrt(rho) sigma sqrt(rho))),
+    clamped to [0, 1-eps]. qml.math.fidelity returns F^2, hence the sqrt() below.
     """
-    squared_f = qp.math.fidelity(rho_a, rho_b)
-    if torch.is_tensor(squared_f):
-        squared_f = squared_f.real if torch.is_complex(squared_f) else squared_f
-        squared_f = torch.clamp(squared_f, min=0.0) # ensure non-negative before taking the square root
-        f = torch.sqrt(squared_f) # take the square root
+    f_sq = qp.math.fidelity(rho_a, rho_b)
+    if torch.is_tensor(f_sq):
+        f_sq = f_sq.real if torch.is_complex(f_sq) else f_sq
+        f_sq = torch.clamp(f_sq, min=0.0)
+        f = torch.sqrt(f_sq)
         return torch.clamp(f, 0.0, 1.0 - eps)
-    squared_f = max(float(squared_f), 0.0) # ensure non-negative before taking the square root
-    f = squared_f ** 0.5 # take the square root
+    f_sq = max(float(f_sq), 0.0)
+    f = f_sq ** 0.5
     return min(f, 1.0 - eps)
 
 
@@ -45,7 +52,8 @@ def _psd_sqrt(mat):
 
 def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
     """
-    Batched non-squared Uhlmann fidelity with torch broadcasting.
+    Batched, NON-SQUARED Uhlmann fidelity with torch broadcasting:
+    F(rho, sigma) = tr( sqrt( sqrt(rho) sigma sqrt(rho) ) ).
 
     rho, sigma: (..., d, d) broadcastable against each other.
     Returns real fidelities clamped to [0, 1-eps] with leading broadcast shape.
@@ -56,7 +64,7 @@ def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
     mid = sqrt_rho @ sigma @ sqrt_rho
     evals = torch.linalg.eigvalsh(_as_complex_hermitian(mid))
     evals = torch.clamp(evals.real, min=0.0)
-    fid = torch.sqrt(evals).sum(dim=-1) # no squaring
+    fid = torch.sqrt(evals).sum(dim=-1)          # NOTE: no ** 2 here -- non-squared F
     return torch.clamp(fid.real, 0.0, 1.0 - eps)
 
 
@@ -75,7 +83,7 @@ def stack_prototypes(prototypes, device=None, dtype=None):
 
 def max_fidelity_to_prototypes(rho_batch, proto_stack, eps=DEFAULT_EPS):
     """
-    Max fidelity of each state in a batch against a prototype stack.
+    Max fidelity of each state in a batch against a prototype stack: F_max(x) (Section 1).
 
     Loops over classes (usually few) and batches over samples to avoid a
     (B, C, d, d) memory blow-up on larger qubit counts.
@@ -101,7 +109,9 @@ def max_fidelity_to_prototypes(rho_batch, proto_stack, eps=DEFAULT_EPS):
 
 def trace_distance(rho_a, rho_b):
     """
-    Trace distance between two density matrices, clamped to [0, 1].
+    Trace distance D_tr(rho,sigma) = (1/2)||rho-sigma||_1, clamped to [0, 1].
+    Matches Section 1's definition directly (qml.math.trace_distance uses the same
+    convention), so no correction is needed here.
     """
     td = qp.math.trace_distance(rho_a, rho_b)
     if torch.is_tensor(td):

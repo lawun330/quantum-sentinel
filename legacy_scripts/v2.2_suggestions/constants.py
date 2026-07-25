@@ -46,12 +46,8 @@ DEFAULT_CONTROL_BATCH_SIZE = 16         # plain-CE baseline batch size # (attack
 DEFAULT_LOG_DIR = "logs"                # (logging.py)
 DEFAULT_SWEEP_LOG_DIR = DEFAULT_LOG_DIR + "/sweeps"  # (logging.py)
 
-# theory for Propositions
-INPUT_DIM_D = 8                         # nominal feature dimension d (Section 1 conventions) # (theory.py)
 
-DEFAULT_MIX = 0.5                       # random density matrix mixing factor (Section 2, Proposition 1) # (theory.py)
-DEFAULT_N_PAIRS = 64                    # Proposition 1 numerical pairs (Section 2, Proposition 1) # (theory.py)
-DEFAULT_P_VALS = (0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0) # Proposition 1 p values (Section 2, Proposition 1) # (theory.py)
-PROP1_RESIDUAL_TOL = 1e-10              # Proposition 1 exact-identity tolerance (Section 2, Proposition 1) # (theory.py)
-
-DEFAULT_BETA = 0.05                     # quantile-relaxed zero-day fraction (Section 3.5, Corollary 1) # (theory.py)
+# theory.py / Proposition 2 & 3 support
+DEFAULT_BETA = 0.05                     # quantile-relaxed zero-day fraction (Corollary 1) # (theory.py)
+PROP1_RESIDUAL_TOL = 1e-9               # Proposition 1 exact-identity tolerance # (theory.py)
+INPUT_DIM_D = 8                          # nominal feature dimension d (Section 1 conventions) # (theory.py)

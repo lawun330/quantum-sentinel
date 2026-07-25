@@ -10,11 +10,8 @@ from scripts.utils import to_torch_batch_x
 
 def nonconformity_score(X, theta, prototypes, forward_circuit, device=None, batch_size=DEFAULT_BATCH_SIZE):
     """
-    (Section 5, Proposition 3)
-    Compute one conformal nonconformity score per sample in X: s(x) = 1 - F_max(x).
-
-    Runs forward_circuit in internal mini-batches and compares each rho(x)
-    to the full prototype bank (max over classes).
+    Compute one conformal nonconformity score per sample in X: s(x) = 1 - F_max(x)
+    (Proposition 3), using the non-squared fidelity convention (Section 1).
     """
     scores = []
     _, proto_stack = stack_prototypes(prototypes)
@@ -30,19 +27,17 @@ def nonconformity_score(X, theta, prototypes, forward_circuit, device=None, batc
 
 
 def min_calibration_size(alpha):
-    """
-    (Section 5.1, Proposition 3)
-    n >= (1/alpha) - 1 is required for a valid threshold to exist.
-    """
-    return ((1.0 / alpha) - 1.0)
+    """Proposition 3, Section 5.1: n >= 1/alpha - 1 is required for a valid threshold to exist."""
+    return 1.0 / alpha - 1.0
 
 
 def calibrate_threshold(theta, X_cal, prototypes, forward_circuit, alpha=DEFAULT_ALPHA, device=None, batch_size=DEFAULT_BATCH_SIZE):
     """
-    (Section 5.1, Proposition 3)
-    Calibrate the CQ-ZDR threshold, q, from the calibration split.
+    Calibrate the CQ-ZDR threshold q from the calibration split (Proposition 3).
 
-    Abstain if n < min_calibration_size(alpha), don't fall back to the max score.
+    Per Section 5.1: if n is too small for the chosen alpha, no valid threshold
+    exists and the method must ABSTAIN (raise) rather than silently fall back to
+    the largest calibration score.
     """
     if X_cal is None or len(X_cal) == 0:
         raise ValueError("X_cal must contain at least one sample for conformal calibration (n == 0)")
@@ -59,11 +54,11 @@ def calibrate_threshold(theta, X_cal, prototypes, forward_circuit, alpha=DEFAULT
     if k > n - 1:
         raise ValueError(
             f"Calibration set too small for alpha={alpha}: n={n}, but Proposition 3 "
-            f"requires n >= (1/alpha) - 1 = {min_calibration_size(alpha):.2f}. "
-            "Abstaining rather than using the largest calibration score."
+            f"requires n >= 1/alpha - 1 = {min_calibration_size(alpha):.1f}. "
+            "Abstaining rather than silently using the largest calibration score -- "
+            "collect more calibration data or increase alpha."
         )
     k = max(k, 0)
-
     q = float(scores_sorted[k])
     return q, scores_sorted
 
@@ -71,10 +66,9 @@ def calibrate_threshold(theta, X_cal, prototypes, forward_circuit, alpha=DEFAULT
 def conformal_alpha_sweep(theta, X_cal, X_test_known, prototypes, forward_circuit,
                            alphas=(0.01, 0.05, 0.1, 0.2), device=None, batch_size=DEFAULT_BATCH_SIZE):
     """
-    (Section 5, Proposition 3, Eq. 5) - (Team-A Day-16 diagnostic)
-
-    For each alpha, calibrate q and report the achieved (empirical) false-zero-day rate
-    on a held-out known-class set, to check it tracks the target alpha.
+    Team-A Day-16 diagnostic: for each alpha, calibrate q and report the achieved
+    (empirical) false-zero-day rate on a held-out known-class set, to check it
+    tracks the target alpha (Proposition 3, Eq. 5).
     """
     test_scores = nonconformity_score(X_test_known, theta, prototypes, forward_circuit,
                                        device=device, batch_size=batch_size)
