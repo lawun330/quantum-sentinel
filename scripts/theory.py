@@ -1,18 +1,17 @@
 """
-
-
-  - Proposition 1 (noise contraction): depolarizing channel + exact-identity check.
-  - Section 4 (Lipschitz constant for angle encoding): analytic bound L_phi = R/2,
-    with the sampled-ratio estimator demoted to a tightness diagnostic only.
-  - Proposition 2 (adversarial-novelty separation): worst-case F_in / F_out, the gap
-    Delta, epsilon*, and the quantile-relaxed Corollary 1 (F_out^(beta), epsilon^(beta)).
-  - Section 3.1 note: L2 <-> L_inf perturbation-budget conversion for d-dim inputs.
-  - Attacks that target the CQ-ZDR novelty score directly (Section 3, "empirical
-    breakpoint"), as opposed to attacks.py's classifier-head CE-loss attacks.
-  - Proposition 3 support: a two-sample exchangeability (AUROC) diagnostic
-    (min_calibration_size itself lives in conformal.py, re-exported here for
-    convenience).
-
+Based on Theorectical Results, the script implements the following:
+- [Section 1, Eq. 1]: fidelity-convention and Fuchs-van de Graaf self-check.
+- [Section 2, Proposition 1]: global depolarizing channel and contraction checks.
+- [Section 2, Proposition 1]: p-regularizer contraction curve.
+- [Section 3.1, Proposition 2, A2]: known-class F_in / F_max collection and worst-case F_in.
+- [Section 3.1, Proposition 2]: zero-day F_max / F_out collection.
+- [Section 3.1, Proposition 2]: gap Delta and epsilon*.
+- [Section 3.5, Proposition 2, A3', Corollary 1]: quantile F_out^(beta) and epsilon^(beta).
+- [Section 3.1, Proposition 2]: FGSM/PGD attacks on the CQ-ZDR novelty score.
+- [Section 3.1, A1]: L2 <-> L_inf perturbation-budget conversion.
+- [Section 3.1, A1] / [Section 4, Lemma 1]: analytic L_phi = R/2 and sampled-ratio tightness check.
+- [Section 5, Proposition 3]: two-sample exchangeability (AUROC) diagnostic.
+- [Section 5, Proposition 3]: re-exports nonconformity_score and min_calibration_size from conformal.py.
 """
 
 import math
@@ -455,9 +454,18 @@ def check_lipschitz_tightness(diag, l_phi_bound):
 # --------------------------------------------------------------------------------------
 
 def linf_to_l2_budget(eps_inf, d=INPUT_DIM_D):
-    """||delta||_2 <= sqrt(d) ||delta||_inf."""
+    """
+    (Section 3.1, A1)
+    ||delta||_2 <= sqrt(d) ||delta||_inf.
+    Convert L_inf perturbation budget to L_2 budget.
+    """
     return math.sqrt(d) * eps_inf
 
 
 def l2_to_linf_budget(eps_2, d=INPUT_DIM_D):
+    """
+    (Section 3.1, A1)
+    ||delta||_inf >= ||delta||_2 / sqrt(d).
+    Convert L_2 perturbation budget to L_inf budget.
+    """
     return eps_2 / math.sqrt(d)
