@@ -1,0 +1,51 @@
+{
+  "history": {
+    "eps_star_own": [
+      -0.5009228824217791
+    ],
+    "eps_star_fmax": [
+      -0.49860895999043175
+    ]
+  },
+  "extra": {
+    "data_path": "data/UNSW-NB15/quantum",
+    "dataset": "UNSW-NB15",
+    "split_prefix": "q8",
+    "target_col": "label_multiclass",
+    "n_train": 2862,
+    "n_test": 10086,
+    "n_zero": 1216,
+    "per_class_cap": 400,
+    "zero_cap": null,
+    "class_names": [
+      "Analysis",
+      "Backdoor",
+      "DoS",
+      "Exploits",
+      "Fuzzers",
+      "Generic",
+      "Normal",
+      "Reconnaissance"
+    ],
+    "noise_rate": 0.01,
+    "num_layers": 2,
+    "num_qubits": 8,
+    "num_classes": 8,
+    "L_phi": 1.0,
+    "beta": 0.05,
+    "F_out": 0.9999998807907104,
+    "F_out_beta": 0.9958915114402771,
+    "F_in_own": 0.12758666165395333,
+    "Delta_own": -0.9918273071951226,
+    "eps_star_own": -0.5009228824217791,
+    "eps_star_beta_own": -0.4988479484064087,
+    "A5_own": false,
+    "F_in_fmax": 0.15920305252075195,
+    "Delta_fmax": -0.9872457407810549,
+    "eps_star_fmax": -0.49860895999043175,
+    "eps_star_beta_fmax": -0.49653402597506135,
+    "A5_fmax": false,
+    "checkpoint": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-checkpoint.pt",
+    "lphi_path": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-lphi.pt"
+  }
+}
