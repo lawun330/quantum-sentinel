@@ -83,3 +83,22 @@ def expectations_to_tensor(z):
     if torch.is_tensor(z):
         return z.float()
     return torch.stack(z, dim=1).float()
+
+
+def _as_bound_tensor(bound, device):
+    """
+    Transforms a bound (None / a python scalar / a tensor) into a device-matched tensor (or None).
+    """
+    if bound is None:
+        return None    # None -> None
+    if torch.is_tensor(bound):
+        return bound.to(device=device) if device is not None else bound    # tensor -> tensor
+    return torch.tensor(float(bound), device=device)    # scalar -> tensor
+
+
+def _clear_cuda_cache_if_needed(device):
+    """
+    Clears the CUDA cache if needed to keep memory flat across a long sweep.
+    """
+    if device is not None and torch.cuda.is_available() and "cuda" in str(device):
+        torch.cuda.empty_cache()

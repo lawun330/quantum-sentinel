@@ -26,6 +26,9 @@ def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_
 def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta=DEFAULT_DELTA,
                        device=None, batch_size=DEFAULT_BATCH_SIZE, percentile=None, return_ratios=False):
     """
+    DEPRECATED for certificates / Day-16 deliverable.
+    USE `theory.estimate_lipschitz_percentile()` instead.
+
     Batched estimation of encoder Lipschitz constant from data.
 
     For each probe x, forms a δ-perturbed twin and records
