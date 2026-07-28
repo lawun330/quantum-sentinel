@@ -26,6 +26,7 @@ Modified versions of the following datasets:
 ├── data/
 ├── img/
 ├── documents/
+├── legacy_notebooks/
 ├── legacy_scripts/
 ├── scripts/
 │
@@ -72,12 +73,17 @@ Modified versions of the following datasets:
 │   ├── 16.estimate-lipschitz_unsw-nb15.ipynb      ## capped sample(400), ~2800 data, 10 epochs
 │   └── 16.estimate-lipschitz_bot-iot.ipynb        ## capped sample(700), ~2800 data, 10 epochs
 │
-├── 17.certified-radius.ipynb               # day 17 deliverable ## CICIoT2023
+├── 17.certified-radius_ciciot2023.ipynb    # day 17 deliverable ## CICIoT2023
 │
 ├── # day 18 deliverable
-│   ├── 18.fin-fout-epsstar_ciciot2023.ipynb       ##
-│   ├── 18.fin-fout-epsstar_unsw-nb15.ipynb        ##
-│   └── 18.fin-fout-epsstar_bot-iot.ipynb          ##
+│   ├── 18.fin-fout-epsstar_ciciot2023.ipynb       ## day 16 settings
+│   ├── 18.fin-fout-epsstar_unsw-nb15.ipynb        ## day 16 settings
+│   └── 18.fin-fout-epsstar_bot-iot.ipynb          ## day 16 settings
+│
+├── # day 19 deliverable
+│   ├── 19.fgsm-pgd-robustness_ciciot2023.ipynb    ## day 16 settings
+│   ├── 19.fgsm-pgd-robustness_unsw-nb15.ipynb     ## day 16 settings
+│   └── 19.fgsm-pgd-robustness_bot-iot.ipynb       ## day 16 settings
 │
 ├── e2e-qs-net_v3.0.ipynb   ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
 ├── e2e-qs-net_v4.0.ipynb   ##
