@@ -1,0 +1,43 @@
+{
+  "history": {
+    "bp_fgsm_l2": [
+      0.28284271247461906
+    ]
+  },
+  "extra": {
+    "data_path": "data/UNSW-NB15/quantum",
+    "dataset": "UNSW-NB15",
+    "split_prefix": "q8",
+    "target_col": "label_multiclass",
+    "n_train": 2862,
+    "n_cal": 10112,
+    "n_test": 10086,
+    "n_attack": 300,
+    "per_class_cap": 400,
+    "class_names": [
+      "Analysis",
+      "Backdoor",
+      "DoS",
+      "Exploits",
+      "Fuzzers",
+      "Generic",
+      "Normal",
+      "Reconnaissance"
+    ],
+    "noise_rate (p)": 0.01,
+    "num_layers": 2,
+    "num_qubits": 8,
+    "num_classes": 8,
+    "L_phi": 1.0,
+    "C_f": 1.0,
+    "alpha": 0.05,
+    "q": 0.5477786064147949,
+    "accept_thresh": 0.99,
+    "bp_fgsm_l2": 0.28284271247461906,
+    "bp_pgd_l2": 0.28284271247461906,
+    "eps_star_day18": -0.49860895999043175,
+    "eps_star_beta_day18": -0.49653402597506135,
+    "checkpoint": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-checkpoint.pt",
+    "lphi_path": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-lphi.pt"
+  }
+}

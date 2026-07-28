@@ -1,0 +1,39 @@
+{
+  "history": {
+    "bp_fgsm_l2": [
+      0.028284271247461905
+    ]
+  },
+  "extra": {
+    "data_path": "data/BoT_IoT/quantum",
+    "dataset": "BoT_IoT",
+    "split_prefix": "q8",
+    "target_col": "label_multiclass",
+    "n_train": 2800,
+    "n_cal": 18591,
+    "n_test": 18591,
+    "n_attack": 300,
+    "per_class_cap": 700,
+    "class_names": [
+      "DDoS",
+      "DoS",
+      "Normal",
+      "Reconnaissance"
+    ],
+    "noise_rate (p)": 0.01,
+    "num_layers": 2,
+    "num_qubits": 8,
+    "num_classes": 4,
+    "L_phi": 1.0,
+    "C_f": 1.0,
+    "alpha": 0.05,
+    "q": 0.12407523393630981,
+    "accept_thresh": 0.99,
+    "bp_fgsm_l2": 0.028284271247461905,
+    "bp_pgd_l2": 0.14142135623730953,
+    "eps_star_day18": -0.451494270492395,
+    "eps_star_beta_day18": -0.40059085926776,
+    "checkpoint": "models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
+    "lphi_path": "models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-lphi.pt"
+  }
+}
