@@ -9,17 +9,38 @@ from scripts.constants import DEFAULT_SEED, DEFAULT_MIN_PCT
 from scripts.utils import to_np_y
 
 
-def load_split(data_path, name, column_name, categories):
+def load_split(data_path, name, column_name, categories, csv=False, selected_cols=None, return_df=False):
     """
-    Load a split of the dataset from a parquet file.
-    """
-    df = pd.read_parquet(f"{data_path}/{name}.parquet")
-    df = df[df[column_name].notna()].copy()
+    Load a split of the dataset from a csv or parquet file.
 
-    feature_cols = [c for c in df.columns if not c.startswith("label")]
+    - data_cols: list of ALL columns in the dataset
+    - selected_cols: list of columns to select from the dataset (e.g. FROZEN features)
+    - feature_cols: list of columns to use as features that may or may not be explicitly selected
+    """
+    if csv:
+        df = pd.read_csv(f"{data_path}/{name}.csv")
+    else:
+        df = pd.read_parquet(f"{data_path}/{name}.parquet")
+    df = df[df[column_name].notna()].copy()
+    data_cols = list(df.columns)
+
+    if selected_cols is None:
+        # no feature selection, use all columns except the label column
+        feature_cols = [c for c in data_cols if not c.startswith("label")]
+    else:
+        # feature selection, check if any label column is selected
+        if any(c.startswith("label") for c in selected_cols):
+            raise ValueError("Label column cannot be selected for feature selection")
+        # check if all selected columns are in the dataset
+        missing_cols = set(selected_cols) - set(data_cols)
+        if missing_cols:
+            raise ValueError(f"Columns {missing_cols} not found in dataset")
+        # use only the selected columns
+        feature_cols = list(selected_cols)
     X = df[feature_cols].values
     y = pd.Categorical(df[column_name], categories=categories).codes
-
+    if return_df:
+        return X, y, df[feature_cols + [column_name]].copy()
     return X, y
 
 

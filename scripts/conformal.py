@@ -90,10 +90,11 @@ def conformal_alpha_sweep(theta, X_cal, X_test_known, prototypes, forward_circui
     """
     test_scores = nonconformity_score(X_test_known, theta, prototypes, forward_circuit,
                                        device=device, batch_size=batch_size)
+    cal_scores = nonconformity_score(X_cal, theta, prototypes, forward_circuit,
+                                      device=device, batch_size=batch_size)
     rows = []
     for alpha in alphas:
-        q, _ = calibrate_threshold(theta, X_cal, prototypes, forward_circuit, alpha=alpha,
-                                    device=device, batch_size=batch_size)
+        q, _ = threshold_from_scores(cal_scores, alpha=alpha)
         empirical_far = float(np.mean(test_scores > q))
         rows.append({"alpha": alpha, "q": q, "empirical_false_alarm_rate": empirical_far,
                      "min_calibration_size": min_calibration_size(alpha), "n_cal": len(X_cal)})

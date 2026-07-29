@@ -54,7 +54,7 @@ DEFAULT_N_PAIRS = 64                    # Proposition 1 numerical pairs (Section
 DEFAULT_P_VALS = (0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0) # Proposition 1 p values (Section 2, Proposition 1) # (theory.py)
 PROP1_RESIDUAL_TOL = 1e-10              # Proposition 1 exact-identity tolerance (Section 2, Proposition 1) # (theory.py)
 
-DEFAULT_L_PHI = 0.5                     # fallback L_phi constant value (Section 4) # (theory.py)
+DEFAULT_L_PHI = 1.5                     # fallback L_phi constant value (Section 4) # for 3 layers # (theory.py)
 # DEFAULT_L_PHI = num_layers/2.0        # analytic L_phi bound (Section 4) # (theory.py)
 
 DEFAULT_BETA = 0.05                     # quantile-relaxed zero-day fraction (Section 3.5, Corollary 1) # (theory.py)

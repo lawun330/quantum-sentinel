@@ -365,7 +365,7 @@ def is_eps_safe_to_plot(eps_star):
     return eps_star, True
 
 
-def proposition2_epsilon_robust(F_max_known, F_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE, lower_percentile=DEFAULT_LOWER_PERCENTILE, upper_percentile=DEFAULT_UPPER_PERCENTILE):
+def proposition2_epsilon_robust(F_max_known, F_max_zeroday, p=DEFAULT_NOISE_RATE, L_phi=DEFAULT_L_PHI, lower_percentile=DEFAULT_LOWER_PERCENTILE, upper_percentile=DEFAULT_UPPER_PERCENTILE):
     """
     INVESTIGATION: Symmetric, doubly quantile-relaxed, non-formalized variant of Eq. 3/4.
 
@@ -375,7 +375,7 @@ def proposition2_epsilon_robust(F_max_known, F_max_zeroday, L_phi, p=DEFAULT_NOI
     """
     F_in_robust = robust_f_in(F_max_known, lower_percentile=lower_percentile)
     F_out_robust = robust_f_out(F_max_zeroday, upper_percentile=upper_percentile)
-    delta_robust, eps_robust = proposition2_epsilon_star(F_in_robust, F_out_robust, L_phi, p=p)
+    delta_robust, eps_robust = proposition2_epsilon_star(F_in_robust, F_out_robust, p=p, L_phi=L_phi)
     return F_in_robust, F_out_robust, delta_robust, eps_robust
 
 # --------------------------------------------------------------------------------------
