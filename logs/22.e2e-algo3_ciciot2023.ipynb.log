@@ -1,0 +1,25 @@
+{
+  "history": {
+    "radius_mean": [
+      0.013668585598981072
+    ]
+  },
+  "extra": {
+    "dataset": "CICIoT2023",
+    "notebook": "22.e2e-algo3_ciciot2023.ipynb",
+    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
+    "lphi_path": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt",
+    "q_source": "models/prototypes/CICIoT2023/19.fgsm-pgd-robustness_ciciot2023-artifact.pt",
+    "q": 0.3162590265274048,
+    "alpha": 0.05,
+    "L_phi": 1.0,
+    "p": 0.01,
+    "C_f": 1.0,
+    "pipeline_reject_rate": 0.030000000000000027,
+    "pipeline_acc_accepted": 0.4742268041237113,
+    "pipeline_macro_f1_accepted": 0.16698394508489264,
+    "pipeline_radius_mean_accepted": 0.013668585598981072,
+    "zeroday_detection_rate": 0.87,
+    "n_zeroday_eval": 100
+  }
+}
