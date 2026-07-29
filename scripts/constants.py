@@ -58,3 +58,9 @@ DEFAULT_L_PHI = 0.5                     # fallback L_phi constant value (Section
 # DEFAULT_L_PHI = num_layers/2.0        # analytic L_phi bound (Section 4) # (theory.py)
 
 DEFAULT_BETA = 0.05                     # quantile-relaxed zero-day fraction (Section 3.5, Corollary 1) # (theory.py)
+
+DEFAULT_LOWER_PERCENTILE = 5.0          # lower percentile for robust F_in # (theory.py)
+DEFAULT_UPPER_PERCENTILE = 97.0         # upper percentile for robust F_out # (theory.py)
+
+DEFAULT_CV = 5                          # cross-validation fold count # (theory.py)
+DEFAULT_MAX_ITER = 1000                 # maximum number of iterations for logistic regression # (theory.py)

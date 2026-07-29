@@ -23,15 +23,22 @@ def load_split(data_path, name, column_name, categories):
     return X, y
 
 
-def stratified_head(X, y, n, seed=DEFAULT_SEED):
+def stratified_head(X, y, n, seed=DEFAULT_SEED, return_index=False):
     """
-    Take a stratified subset of size n (or all if n >= len(X))
+    Take a stratified subset of size n (or all if n >= len(X)).
     """
-    if n >= len(X):
-        return X.copy(), y.copy()
-    _, X_sub, _, y_sub = train_test_split(
-        X, y, test_size=n, stratify=y, random_state=seed
-    )
+    n_rows = len(X)
+    if n >= n_rows:
+        idx = np.arange(n_rows)
+        X_sub, y_sub = X.copy(), np.asarray(y).copy()
+    else:
+        _, idx = train_test_split(
+            np.arange(n_rows),
+            test_size=n, stratify=y, random_state=seed,
+        )
+        X_sub, y_sub = X[idx], np.asarray(y)[idx]
+    if return_index:
+        return X_sub, y_sub, idx
     return X_sub, y_sub
 
 

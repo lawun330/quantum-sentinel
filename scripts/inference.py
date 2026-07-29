@@ -101,9 +101,11 @@ def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_
                        L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None, batch_size=DEFAULT_BATCH_SIZE):
     """
     Batched unified inference with disentangled rejection.
+
+    Algo3 pipeline: p(x) -> per-class fidelity -> nearest class c_star -> conformal test with global q -> label + certified radius.
     """
     if L_phi is None:
-        raise ValueError("L_phi must be provided (estimate with estimate_lipschitz)")
+        raise ValueError("L_phi must be provided.")
 
     class_ids = sorted(prototypes.keys())
     labels, radii, scores, f_maps = [], [], [], []
@@ -121,6 +123,54 @@ def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_
                 s = 1.0 - f_map[c_star]
 
                 if s > q:
+                    labels.append(zero_day); radii.append(0.0)
+                else:
+                    sorted_f = sorted(f_vals, reverse=True)
+                    margin = sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    radius = margin / (2.0 * (1.0 - p) * L_phi * Cf)
+                    labels.append(c_star); radii.append(float(radius))
+
+                scores.append(s)
+                f_maps.append(f_map)
+
+    return np.array(labels), np.array(radii), np.array(scores), f_maps
+
+
+def qsnet_infer_batch_per_class(X, theta, prototypes, q_by_class, forward_circuit, p=DEFAULT_NOISE_RATE,
+                                 L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None,
+                                 batch_size=DEFAULT_BATCH_SIZE):
+    """
+    Class-conditional (Mondrian) variant of `inference.qsnet_infer_batch()`.
+    Non-cached variant of `cache.cached_qsnet_infer_per_class()`.
+
+    Algo3 pipeline: p(x) -> per-class fidelity -> nearest class c_star -> conformal test with per-class q_c -> label + certified radius.
+
+    See `conformal.class_conditional_calibrate()` for how to build q_by_class.
+    """
+    if L_phi is None:
+        raise ValueError("L_phi must be provided.")
+
+    class_ids = sorted(prototypes.keys())
+    missing = [c for c in class_ids if c not in q_by_class]
+    if missing:
+        raise ValueError(f"q_by_class is missing thresholds for classes: {missing}")
+
+    labels, radii, scores, f_maps = [], [], [], []
+
+    with torch.no_grad():
+        for i in range(0, len(X), batch_size):
+            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            _, rho_chunk = forward_circuit(x_chunk, theta)
+
+            for j in range(rho_chunk.shape[0]):
+                rho_x = rho_chunk[j]
+                f_map = {c: float(fidelity(rho_x, prototypes[c]).item()) for c in class_ids}
+                f_vals = [f_map[c] for c in class_ids]
+                c_star = class_ids[int(np.argmax(f_vals))]
+                s = 1.0 - f_map[c_star]
+                q_c = q_by_class[c_star]
+
+                if s > q_c:
                     labels.append(zero_day); radii.append(0.0)
                 else:
                     sorted_f = sorted(f_vals, reverse=True)
