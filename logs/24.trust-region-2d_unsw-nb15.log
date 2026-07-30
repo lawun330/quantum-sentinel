@@ -1,0 +1,20 @@
+{
+  "history": {},
+  "extra": {
+    "notebook": "24.trust-region-2d_unsw-nb15",
+    "checkpoint": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-checkpoint.pt",
+    "dataset": "UNSW-NB15",
+    "split_prefix": "q8",
+    "num_qubits": 8,
+    "num_layers": 2,
+    "noise_rate": 0.01,
+    "n_known": 425,
+    "n_zero": 40,
+    "n_proto": 8,
+    "max_per_class": 60,
+    "max_zeroday": 40,
+    "figure_mds": "models/prototypes/UNSW-NB15/24.trust-region-2d_unsw-nb15-mds.png",
+    "figure_pca": "models/prototypes/UNSW-NB15/24.trust-region-2d_unsw-nb15-pca.png",
+    "coords": "models/prototypes/UNSW-NB15/24.trust-region-2d_unsw-nb15-coords.npz"
+  }
+}

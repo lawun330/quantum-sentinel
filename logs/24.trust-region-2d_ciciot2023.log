@@ -1,0 +1,20 @@
+{
+  "history": {},
+  "extra": {
+    "notebook": "24.trust-region-2d_ciciot2023",
+    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
+    "dataset": "CICIoT2023",
+    "split_prefix": "q8",
+    "num_qubits": 8,
+    "num_layers": 2,
+    "noise_rate": 0.01,
+    "n_known": 429,
+    "n_zero": 40,
+    "n_proto": 31,
+    "max_per_class": 15,
+    "max_zeroday": 40,
+    "figure_mds": "models/prototypes/CICIoT2023/24.trust-region-2d_ciciot2023-mds.png",
+    "figure_pca": "models/prototypes/CICIoT2023/24.trust-region-2d_ciciot2023-pca.png",
+    "coords": "models/prototypes/CICIoT2023/24.trust-region-2d_ciciot2023-coords.npz"
+  }
+}

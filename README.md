@@ -76,16 +76,28 @@ Modified versions of the following datasets:
 ├── 17.certified-radius_ciciot2023.ipynb    # day 17 deliverable
 │
 ├── # day 18 deliverable
-│   ├── 18.fin-fout-epsstar_ciciot2023.ipynb       ## day 16 settings
-│   ├── 18.fin-fout-epsstar_unsw-nb15.ipynb        ## day 16 settings
-│   └── 18.fin-fout-epsstar_bot-iot.ipynb          ## day 16 settings
+│   ├── 18.fin-fout-epsstar_ciciot2023.ipynb       ## day 16 artifact
+│   ├── 18.fin-fout-epsstar_unsw-nb15.ipynb        ## day 16 artifact
+│   └── 18.fin-fout-epsstar_bot-iot.ipynb          ## day 16 artifact
 │
 ├── # day 19 deliverable
-│   ├── 19.fgsm-pgd-robustness_ciciot2023.ipynb    ## day 16 settings
-│   ├── 19.fgsm-pgd-robustness_unsw-nb15.ipynb     ## day 16 settings
-│   └── 19.fgsm-pgd-robustness_bot-iot.ipynb       ## day 16 settings
+│   ├── 19.fgsm-pgd-robustness_ciciot2023.ipynb    ## day 16 artifact
+│   ├── 19.fgsm-pgd-robustness_unsw-nb15.ipynb     ## day 16 artifact
+│   └── 19.fgsm-pgd-robustness_bot-iot.ipynb       ## day 16 artifact
 │
-├── 22. e2e-algo3_ciciot2023.ipynb          # day 22 deliverable
+├── 22. e2e-algo3_ciciot2023.ipynb          # day 22, 23 deliverables
+│
+├── # day 23 deliverable
+│   ├── 23.maqt-FROZEN-feat-prototypes_ciciot2023.ipynb
+│   ├── 23.maqt-FROZEN-feat-prototypes_unsw-nb15.ipynb
+│   └── 23.maqt-FROZEN-feat-prototypes_bot-iot.ipynb
+│
+├── # day 24 deliverable
+│   ├── 22.e2e-algo3_unsw-nb15.ipynb
+│   ├── 22.e2e-algo3_bot-iot.ipynb
+│   ├── 24.trust-region-2d_ciciot2023.ipynb       ## day 16 artifact
+│   ├── 24.trust-region-2d_unsw-nb15.ipynb        ## day 16 artifact
+│   └── 24.trust-region-2d_bot-iot.ipynb          ## day 16 artifact
 │
 ├── e2e-qs-net_v3.0.ipynb   ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
 ├── e2e-qs-net_v4.0.ipynb   ##

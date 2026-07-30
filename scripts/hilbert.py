@@ -1,4 +1,4 @@
-"""H1 Hilbert-geometry diagnostics (intra/inter fidelity gaps)."""
+"""H1 Hilbert-geometry diagnostics + trust-region 2D projections."""
 
 import numpy as np
 import torch
@@ -6,6 +6,94 @@ import torch
 from scripts.quantum_metrics import fidelity, trace_distance
 from scripts.utils import to_np_y, to_torch_batch_x
 from scripts.constants import DEFAULT_SEED, DEFAULT_BATCH_SIZE
+
+
+@torch.no_grad()
+def encode_density_matrices(X, theta, forward_circuit, device=None, batch_size=DEFAULT_BATCH_SIZE):
+    """
+    Run the forward circuit and collect post-channel density matrices rho(x).
+
+    Return a CPU tensor of shape (n, d, d).
+    """
+    rhos = []
+    n = len(X)
+    for i in range(0, n, batch_size):
+        xb = to_torch_batch_x(X[i : i + batch_size], device=device)
+        _, rho = forward_circuit(xb, theta)
+        rhos.append(rho.detach().cpu())
+    return torch.cat(rhos, dim=0)
+
+
+@torch.no_grad()
+def pairwise_trace_distance_matrix(rhos):
+    """
+    Pairwise trace distance on a stack of density matrices.
+
+    Return a float64 numpy array of shape (N, N), zeros on the diagonal.
+    """
+    if torch.is_tensor(rhos):
+        rhos_t = rhos.detach().cpu().to(torch.complex128)
+    else:
+        rhos_t = torch.as_tensor(rhos, dtype=torch.complex128)
+    n = rhos_t.shape[0]
+    dist = torch.zeros(n, n, dtype=torch.float64)
+    for i in range(n):
+        rest = rhos_t[i + 1 :]
+        if rest.shape[0] == 0:
+            continue
+        diff = rhos_t[i].unsqueeze(0) - rest
+        diff = 0.5 * (diff + diff.mH)
+        evals = torch.linalg.eigvalsh(diff)
+        td = 0.5 * evals.abs().sum(dim=-1).real.clamp(0.0, 1.0)
+        dist[i, i + 1 :] = td
+        dist[i + 1 :, i] = td
+    return dist.numpy()
+
+
+@torch.no_grad()
+def fidelity_to_prototypes_matrix(rhos, prototypes):
+    """
+    Each state -> vector of F(rho, rho_c) over sorted prototype ids.
+    """
+    class_ids = sorted(prototypes)
+    proto_stack = torch.stack(
+        [prototypes[c].detach().cpu() for c in class_ids], dim=0
+    ).to(torch.complex128)
+    rhos_t = rhos.detach().cpu() if torch.is_tensor(rhos) else torch.as_tensor(rhos)
+    feats = np.zeros((rhos_t.shape[0], len(class_ids)), dtype=np.float64)
+    for j, c in enumerate(class_ids):
+        for i in range(rhos_t.shape[0]):
+            f = fidelity(rhos_t[i], proto_stack[j])
+            feats[i, j] = float(f.real.item() if torch.is_tensor(f) else f)
+    return class_ids, feats
+
+
+def mds_2d_from_distances(dist, random_state=DEFAULT_SEED):
+    """
+    Classical MDS to 2D from a precomputed distance matrix.
+    """
+    from sklearn.manifold import MDS
+
+    kwargs = dict(
+        n_components=2,
+        random_state=random_state,
+        normalized_stress="auto",
+        init="random",
+    )
+    try:
+        embedding = MDS(metric="precomputed", **kwargs)
+    except TypeError:
+        embedding = MDS(dissimilarity="precomputed", **kwargs)
+    return embedding.fit_transform(dist)
+
+
+def pca_2d(features):
+    """
+    PCA to 2D (used on fidelity-to-prototype features).
+    """
+    from sklearn.decomposition import PCA
+
+    return PCA(n_components=2).fit_transform(features)
 
 
 def fidelity_gap_proxy(prototypes, l_intra):
