@@ -1,0 +1,33 @@
+{
+  "history": {
+    "radius_mean": [
+      0.037599086632515315
+    ]
+  },
+  "extra": {
+    "dataset": "UNSW-NB15",
+    "notebook": "22.e2e-algo3_unsw-nb15.ipynb",
+    "checkpoint": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-checkpoint.pt",
+    "lphi_path": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-lphi.pt",
+    "q_source": "models/prototypes/UNSW-NB15/19.fgsm-pgd-robustness_unsw-nb15-artifact.pt",
+    "q": 0.5477786064147949,
+    "alpha": 0.05,
+    "L_phi": 1.0,
+    "p": 0.01,
+    "C_f": 1.0,
+    "pipeline_reject_rate": 0.053043823121158074,
+    "pipeline_acc_accepted": 0.4210030363312742,
+    "pipeline_macro_f1_accepted": 0.1806985367051106,
+    "pipeline_radius_mean_accepted": 0.037599086632515315,
+    "zeroday_detection_rate": 0.012335526315789474,
+    "n_zeroday_eval": 1216,
+    "RQ1": {
+      "TPR_zeroday": 0.012335526315789474,
+      "FPR_known": 0.053043823121158074,
+      "class_acc_known": 0.4210030363312742,
+      "alpha": 0.05,
+      "n_test": 10086,
+      "n_zeroday": 1216
+    }
+  }
+}

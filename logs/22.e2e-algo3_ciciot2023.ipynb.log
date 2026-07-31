@@ -1,7 +1,7 @@
 {
   "history": {
     "radius_mean": [
-      0.013668585598981072
+      0.011190050611125149
     ]
   },
   "extra": {
@@ -15,11 +15,19 @@
     "L_phi": 1.0,
     "p": 0.01,
     "C_f": 1.0,
-    "pipeline_reject_rate": 0.030000000000000027,
-    "pipeline_acc_accepted": 0.4742268041237113,
-    "pipeline_macro_f1_accepted": 0.16698394508489264,
-    "pipeline_radius_mean_accepted": 0.013668585598981072,
-    "zeroday_detection_rate": 0.87,
-    "n_zeroday_eval": 100
+    "pipeline_reject_rate": 0.05571148652226876,
+    "pipeline_acc_accepted": 0.48225001402052603,
+    "pipeline_macro_f1_accepted": 0.23550417341380359,
+    "pipeline_radius_mean_accepted": 0.011190050611125149,
+    "zeroday_detection_rate": 0.8739075018208303,
+    "n_zeroday_eval": 10984,
+    "RQ1": {
+      "TPR_zeroday": 0.8739075018208303,
+      "FPR_known": 0.05571148652226876,
+      "class_acc_known": 0.48225001402052603,
+      "alpha": 0.05,
+      "n_test": 18883,
+      "n_zeroday": 10984
+    }
   }
 }
