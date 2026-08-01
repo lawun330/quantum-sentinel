@@ -1,0 +1,236 @@
+{
+  "schema_version": "1.1",
+  "dataset": "UNSW-NB15",
+  "seed": 42,
+  "n_jobs": 1,
+  "alpha": 0.1,
+  "features": [
+    "duration",
+    "n_pkts_total",
+    "n_bytes_total",
+    "src_pkts",
+    "dst_pkts",
+    "src_bytes",
+    "dst_bytes",
+    "rate",
+    "rate_src",
+    "rate_dst",
+    "pkt_size_min",
+    "pkt_size_max",
+    "pkt_size_mean",
+    "pkt_size_std",
+    "iat",
+    "protocol",
+    "conn_state"
+  ],
+  "row_counts": {
+    "train": 81215,
+    "calibration": 10112,
+    "test": 10086,
+    "zeroday": 1216
+  },
+  "known_classes": [
+    "Analysis",
+    "Backdoor",
+    "DoS",
+    "Exploits",
+    "Fuzzers",
+    "Generic",
+    "Normal",
+    "Reconnaissance"
+  ],
+  "zero_day_classes": [
+    "Shellcode",
+    "Worms"
+  ],
+  "evaluation_contract": {
+    "detector_fit": "train only (known classes)",
+    "novelty_fit": "class-capped train only (known classes)",
+    "threshold_selection": "known-only calibration, finite-sample conformal quantile",
+    "closed_set_evaluation": "known-only test",
+    "zero_day_evaluation": "known test (0) vs held-out zeroday (1)",
+    "zero_day_used_for_fitting_or_tuning": false,
+    "novelty_score_direction": "higher means more novel"
+  },
+  "detector": {
+    "multiclass": {
+      "accuracy": 0.8020027761253222,
+      "balanced_accuracy": 0.7077610748757344,
+      "f1_macro": 0.601608544345498,
+      "auroc_ovr_macro": 0.9695127961181578,
+      "auprc_ovr_macro": 0.6652175593775109,
+      "auroc_classes_evaluated": 8
+    },
+    "binary_attack": {
+      "accuracy": 0.8647630378742812,
+      "f1_macro": 0.8645303591814897,
+      "auroc": 0.9666073649875222
+    },
+    "fit_rows": 81215,
+    "classes": [
+      "Analysis",
+      "Backdoor",
+      "DoS",
+      "Exploits",
+      "Fuzzers",
+      "Generic",
+      "Normal",
+      "Reconnaissance"
+    ],
+    "class_to_binary": {
+      "Analysis": 1,
+      "Backdoor": 1,
+      "DoS": 1,
+      "Exploits": 1,
+      "Fuzzers": 1,
+      "Generic": 1,
+      "Normal": 0,
+      "Reconnaissance": 1
+    },
+    "parameters": {
+      "objective": "multi:softprob",
+      "num_class": 8,
+      "n_estimators": 120,
+      "max_depth": 6,
+      "learning_rate": 0.1,
+      "subsample": 0.9,
+      "colsample_bytree": 0.9,
+      "min_child_weight": 1.0,
+      "reg_lambda": 1.0,
+      "tree_method": "hist",
+      "eval_metric": "mlogloss",
+      "random_state": 42,
+      "n_jobs": 1,
+      "verbosity": 0
+    }
+  },
+  "novelty_heads": {
+    "isolation_forest": {
+      "accuracy": 0.8109184215183154,
+      "balanced_accuracy": 0.48363310725132286,
+      "f1_macro": 0.4826102031021271,
+      "zero_day_auroc": 0.38316603851612974,
+      "zero_day_auprc": 0.08401822121667588,
+      "known_false_positive_rate": 0.09934562760261749,
+      "zero_day_true_positive_rate": 0.06661184210526316,
+      "fpr_at_95_tpr": 0.9551854055125917,
+      "threshold": 0.5138690081279985,
+      "known_score_mean": 0.4301076753883397,
+      "zero_day_score_mean": 0.3994998527346294,
+      "known_test_rows": 10086,
+      "zero_day_rows": 1216,
+      "fit_rows": 11298,
+      "calibration_rows": 10112,
+      "alpha": 0.1,
+      "parameters": {
+        "n_estimators": 300,
+        "max_samples": 2048,
+        "contamination": "auto"
+      },
+      "per_attack_zero_day": {
+        "Shellcode": {
+          "zero_day_auroc": 0.38102404070754226,
+          "zero_day_auprc": 0.0740060957608532,
+          "detection_rate_at_threshold": 0.06591337099811675,
+          "zero_day_rows": 1062
+        },
+        "Worms": {
+          "zero_day_auroc": 0.3979374779493756,
+          "zero_day_auprc": 0.011989735511123574,
+          "detection_rate_at_threshold": 0.07142857142857142,
+          "zero_day_rows": 154
+        }
+      }
+    },
+    "autoencoder": {
+      "accuracy": 0.8299416032560609,
+      "balanced_accuracy": 0.5828860288362191,
+      "f1_macro": 0.5786730937005525,
+      "zero_day_auroc": 0.457494413178246,
+      "zero_day_auprc": 0.16570596073423643,
+      "known_false_positive_rate": 0.1023200475907198,
+      "zero_day_true_positive_rate": 0.2680921052631579,
+      "fpr_at_95_tpr": 0.974816577434067,
+      "threshold": 1.1179033517837524,
+      "known_score_mean": 0.5212256050462374,
+      "zero_day_score_mean": 1.0575581461705856,
+      "known_test_rows": 10086,
+      "zero_day_rows": 1216,
+      "fit_rows": 11298,
+      "calibration_rows": 10112,
+      "alpha": 0.1,
+      "training_iterations": 15,
+      "final_loss": 0.1698507329523798,
+      "parameters": {
+        "hidden_layer_sizes": [
+          12,
+          6,
+          12
+        ],
+        "activation": "relu",
+        "solver": "adam",
+        "max_iter": 80,
+        "early_stopping": true
+      },
+      "per_attack_zero_day": {
+        "Shellcode": {
+          "zero_day_auroc": 0.48552635657264653,
+          "zero_day_auprc": 0.164978607914963,
+          "detection_rate_at_threshold": 0.295668549905838,
+          "zero_day_rows": 1062
+        },
+        "Worms": {
+          "zero_day_auroc": 0.26418321912075626,
+          "zero_day_auprc": 0.011074052319246165,
+          "detection_rate_at_threshold": 0.07792207792207792,
+          "zero_day_rows": 154
+        }
+      }
+    },
+    "ocsvm": {
+      "accuracy": 0.8038400283135728,
+      "balanced_accuracy": 0.46737245543588296,
+      "f1_macro": 0.4657127687768821,
+      "zero_day_auroc": 0.47143121784234526,
+      "zero_day_auprc": 0.09151857438754296,
+      "known_false_positive_rate": 0.10390640491770771,
+      "zero_day_true_positive_rate": 0.038651315789473686,
+      "fpr_at_95_tpr": 0.8046797541146143,
+      "threshold": 0.4749182479328695,
+      "known_score_mean": -3.8147222013564037,
+      "zero_day_score_mean": -4.996042322870425,
+      "known_test_rows": 10086,
+      "zero_day_rows": 1216,
+      "fit_rows": 6000,
+      "calibration_rows": 10112,
+      "alpha": 0.1,
+      "parameters": {
+        "kernel": "rbf",
+        "gamma": "scale",
+        "nu": 0.1,
+        "ocsvm_cap": 6000
+      },
+      "per_attack_zero_day": {
+        "Shellcode": {
+          "zero_day_auroc": 0.48442733359399187,
+          "zero_day_auprc": 0.08274952134982018,
+          "detection_rate_at_threshold": 0.02919020715630885,
+          "zero_day_rows": 1062
+        },
+        "Worms": {
+          "zero_day_auroc": 0.38180865337319825,
+          "zero_day_auprc": 0.012197489198518924,
+          "detection_rate_at_threshold": 0.1038961038961039,
+          "zero_day_rows": 154
+        }
+      }
+    }
+  },
+  "environment": {
+    "python": "3.12.12",
+    "numpy": "2.1.3",
+    "pandas": "2.2.3",
+    "scikit_learn": "1.8.0",
+    "xgboost": "3.2.0"
+  }
+}

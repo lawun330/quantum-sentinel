@@ -22,6 +22,7 @@ DEFAULT_FOCAL_GAMMA = 2.0               # focal loss gamma # (loss.py)
 DEFAULT_LAMBDA1 = 0.5                   # L_intra weight # (loss.py, gradient.py)
 DEFAULT_LAMBDA2 = 0.3                   # L_inter weight # (loss.py, gradient.py)
 DEFAULT_WARMUP_FRAC = 0.2               # curriculum lambda warmup fraction # (loss.py)
+DEFAULT_PATIENCE = 3                    # patience for early stopping # (train.py)
 
 # algorithm 1: prototypes / gradients
 BARREN_PLATEAU_VAR_THRESHOLD = 1e-6     # barren-plateau threshold # (sweep.py)

@@ -55,7 +55,7 @@ def _psd_sqrt(mat, eps=DEFAULT_EPS):
     return (evecs * torch.sqrt(evals).unsqueeze(-2)) @ evecs.mH
 
 
-def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
+def fidelity_pairwise_psd(rho, sigma, eps=DEFAULT_EPS):
     """
     Batched non-squared Uhlmann fidelity with torch broadcasting.
 
@@ -70,6 +70,20 @@ def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
     evals = torch.clamp(evals.real, min=0.0)
     fid = torch.sqrt(evals).sum(dim=-1) # no squaring
     return torch.clamp(fid.real, 0.0, 1.0 - eps)
+
+
+def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
+    """
+    Variant of `fidelity_pairwise_psd` that uses the PennyLane function.
+    """
+    squared_f = qp.math.fidelity(rho, sigma)
+    if torch.is_tensor(squared_f):
+        squared_f = squared_f.real if torch.is_complex(squared_f) else squared_f
+        squared_f = torch.clamp(squared_f, min=0.0)
+        f = torch.sqrt(squared_f)
+        return torch.clamp(f, 0.0, 1.0 - eps)
+    squared_f = max(float(squared_f), 0.0)
+    return min(squared_f ** 0.5, 1.0 - eps)
 
 
 def stack_prototypes(prototypes, device=None, dtype=None):

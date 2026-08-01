@@ -26,8 +26,11 @@ def initialize_random_weights(n_layers, n_wires, device, eps=DEFAULT_WEIGHT_INIT
     Initialize weights for the variational circuit using random identity rotations.
     """
     shape = qp.StronglyEntanglingLayers.shape(n_layers=n_layers, n_wires=n_wires)
-    gen = torch.Generator(device="cpu").manual_seed(seed) if seed is not None else None
-    theta = eps * torch.randn(shape, generator=gen, device=device)
+    if seed is not None:
+        gen = torch.Generator(device="cpu").manual_seed(seed)
+        theta = eps * torch.randn(shape, generator=gen, device="cpu").to(device)
+    else:
+        theta = eps * torch.randn(shape, device=device)
     return torch.nn.Parameter(theta)
 
 

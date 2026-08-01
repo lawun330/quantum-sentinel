@@ -1,0 +1,283 @@
+{
+  "team": "C \u2014 Intelligent Feature Selection",
+  "week": 3,
+  "days": "15-18",
+  "milestone": "Day 15 \u2014 Team C delivers FROZEN feature subsets to Team B",
+  "status": "FROZEN \u2014 do not change without notifying Team C",
+  "protocol": {
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "accuracy": "5-fold CV balanced accuracy on train.csv (folds the selector never optimised against)",
+    "zero_day_auroc": "IsolationForest trained on KNOWN families only; AUROC of held-out family vs known-test",
+    "note": "Zero-day uses leave-one-attack-family-out on train.csv because Team A's zeroday.csv was not in our working set. Re-run against the real partitions before publication."
+  },
+  "frozen_subsets": {
+    "UNSW-NB15": {
+      "selector": "RF",
+      "k": 10,
+      "features": [
+        "duration",
+        "n_pkts_total",
+        "n_bytes_total",
+        "src_bytes",
+        "dst_bytes",
+        "rate",
+        "rate_src",
+        "rate_dst",
+        "pkt_size_mean",
+        "iat"
+      ],
+      "cv_balanced_accuracy": 0.6635,
+      "zero_day_auroc": 0.3187,
+      "redundancy": 0.374,
+      "dead_features_excluded": [
+        "pkt_size_min",
+        "pkt_size_max",
+        "pkt_size_std"
+      ],
+      "zero_day_families_held_out": [
+        "Backdoor",
+        "Analysis"
+      ]
+    },
+    "BoT-IoT": {
+      "selector": "QIGPSO",
+      "k": 10,
+      "features": [
+        "n_pkts_total",
+        "n_bytes_total",
+        "src_bytes",
+        "rate",
+        "pkt_size_min",
+        "pkt_size_max",
+        "pkt_size_mean",
+        "pkt_size_std",
+        "protocol",
+        "conn_state"
+      ],
+      "cv_balanced_accuracy": 0.9129,
+      "zero_day_auroc": 0.9804,
+      "redundancy": 0.3202,
+      "dead_features_excluded": [
+        "iat"
+      ],
+      "zero_day_families_held_out": [
+        "Reconnaissance"
+      ]
+    },
+    "CICIoT2023": {
+      "selector": "MI",
+      "k": 10,
+      "features": [
+        "duration",
+        "n_pkts_total",
+        "n_bytes_total",
+        "rate",
+        "pkt_size_min",
+        "pkt_size_max",
+        "pkt_size_mean",
+        "iat",
+        "protocol",
+        "conn_state"
+      ],
+      "cv_balanced_accuracy": 0.5379,
+      "zero_day_auroc": 0.9717,
+      "redundancy": 0.2809,
+      "dead_features_excluded": [
+        "src_pkts",
+        "dst_pkts",
+        "src_bytes",
+        "dst_bytes",
+        "rate_src"
+      ],
+      "zero_day_families_held_out": [
+        "Uploading_Attack",
+        "Backdoor_Malware"
+      ]
+    }
+  },
+  "per_dataset_summary": {
+    "UNSW-NB15": {
+      "MI": {
+        "k": 8.0,
+        "acc": 0.6676,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.2845,
+        "zd_ci95": 0.0222,
+        "redundancy": 0.459,
+        "stability": 1.0
+      },
+      "RF": {
+        "k": 8.0,
+        "acc": 0.6676,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.3233,
+        "zd_ci95": 0.0067,
+        "redundancy": 0.374,
+        "stability": 1.0
+      },
+      "BPSO": {
+        "k": 5.4,
+        "acc": 0.659,
+        "acc_ci95": 0.0118,
+        "zd_auroc": 0.3058,
+        "zd_ci95": 0.0105,
+        "redundancy": 0.466,
+        "stability": 0.43
+      },
+      "QPSO": {
+        "k": 6.2,
+        "acc": 0.6702,
+        "acc_ci95": 0.0042,
+        "zd_auroc": 0.3117,
+        "zd_ci95": 0.0308,
+        "redundancy": 0.391,
+        "stability": 0.43
+      },
+      "QIGPSO": {
+        "k": 8.8,
+        "acc": 0.6373,
+        "acc_ci95": 0.02,
+        "zd_auroc": 0.3078,
+        "zd_ci95": 0.0125,
+        "redundancy": 0.298,
+        "stability": 0.49
+      },
+      "ALL 14 (no selection)": {
+        "k": 14.0,
+        "acc": 0.6608,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.2878,
+        "zd_ci95": 0.0,
+        "redundancy": 0.349,
+        "stability": 1.0
+      }
+    },
+    "BoT-IoT": {
+      "MI": {
+        "k": 8.0,
+        "acc": 0.8911,
+        "acc_ci95": 0.0001,
+        "zd_auroc": 0.9811,
+        "zd_ci95": 0.0021,
+        "redundancy": 0.379,
+        "stability": 0.87
+      },
+      "RF": {
+        "k": 8.0,
+        "acc": 0.8911,
+        "acc_ci95": 0.0002,
+        "zd_auroc": 0.9823,
+        "zd_ci95": 0.0032,
+        "redundancy": 0.442,
+        "stability": 0.84
+      },
+      "BPSO": {
+        "k": 6.4,
+        "acc": 0.8964,
+        "acc_ci95": 0.0106,
+        "zd_auroc": 0.9814,
+        "zd_ci95": 0.0046,
+        "redundancy": 0.283,
+        "stability": 0.53
+      },
+      "QPSO": {
+        "k": 6.6,
+        "acc": 0.8976,
+        "acc_ci95": 0.0061,
+        "zd_auroc": 0.9839,
+        "zd_ci95": 0.0043,
+        "redundancy": 0.26,
+        "stability": 0.55
+      },
+      "QIGPSO": {
+        "k": 10.0,
+        "acc": 0.885,
+        "acc_ci95": 0.0356,
+        "zd_auroc": 0.9755,
+        "zd_ci95": 0.0084,
+        "redundancy": 0.274,
+        "stability": 0.46
+      },
+      "ALL 16 (no selection)": {
+        "k": 16.0,
+        "acc": 0.9005,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.9792,
+        "zd_ci95": 0.0,
+        "redundancy": 0.308,
+        "stability": 1.0
+      }
+    },
+    "CICIoT2023": {
+      "MI": {
+        "k": 8.0,
+        "acc": 0.5393,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.9645,
+        "zd_ci95": 0.0089,
+        "redundancy": 0.339,
+        "stability": 1.0
+      },
+      "RF": {
+        "k": 8.0,
+        "acc": 0.5997,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.9738,
+        "zd_ci95": 0.005,
+        "redundancy": 0.362,
+        "stability": 1.0
+      },
+      "BPSO": {
+        "k": 2.8,
+        "acc": 0.5772,
+        "acc_ci95": 0.0363,
+        "zd_auroc": 0.9759,
+        "zd_ci95": 0.0071,
+        "redundancy": 0.278,
+        "stability": 0.41
+      },
+      "QPSO": {
+        "k": 3.4,
+        "acc": 0.5887,
+        "acc_ci95": 0.0516,
+        "zd_auroc": 0.9739,
+        "zd_ci95": 0.0075,
+        "redundancy": 0.264,
+        "stability": 0.3
+      },
+      "QIGPSO": {
+        "k": 7.2,
+        "acc": 0.5226,
+        "acc_ci95": 0.0932,
+        "zd_auroc": 0.9732,
+        "zd_ci95": 0.0191,
+        "redundancy": 0.232,
+        "stability": 0.47
+      },
+      "ALL 12 (no selection)": {
+        "k": 12.0,
+        "acc": 0.5378,
+        "acc_ci95": 0.0,
+        "zd_auroc": 0.9772,
+        "zd_ci95": 0.0,
+        "redundancy": 0.264,
+        "stability": 1.0
+      }
+    }
+  },
+  "headline_findings": [
+    "Day 15: five selectors (MI, RF, BPSO, QPSO, QIGPSO) benchmarked over 5 seeds with 95% CIs, plus stability and redundancy.",
+    "Day 17-18: NEW selector->zero-day-AUROC experiment run on all three datasets.",
+    "BoT-IoT and CIC-IoT2023: every selector preserves zero-day separability (AUROC 0.97-0.98); feature selection does NOT harm novelty geometry there.",
+    "UNSW-NB15: zero-day AUROC is ~0.29-0.32, i.e. BELOW CHANCE, for EVERY selector including no-selection. The held-out families (Backdoor/Analysis) sit INSIDE the known-traffic manifold.",
+    "This independently reproduces Team A's Day-13 finding that UNSW zero-day families are below chance for every unsupervised head -- so it is a property of the DATASET, not of our feature selection.",
+    "Implication for Team B: conformal zero-day rejection cannot work on UNSW with unsupervised scores on these 17 features, regardless of which subset is used.",
+    "Selection choice barely moves zero-day AUROC (<0.01 spread on BoT/CIC) -- so subsets can be chosen on accuracy/qubit cost without harming novelty detection."
+  ]
+}

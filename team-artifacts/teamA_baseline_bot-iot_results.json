@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.1",
+  "dataset": "BoT-IoT",
+  "seed": 42,
+  "n_jobs": 1,
+  "alpha": 0.1,
+  "features": [
+    "duration",
+    "n_pkts_total",
+    "n_bytes_total",
+    "src_pkts",
+    "dst_pkts",
+    "src_bytes",
+    "dst_bytes",
+    "rate",
+    "rate_src",
+    "rate_dst",
+    "pkt_size_min",
+    "pkt_size_max",
+    "pkt_size_mean",
+    "pkt_size_std",
+    "iat",
+    "protocol",
+    "conn_state"
+  ],
+  "row_counts": {
+    "train": 148729,
+    "calibration": 18591,
+    "test": 18591,
+    "zeroday": 683
+  },
+  "known_classes": [
+    "DDoS",
+    "DoS",
+    "Normal",
+    "Reconnaissance"
+  ],
+  "zero_day_classes": [
+    "Theft"
+  ],
+  "evaluation_contract": {
+    "detector_fit": "train only (known classes)",
+    "novelty_fit": "class-capped train only (known classes)",
+    "threshold_selection": "known-only calibration, finite-sample conformal quantile",
+    "closed_set_evaluation": "known-only test",
+    "zero_day_evaluation": "known test (0) vs held-out zeroday (1)",
+    "zero_day_used_for_fitting_or_tuning": false,
+    "novelty_score_direction": "higher means more novel"
+  },
+  "detector": {
+    "multiclass": {
+      "accuracy": 0.9514818998440105,
+      "balanced_accuracy": 0.9730802032667133,
+      "f1_macro": 0.972668701028603,
+      "auroc_ovr_macro": 0.9955434806516208,
+      "auprc_ovr_macro": 0.9950377952806788,
+      "auroc_classes_evaluated": 4
+    },
+    "binary_attack": {
+      "accuracy": 0.9998386315959336,
+      "f1_macro": 0.9988719322865689,
+      "auroc": 0.9999993532165351
+    },
+    "fit_rows": 148729,
+    "classes": [
+      "DDoS",
+      "DoS",
+      "Normal",
+      "Reconnaissance"
+    ],
+    "class_to_binary": {
+      "DDoS": 1,
+      "DoS": 1,
+      "Normal": 0,
+      "Reconnaissance": 1
+    },
+    "parameters": {
+      "objective": "multi:softprob",
+      "num_class": 4,
+      "n_estimators": 120,
+      "max_depth": 6,
+      "learning_rate": 0.1,
+      "subsample": 0.9,
+      "colsample_bytree": 0.9,
+      "min_child_weight": 1.0,
+      "reg_lambda": 1.0,
+      "tree_method": "hist",
+      "eval_metric": "mlogloss",
+      "random_state": 42,
+      "n_jobs": 1,
+      "verbosity": 0
+    }
+  },
+  "novelty_heads": {
+    "isolation_forest": {
+      "accuracy": 0.8958182006848604,
+      "balanced_accuracy": 0.8127183031383831,
+      "f1_macro": 0.6366461913214019,
+      "zero_day_auroc": 0.7387485703066543,
+      "zero_day_auprc": 0.5365404994409239,
+      "known_false_positive_rate": 0.09784304233231134,
+      "zero_day_true_positive_rate": 0.7232796486090776,
+      "fpr_at_95_tpr": 0.9522349523963208,
+      "threshold": 0.4738484191695015,
+      "known_score_mean": 0.42477224065019364,
+      "zero_day_score_mean": 0.5455889191027582,
+      "known_test_rows": 18591,
+      "zero_day_rows": 683,
+      "fit_rows": 8000,
+      "calibration_rows": 18591,
+      "alpha": 0.1,
+      "parameters": {
+        "n_estimators": 300,
+        "max_samples": 2048,
+        "contamination": "auto"
+      },
+      "per_attack_zero_day": {
+        "Theft": {
+          "zero_day_auroc": 0.7387485703066543,
+          "zero_day_auprc": 0.5365404994409239,
+          "detection_rate_at_threshold": 0.7232796486090776,
+          "zero_day_rows": 683
+        }
+      }
+    },
+    "autoencoder": {
+      "accuracy": 0.893379682473799,
+      "balanced_accuracy": 0.7642078815667745,
+      "f1_macro": 0.6179550617831299,
+      "zero_day_auroc": 0.9232782625261535,
+      "zero_day_auprc": 0.3991642866362743,
+      "known_false_positive_rate": 0.09676725297186811,
+      "zero_day_true_positive_rate": 0.6251830161054173,
+      "fpr_at_95_tpr": 0.22059060835888333,
+      "threshold": 0.07863705605268478,
+      "known_score_mean": 0.036944535385096317,
+      "zero_day_score_mean": 0.1461717233001793,
+      "known_test_rows": 18591,
+      "zero_day_rows": 683,
+      "fit_rows": 8000,
+      "calibration_rows": 18591,
+      "alpha": 0.1,
+      "training_iterations": 80,
+      "final_loss": 0.024655515890982416,
+      "parameters": {
+        "hidden_layer_sizes": [
+          12,
+          6,
+          12
+        ],
+        "activation": "relu",
+        "solver": "adam",
+        "max_iter": 80,
+        "early_stopping": true
+      },
+      "per_attack_zero_day": {
+        "Theft": {
+          "zero_day_auroc": 0.9232782625261535,
+          "zero_day_auprc": 0.3991642866362743,
+          "detection_rate_at_threshold": 0.6251830161054173,
+          "zero_day_rows": 683
+        }
+      }
+    },
+    "ocsvm": {
+      "accuracy": 0.8968558680087164,
+      "balanced_accuracy": 0.818192385632211,
+      "f1_macro": 0.6396042002881532,
+      "zero_day_auroc": 0.9235554003562706,
+      "zero_day_auprc": 0.48407355452859674,
+      "known_false_positive_rate": 0.09714377924802324,
+      "zero_day_true_positive_rate": 0.7335285505124451,
+      "fpr_at_95_tpr": 0.3223064923887903,
+      "threshold": -2.195620606842944,
+      "known_score_mean": -8.069408536945712,
+      "zero_day_score_mean": 4.4360057242154705,
+      "known_test_rows": 18591,
+      "zero_day_rows": 683,
+      "fit_rows": 6000,
+      "calibration_rows": 18591,
+      "alpha": 0.1,
+      "parameters": {
+        "kernel": "rbf",
+        "gamma": "scale",
+        "nu": 0.1,
+        "ocsvm_cap": 6000
+      },
+      "per_attack_zero_day": {
+        "Theft": {
+          "zero_day_auroc": 0.9235554003562706,
+          "zero_day_auprc": 0.48407355452859674,
+          "detection_rate_at_threshold": 0.7335285505124451,
+          "zero_day_rows": 683
+        }
+      }
+    }
+  },
+  "environment": {
+    "python": "3.12.12",
+    "numpy": "2.1.3",
+    "pandas": "2.2.3",
+    "scikit_learn": "1.8.0",
+    "xgboost": "3.2.0"
+  }
+}

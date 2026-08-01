@@ -53,7 +53,25 @@ from scripts.inference import (
     qsnet_infer_batch_per_class,
     qsnet_infer_single,
 )
-from scripts.logging import to_jsonable, write_history_log, write_sweep_log
+from scripts.logging import (
+    append_jsonl,
+    read_jsonl,
+    to_jsonable,
+    write_crash_log,
+    write_history_log,
+    write_sweep_log,
+)
+from scripts.memory import (
+    free_memory,
+    gpu_memory_snapshot,
+    is_fatal_cuda_error,
+    is_oom_error,
+    peak_gpu_mb,
+    print_gpu_memory,
+    run_batched_safely,
+    run_with_oom_retry,
+    safe_empty_cache,
+)
 from scripts.loss import (
     ce_loss_term,
     compute_l_ce,
@@ -224,6 +242,18 @@ __all__ = [
     "two_sample_discriminability_auroc",
     "verify_fidelity_convention",
     "worst_case_f_in",
+    "write_crash_log",
     "write_history_log",
     "write_sweep_log",
+    "append_jsonl",
+    "free_memory",
+    "gpu_memory_snapshot",
+    "is_fatal_cuda_error",
+    "is_oom_error",
+    "peak_gpu_mb",
+    "print_gpu_memory",
+    "read_jsonl",
+    "run_batched_safely",
+    "run_with_oom_retry",
+    "safe_empty_cache",
 ]

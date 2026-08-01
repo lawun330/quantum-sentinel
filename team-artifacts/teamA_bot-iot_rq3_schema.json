@@ -1,0 +1,76 @@
+{
+ "dataset": "BoT-IoT",
+ "seed": 42,
+ "axes": {
+  "A_origin": [
+   "known",
+   "novel"
+  ],
+  "B_perturb": [
+   "clean",
+   "adversarial"
+  ]
+ },
+ "cells_shipped": {
+  "clean_known": 800,
+  "true_zeroday": 683,
+  "adv_source_pool_to_perturb": 600
+ },
+ "adversarial_generation": {
+  "who": "Team B",
+  "attacks": [
+   "FGSM",
+   "PGD"
+  ],
+  "space": "classical 17-feature space BEFORE angle encoding",
+  "eps_units": "robust-scaled feature units (Week-1 unified scalers.json; angle-encode after)",
+  "rule": "seed ONLY from adv_source_pool (known attacks); NEVER from the zero-day class",
+  "adds_cell": {
+   "origin": "known",
+   "perturb": "adversarial",
+   "role": "adv_known"
+  }
+ },
+ "columns": [
+  "sample_id",
+  "dataset",
+  "attack_class",
+  "origin",
+  "perturb",
+  "role",
+  "should_flag_novel",
+  "should_flag_adversarial",
+  "duration",
+  "n_pkts_total",
+  "n_bytes_total",
+  "src_pkts",
+  "dst_pkts",
+  "src_bytes",
+  "dst_bytes",
+  "rate",
+  "rate_src",
+  "rate_dst",
+  "pkt_size_min",
+  "pkt_size_max",
+  "pkt_size_mean",
+  "pkt_size_std",
+  "iat",
+  "protocol",
+  "conn_state",
+  "label_binary",
+  "label_family"
+ ],
+ "ground_truth": {
+  "should_flag_novel": "TRUE iff origin==novel",
+  "should_flag_adversarial": "TRUE iff perturb==adversarial"
+ },
+ "metrics": {
+  "novelty_auroc": "clean_known vs clean_novel (perturbation excluded so it can't contaminate)",
+  "adversarial_auroc": "clean_known vs adv_known (after Team B perturbs the pool)",
+  "rq3_confusion": "3x3 over {clean_known, adv_known, true_zeroday} \u2014 off-diagonal adv_known\u2194true_zeroday IS the RQ3 result",
+  "report_alongside": "closed-set known-class accuracy"
+ },
+ "zero_day_families": [
+  "Theft"
+ ]
+}

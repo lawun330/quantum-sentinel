@@ -99,6 +99,11 @@ Modified versions of the following datasets:
 │   ├── 24.trust-region-2d_unsw-nb15.ipynb        ## day 16 artifact
 │   └── 24.trust-region-2d_bot-iot.ipynb          ## day 16 artifact
 │
+├── # day 26 deliverable
+│   ├── 26.ce-FROZEN-feat-prototypes_ciciot2023.ipynb
+│   ├── 26.ce-FROZEN-feat-prototypes_unsw-nb15.ipynb
+│   └── 26.ce-FROZEN-feat-prototypes_bot-iot.ipynb
+│
 ├── e2e-qs-net_v3.0.ipynb   ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
 ├── e2e-qs-net_v4.0.ipynb   ##
 └──

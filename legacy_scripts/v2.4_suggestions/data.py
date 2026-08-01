@@ -1,19 +1,16 @@
-"""Dataset loading, subsampling, and class-balance helpers."""
+"""Dataset loading, subsampling, class-balance helpers, and geometric coreset sampling."""
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.decomposition import PCA
 
 from scripts.constants import DEFAULT_SEED, DEFAULT_MIN_PCT
 from scripts.utils import to_np_y
 
-# ============================================================================
-# Dataset loading and preprocessing helpers
-# ============================================================================
 
 def load_split(data_path, name, column_name, categories, csv=False, selected_cols=None, return_df=False):
     """
@@ -110,15 +107,6 @@ def capped_sample(X, y, per_class_cap, seed=DEFAULT_SEED):
     return X[idxs], y[idxs]
 
 
-def to_angles(X_raw, scaler, x_min, x_max, pca=None, angle_max=np.pi):
-    """
-    Convert raw features to angles.
-    """
-    Xs = scaler.transform(X_raw)
-    Xp = pca.transform(Xs) if pca is not None else Xs
-    return (Xp - x_min) / (x_max - x_min + 1e-12) * angle_max
-
-
 def class_weights_for_sampler(y, n_classes):
     """
     Per-sample inverse-frequency weights for torch's WeightedRandomSampler(weights, num_samples=len(y), replacement=True).
@@ -130,158 +118,6 @@ def class_weights_for_sampler(y, n_classes):
     class_w = 1.0 / np.maximum(counts, 1)
     return class_w[y]
 
-# ============================================================================
-# Geometric Coreset Sampling (k-Center and Greedy DPP)
-# ============================================================================
-
-def greedy_kcenter_sample(X, y, per_class_cap, seed=DEFAULT_SEED):
-    """
-    Selects `per_class_cap` samples per class using Greedy k-Center.
-
-    Guarantees that sparse edges and multi-modal boundaries are preserved,
-    preventing mode-collapse in the training subset.
-    """
-    rng = np.random.default_rng(seed)
-    y = np.asarray(y).astype(int)
-    classes = np.unique(y)
-    selected_indices = []
-
-    # Scale internally purely for distance calculation so features with
-    # larger scales don't dominate the geometric selection.
-    X_scaled = StandardScaler().fit_transform(X)
-
-    for c in classes:
-        mask = (y == c)
-        X_c = X_scaled[mask]
-        idx_c = np.where(mask)[0]
-
-        n_samples = len(idx_c)
-        cap = min(per_class_cap, n_samples)
-
-        if cap == n_samples:
-            selected_indices.extend(idx_c)
-            continue
-
-        sel = [rng.integers(0, n_samples)]
-        min_dists = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten()
-
-        for _ in range(1, cap):
-            min_dists_masked = min_dists.copy()
-            min_dists_masked[sel] = -1
-            next_i = np.argmax(min_dists_masked)
-            sel.append(next_i)
-            dists_new = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten()
-            min_dists = np.minimum(min_dists, dists_new)
-
-        selected_indices.extend(idx_c[sel])
-
-    selected_indices = rng.permutation(np.array(selected_indices))
-    return X[selected_indices], y[selected_indices]
-
-
-def greedy_dpp_sample(X, y, per_class_cap, seed=DEFAULT_SEED):
-    """
-    Selects `per_class_cap` samples per class using Greedy Determinantal Point Processes.
-
-    Strictly superior to k-Center: it covers sparse edges (like k-center) but also
-    maintains proper density representation in the dense center of the data manifold.
-    """
-    rng = np.random.default_rng(seed)
-    y = np.asarray(y).astype(int)
-    classes = np.unique(y)
-    selected_indices = []
-
-    X_scaled = StandardScaler().fit_transform(X)
-
-    for c in classes:
-        mask = (y == c)
-        X_c = X_scaled[mask]
-        idx_c = np.where(mask)[0]
-
-        n_samples = len(idx_c)
-        cap = min(per_class_cap, n_samples)
-
-        if cap == n_samples:
-            selected_indices.extend(idx_c)
-            continue
-
-        gamma = 1.0 / X_c.shape[1]
-        sel = [rng.integers(0, n_samples)]
-
-        dists_sq = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten() ** 2
-        L_diag = np.exp(-gamma * dists_sq)
-
-        for _ in range(1, cap):
-            L_masked = L_diag.copy()
-            L_masked[sel] = -1
-            next_i = np.argmax(L_masked)
-            sel.append(next_i)
-
-            dists_sq = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten() ** 2
-            K_new = np.exp(-gamma * dists_sq)
-
-            # Efficient incremental update avoiding O(k^3) matrix inversion
-            L_diag = L_diag - (K_new ** 2) / (1 + L_diag[sel[-1]] + 1e-10)
-            L_diag = np.clip(L_diag, 0, 1)
-
-        selected_indices.extend(idx_c[sel])
-
-    selected_indices = rng.permutation(np.array(selected_indices))
-    return X[selected_indices], y[selected_indices]
-
-
-def _fast_kcenter_idx_2d(X_2d, y, cap, seed):
-    """
-    Internal helper: runs k-center directly on 2D PCA for fast visualization.
-    """
-    rng = np.random.default_rng(seed)
-    y = np.asarray(y).astype(int)
-    indices = []
-    for c in np.unique(y):
-        mask = (y == c)
-        X_c, idx_c = X_2d[mask], np.where(mask)[0]
-        cap_c = min(cap, len(idx_c))
-        if cap_c == len(idx_c): indices.extend(idx_c); continue
-        sel = [rng.integers(0, len(idx_c))]
-        min_dists = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten()
-        for _ in range(1, cap_c):
-            min_dists_masked = min_dists.copy(); min_dists_masked[sel] = -1
-            next_i = np.argmax(min_dists_masked); sel.append(next_i)
-            dists_new = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten()
-            min_dists = np.minimum(min_dists, dists_new)
-        indices.extend(idx_c[sel])
-    return np.array(indices)
-
-
-def _fast_dpp_idx_2d(X_2d, y, cap, seed):
-    """
-    Internal helper: runs DPP directly on 2D PCA for fast visualization.
-    """
-    rng = np.random.default_rng(seed)
-    y = np.asarray(y).astype(int)
-    indices = []
-    for c in np.unique(y):
-        mask = (y == c)
-        X_c, idx_c = X_2d[mask], np.where(mask)[0]
-        cap_c = min(cap, len(idx_c))
-        if cap_c == len(idx_c): indices.extend(idx_c); continue
-        gamma = 1.0 / X_c.shape[1]
-        sel = [rng.integers(0, len(idx_c))]
-        dists_sq = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten()**2
-        L_diag = np.exp(-gamma * dists_sq)
-        for _ in range(1, cap_c):
-            L_masked = L_diag.copy(); L_masked[sel] = -1
-            next_i = np.argmax(L_masked); sel.append(next_i)
-            dists_sq = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten()**2
-            K_new = np.exp(-gamma * dists_sq)
-            L_diag = L_diag - (K_new**2) / (1 + L_diag[sel[-1]] + 1e-10)
-            L_diag = np.clip(L_diag, 0, 1)
-        indices.extend(idx_c[sel])
-    return np.array(indices)
-
-# ============================================================================
-# Visualization helpers
-# ============================================================================
 
 def class_balance_table(y, class_names):
     """
@@ -350,6 +186,155 @@ def plot_class_balance_bars(y, class_names, title="Class balance", ax=None):
     return ax
 
 
+
+# Geometric Coreset Sampling (k-Center and Greedy DPP)
+
+
+def greedy_kcenter_sample(X, y, per_class_cap, seed=DEFAULT_SEED):
+    """
+    Selects `per_class_cap` samples per class using Greedy k-Center.
+    
+    Guarantees that sparse edges and multi-modal boundaries are preserved, 
+    preventing mode-collapse in the training subset.
+    """
+    rng = np.random.default_rng(seed)
+    y = np.asarray(y).astype(int)
+    classes = np.unique(y)
+    selected_indices = []
+    
+    # Scale internally purely for distance calculation so features with 
+    # larger scales don't dominate the geometric selection.
+    X_scaled = StandardScaler().fit_transform(X)
+    
+    for c in classes:
+        mask = (y == c)
+        X_c = X_scaled[mask]
+        idx_c = np.where(mask)[0]
+        
+        n_samples = len(idx_c)
+        cap = min(per_class_cap, n_samples)
+        
+        if cap == n_samples:
+            selected_indices.extend(idx_c)
+            continue
+            
+        sel = [rng.integers(0, n_samples)]
+        min_dists = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten()
+        
+        for _ in range(1, cap):
+            min_dists_masked = min_dists.copy()
+            min_dists_masked[sel] = -1
+            next_i = np.argmax(min_dists_masked)
+            sel.append(next_i)
+            dists_new = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten()
+            min_dists = np.minimum(min_dists, dists_new)
+            
+        selected_indices.extend(idx_c[sel])
+        
+    selected_indices = rng.permutation(np.array(selected_indices))
+    return X[selected_indices], y[selected_indices]
+
+
+def greedy_dpp_sample(X, y, per_class_cap, seed=DEFAULT_SEED):
+    """
+    Selects `per_class_cap` samples per class using Greedy Determinantal Point Processes.
+    
+    Strictly superior to k-Center: it covers sparse edges (like k-center) BUT ALSO 
+    maintains proper density representation in the dense center of the data manifold.
+    """
+    rng = np.random.default_rng(seed)
+    y = np.asarray(y).astype(int)
+    classes = np.unique(y)
+    selected_indices = []
+    
+    X_scaled = StandardScaler().fit_transform(X)
+    
+    for c in classes:
+        mask = (y == c)
+        X_c = X_scaled[mask]
+        idx_c = np.where(mask)[0]
+        
+        n_samples = len(idx_c)
+        cap = min(per_class_cap, n_samples)
+        
+        if cap == n_samples:
+            selected_indices.extend(idx_c)
+            continue
+            
+        gamma = 1.0 / X_c.shape[1]
+        sel = [rng.integers(0, n_samples)]
+        
+        dists_sq = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten() ** 2
+        L_diag = np.exp(-gamma * dists_sq)
+        
+        for _ in range(1, cap):
+            L_masked = L_diag.copy()
+            L_masked[sel] = -1
+            next_i = np.argmax(L_masked)
+            sel.append(next_i)
+            
+            dists_sq = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten() ** 2
+            K_new = np.exp(-gamma * dists_sq)
+            
+            # Efficient incremental update avoiding O(k^3) matrix inversion
+            L_diag = L_diag - (K_new ** 2) / (1 + L_diag[sel[-1]] + 1e-10)
+            L_diag = np.clip(L_diag, 0, 1)
+            
+        selected_indices.extend(idx_c[sel])
+        
+    selected_indices = rng.permutation(np.array(selected_indices))
+    return X[selected_indices], y[selected_indices]
+
+
+
+# Comprehensive Dataset & Sampling Visualization
+
+
+def _fast_kcenter_idx_2d(X_2d, y, cap, seed):
+    """Internal helper: runs k-center directly on 2D PCA for fast visualization."""
+    rng = np.random.default_rng(seed)
+    y = np.asarray(y).astype(int)
+    indices = []
+    for c in np.unique(y):
+        mask = (y == c)
+        X_c, idx_c = X_2d[mask], np.where(mask)[0]
+        cap_c = min(cap, len(idx_c))
+        if cap_c == len(idx_c): indices.extend(idx_c); continue
+        sel = [rng.integers(0, len(idx_c))]
+        min_dists = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten()
+        for _ in range(1, cap_c):
+            min_dists_masked = min_dists.copy(); min_dists_masked[sel] = -1
+            next_i = np.argmax(min_dists_masked); sel.append(next_i)
+            dists_new = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten()
+            min_dists = np.minimum(min_dists, dists_new)
+        indices.extend(idx_c[sel])
+    return np.array(indices)
+
+def _fast_dpp_idx_2d(X_2d, y, cap, seed):
+    """Internal helper: runs DPP directly on 2D PCA for fast visualization."""
+    rng = np.random.default_rng(seed)
+    y = np.asarray(y).astype(int)
+    indices = []
+    for c in np.unique(y):
+        mask = (y == c)
+        X_c, idx_c = X_2d[mask], np.where(mask)[0]
+        cap_c = min(cap, len(idx_c))
+        if cap_c == len(idx_c): indices.extend(idx_c); continue
+        gamma = 1.0 / X_c.shape[1]
+        sel = [rng.integers(0, len(idx_c))]
+        dists_sq = euclidean_distances(X_c, X_c[sel[0]:sel[0]+1]).flatten()**2
+        L_diag = np.exp(-gamma * dists_sq)
+        for _ in range(1, cap_c):
+            L_masked = L_diag.copy(); L_masked[sel] = -1
+            next_i = np.argmax(L_masked); sel.append(next_i)
+            dists_sq = euclidean_distances(X_c, X_c[next_i:next_i+1]).flatten()**2
+            K_new = np.exp(-gamma * dists_sq)
+            L_diag = L_diag - (K_new**2) / (1 + L_diag[sel[-1]] + 1e-10)
+            L_diag = np.clip(L_diag, 0, 1)
+        indices.extend(idx_c[sel])
+    return np.array(indices)
+
+
 def plot_dataset_and_sampling_analysis(X_raw, y_raw, per_class_cap, class_names, seed=DEFAULT_SEED):
     """
     Plots a 2x3 grid showing:
@@ -358,37 +343,37 @@ def plot_dataset_and_sampling_analysis(X_raw, y_raw, per_class_cap, class_names,
     """
     y_raw = np.asarray(y_raw).astype(int)
     n_classes = len(class_names)
-
+    
     # 1. Project to 2D for fast geometric visualization
     pca_2d = PCA(n_components=2, random_state=seed)
     X_2d = pca_2d.fit_transform(StandardScaler().fit_transform(X_raw))
-
+    
     # 2. Calculate indices for the 3 sampling methods on the 2D projection
     rng = np.random.default_rng(seed)
     random_idx = np.array([], dtype=int)
     for c in np.unique(y_raw):
         cls_idx = np.where(y_raw == c)[0]
         random_idx = np.concatenate([random_idx, rng.choice(cls_idx, size=min(per_class_cap, len(cls_idx)), replace=False)])
-
+        
     kcenter_idx = _fast_kcenter_idx_2d(X_2d, y_raw, per_class_cap, seed)
     dpp_idx = _fast_dpp_idx_2d(X_2d, y_raw, per_class_cap, seed)
-
+    
     # 3. Setup Plot
     fig = plt.figure(figsize=(20, 11))
     gs = fig.add_gridspec(2, 3, hspace=0.3, wspace=0.25)
-
+    
     cmap = plt.cm.get_cmap('tab10', n_classes)
-
+    
     # --- TOP LEFT: True Raw Geometric ---
     ax_raw_geo = fig.add_subplot(gs[0, 0])
     for c_id, class_name in enumerate(class_names):
         mask = (y_raw == c_id)
-        ax_raw_geo.scatter(X_2d[mask, 0], X_2d[mask, 1], c=[cmap(c_id)],
+        ax_raw_geo.scatter(X_2d[mask, 0], X_2d[mask, 1], c=[cmap(c_id)], 
                            label=f"{class_name} (n={mask.sum():,})", s=2, alpha=0.3, rasterized=True)
     ax_raw_geo.set_title("True Raw Geometric Distribution\n(2D PCA Projection)", fontweight='bold')
     ax_raw_geo.legend(markerscale=4, loc='best', fontsize=7)
     ax_raw_geo.grid(True, alpha=0.2)
-
+    
     # --- TOP MIDDLE & RIGHT: True Raw Frequency ---
     ax_raw_freq = fig.add_subplot(gs[0, 1:])
     unique_classes, counts = np.unique(y_raw, return_counts=True)
@@ -398,17 +383,17 @@ def plot_dataset_and_sampling_analysis(X_raw, y_raw, per_class_cap, class_names,
     ax_raw_freq.set_ylabel("Number of Samples")
     ax_raw_freq.set_xlabel("Class")
     for bar, count in zip(bars, counts):
-        ax_raw_freq.text(bar.get_x() + bar.get_width() / 2.0, bar.get_height() + max(counts)*0.01,
+        ax_raw_freq.text(bar.get_x() + bar.get_width() / 2.0, bar.get_height() + max(counts)*0.01, 
                          f'{count:,}', ha='center', va='bottom', fontweight='bold', fontsize=9)
     ax_raw_freq.tick_params(axis='x', rotation=30)
-
+    
     # --- BOTTOM ROW: Sampling Comparisons ---
     configs = [
         (random_idx, "Random Sampling", "royalblue", "Clumps in dense center,\nmisses sparse edges"),
         (kcenter_idx, "Greedy k-Center", "darkorange", "Hits sparse edges,\nbut leaves holes in center"),
         (dpp_idx, "Greedy DPP (Best)", "crimson", "Covers edges AND dense\ncenter uniformly")
     ]
-
+    
     for i, (idx, title, color, subtitle) in enumerate(configs):
         ax = fig.add_subplot(gs[1, i])
         ax.scatter(X_2d[:, 0], X_2d[:, 1], c='lightgray', s=3, alpha=0.3, label='Discarded')
@@ -418,5 +403,6 @@ def plot_dataset_and_sampling_analysis(X_raw, y_raw, per_class_cap, class_names,
         ax.set_xlabel("PCA 1"); ax.set_ylabel("PCA 2")
         ax.grid(True, alpha=0.2)
 
-    fig.suptitle(f"Dataset Analysis & Geometric Impact of Capping Strategy (Cap={per_class_cap:,}/class)", fontsize=14, y=1.01)
+    fig.suptitle(f"Dataset Analysis & Geometric Impact of Capping Strategy (Cap={per_class_cap:,}/class)", 
+                 fontsize=14, y=1.01)
     plt.show()
