@@ -9,3 +9,6 @@
 */__pycache__/
 *.zip
 arjun/
+
+# crash report files from MAQT training
+*-crash-*.json
