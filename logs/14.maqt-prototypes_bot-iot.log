@@ -42,8 +42,8 @@
     ]
   },
   "extra": {
-    "data_path": "data/BoT_IoT/quantum",
-    "dataset": "BoT_IoT",
+    "data_path": "data/BoT-IoT/quantum",
+    "dataset": "BoT-IoT",
     "split_prefix": "q8",
     "target_col": "label_multiclass",
     "n_train": 20,

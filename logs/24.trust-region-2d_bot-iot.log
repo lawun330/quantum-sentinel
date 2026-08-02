@@ -2,8 +2,8 @@
   "history": {},
   "extra": {
     "notebook": "24.trust-region-2d_bot-iot",
-    "checkpoint": "models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
-    "dataset": "BoT_IoT",
+    "checkpoint": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
+    "dataset": "BoT-IoT",
     "split_prefix": "q8",
     "num_qubits": 8,
     "num_layers": 2,
@@ -13,8 +13,8 @@
     "n_proto": 4,
     "max_per_class": 100,
     "max_zeroday": 40,
-    "figure_mds": "models/prototypes/BoT_IoT/24.trust-region-2d_bot-iot-mds.png",
-    "figure_pca": "models/prototypes/BoT_IoT/24.trust-region-2d_bot-iot-pca.png",
-    "coords": "models/prototypes/BoT_IoT/24.trust-region-2d_bot-iot-coords.npz"
+    "figure_mds": "models/prototypes/BoT-IoT/24.trust-region-2d_bot-iot-mds.png",
+    "figure_pca": "models/prototypes/BoT-IoT/24.trust-region-2d_bot-iot-pca.png",
+    "coords": "models/prototypes/BoT-IoT/24.trust-region-2d_bot-iot-coords.npz"
   }
 }

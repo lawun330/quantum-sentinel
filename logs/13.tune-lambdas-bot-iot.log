@@ -229,8 +229,8 @@
     ]
   },
   "extra": {
-    "dataset": "BoT_IoT",
-    "data_path": "data/BoT_IoT/quantum",
+    "dataset": "BoT-IoT",
+    "data_path": "data/BoT-IoT/quantum",
     "split_prefix": "q8",
     "seed": 42,
     "epochs": 10,

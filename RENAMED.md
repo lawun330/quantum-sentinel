@@ -41,9 +41,9 @@
 | logs/estimate-lipschitz_unsw-nb15.log | logs/16.estimate-lipschitz_unsw-nb15.log |
 | logs/training-qs-net-pytorch_v2.2.log | logs/e2e-qs-net_v2.2.log |
 | logs/training-qs-net_v3.0.log | logs/e2e-qs-net_v3.0.log |
-| models/prototypes/BoT_IoT/qs-net-prototypes_bot-iot-checkpoint.pt | models/prototypes/BoT_IoT/14.maqt-prototypes_bot-iot-checkpoint.pt |
-| models/prototypes/BoT_IoT/estimate-lipschitz_bot-iot-checkpoint.pt | models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt |
-| models/prototypes/BoT_IoT/estimate-lipschitz_bot-iot-lphi.pt | models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-lphi.pt |
+| models/prototypes/BoT-IoT/qs-net-prototypes_bot-iot-checkpoint.pt | models/prototypes/BoT-IoT/14.maqt-prototypes_bot-iot-checkpoint.pt |
+| models/prototypes/BoT-IoT/estimate-lipschitz_bot-iot-checkpoint.pt | models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt |
+| models/prototypes/BoT-IoT/estimate-lipschitz_bot-iot-lphi.pt | models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-lphi.pt |
 | models/prototypes/CICIoT2023/qs-net-prototypes_ciciot2023-checkpoint.pt | models/prototypes/CICIoT2023/14.maqt-prototypes_ciciot2023-checkpoint.pt |
 | models/prototypes/CICIoT2023/estimate-lipschitz_ciciot2023-checkpoint.pt | models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt |
 | models/prototypes/CICIoT2023/estimate-lipschitz_ciciot2023-lphi.pt | models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt |

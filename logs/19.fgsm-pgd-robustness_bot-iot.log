@@ -5,8 +5,8 @@
     ]
   },
   "extra": {
-    "data_path": "data/BoT_IoT/quantum",
-    "dataset": "BoT_IoT",
+    "data_path": "data/BoT-IoT/quantum",
+    "dataset": "BoT-IoT",
     "split_prefix": "q8",
     "target_col": "label_multiclass",
     "n_train": 2800,
@@ -33,7 +33,7 @@
     "bp_pgd_l2": 0.14142135623730953,
     "eps_star_day18": -0.451494270492395,
     "eps_star_beta_day18": -0.40059085926776,
-    "checkpoint": "models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
-    "lphi_path": "models/prototypes/BoT_IoT/16.estimate-lipschitz_bot-iot-lphi.pt"
+    "checkpoint": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
+    "lphi_path": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-lphi.pt"
   }
 }
