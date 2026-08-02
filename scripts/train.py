@@ -249,6 +249,15 @@ def _restore_early_stop(early_stop, state):
     early_stop.should_stop = bool(state.get("should_stop", False))
 
 
+def _reset_early_stop_patience(early_stop):
+    """
+    Clear the patience counter so resumed training gets a fresh run of bad epochs.
+    Keeps the best score and best epoch so they can still be restored at the end.
+    """
+    early_stop.bad_epochs = 0
+    early_stop.should_stop = False
+
+
 def _early_stop_state_dict(early_stop):
     """
     Pack early-stopping fields so they can be saved and restored later.
@@ -318,6 +327,7 @@ def train_maqt(
     checkpoint_dir=None,
     save_every_epoch=True,
     resume_from=None,
+    reset_early_stopping_on_resume=False,
     checkpoint_extra=None,
     checkpoint_every_steps=50,
     keep_last_n_checkpoints=3,
@@ -377,11 +387,14 @@ def train_maqt(
             if "ema_protos" in ckpt:
                 ema_protos.protos = {int(k): v.to(device) for k, v in ckpt["ema_protos"].items()}
             _restore_early_stop(early_stop, ckpt.get("early_stop_state"))
+            if reset_early_stopping_on_resume:
+                _reset_early_stop_patience(early_stop)
             if ckpt.get("best_bundle") is not None:
                 best_bundle = ckpt["best_bundle"]
             if verbose:
                 where = f"epoch {start_epoch}" + (f", step {start_step} (mid-epoch)" if start_step else "")
-                print(f"resumed MAQT from {resume_from} at {where} / {epochs}")
+                es_note = "\n(patience reset)" if reset_early_stopping_on_resume else ""
+                print(f"resumed MAQT from {resume_from} at {where} / {epochs}{es_note}")
         except Exception as e:
             print(f"warning: failed to load checkpoint {resume_from} ({e!r}); starting fresh")
             start_epoch, start_step = 0, 0
@@ -401,7 +414,12 @@ def train_maqt(
                     torch.manual_seed(int(seed) + epoch)
 
                 if resumed_perm is not None and len(resumed_perm) == n:
-                    perm = resumed_perm if torch.is_tensor(resumed_perm) else torch.as_tensor(resumed_perm)
+                    # keep on CPU: map_location=device would put ckpt perm on CUDA, and .numpy() needs host memory
+                    perm = (
+                        resumed_perm.detach().cpu()
+                        if torch.is_tensor(resumed_perm)
+                        else torch.as_tensor(resumed_perm)
+                    )
                 elif use_weighted_sampler:
                     perm = torch.tensor(list(WeightedRandomSampler(sample_weights, num_samples=n, replacement=True)))
                 else:
@@ -656,7 +674,7 @@ def train_maqt(
         return theta, head, final_prototypes, ema_protos, history
 
 # ============================================================================
-# Plain-CE baseline
+# Plain-CE baseline (same loop as MAQT; CE loss only)
 # ============================================================================
 
 def train_plain_vqc(
@@ -670,8 +688,11 @@ def train_plain_vqc(
     epochs=DEFAULT_EPOCHS,
     lr=DEFAULT_LR,
     batch_size=DEFAULT_CONTROL_BATCH_SIZE,
-    weight_init_eps=DEFAULT_WEIGHT_INIT_EPS,
     grad_clip_norm=DEFAULT_GRAD_CLIP_NORM,
+    weight_init_eps=DEFAULT_WEIGHT_INIT_EPS,
+    use_weighted_sampler=True,
+    log_every=1,
+    verbose=True,
     seed=None,
     early_stopping=False,
     patience=DEFAULT_PATIENCE,
@@ -679,6 +700,7 @@ def train_plain_vqc(
     checkpoint_dir=None,
     save_every_epoch=True,
     resume_from=None,
+    reset_early_stopping_on_resume=False,
     checkpoint_extra=None,
     checkpoint_every_steps=50,
     keep_last_n_checkpoints=3,
@@ -687,7 +709,6 @@ def train_plain_vqc(
     heartbeat_every_steps=25,
     log_dir=None,
     notebook_name="plain_vqc",
-    verbose=True,
 ):
     """
     Train the CE-only baseline (zero lambdas) with only class labels for robustness ablation.
@@ -695,13 +716,23 @@ def train_plain_vqc(
     theta = initialize_random_weights(n_layers, n_qubits, device, eps=weight_init_eps, seed=seed)
     head = nn.Linear(n_qubits, n_classes).to(device)
     opt = torch.optim.Adam(list([theta]) + list(head.parameters()), lr=lr)
-    ce = nn.CrossEntropyLoss()
+    ce_loss_fn = nn.CrossEntropyLoss()
 
     X_np = to_np_batch_x(X_train)
     y_np = to_np_y(y_train).astype(int)
     n = len(X_np)
 
-    history = {"loss": [], "grad_var": [], "epoch_sec": [], "gpu_mem_mb": []}
+    sample_weights = (
+        torch.as_tensor(class_weights_for_sampler(y_np, n_classes), dtype=torch.double)
+        if use_weighted_sampler else None
+    )
+
+    history = {
+        "loss": [], "L_CE": [],
+        "grad_var": [],
+        "epoch_sec": [], "gpu_mem_mb": [],
+    }
+
     early_stop = EarlyStopping(patience=patience, min_delta=min_delta, mode="min")
     best_bundle = None
     start_epoch, start_step = 0, 0
@@ -724,11 +755,14 @@ def train_plain_vqc(
                 resumed_perm = ckpt["perm"]
                 resumed_epoch_terms = ckpt.get("epoch_terms")
             _restore_early_stop(early_stop, ckpt.get("early_stop_state"))
+            if reset_early_stopping_on_resume:
+                _reset_early_stop_patience(early_stop)
             if ckpt.get("best_bundle") is not None:
                 best_bundle = ckpt["best_bundle"]
             if verbose:
                 where = f"epoch {start_epoch}" + (f", step {start_step} (mid-epoch)" if start_step else "")
-                print(f"resumed plain VQC from {resume_from} at {where} / {epochs}")
+                es_note = "\n(patience reset)" if reset_early_stopping_on_resume else ""
+                print(f"resumed plain VQC from {resume_from} at {where} / {epochs}{es_note}")
         except Exception as e:
             print(f"warning: failed to load checkpoint {resume_from} ({e!r}); starting fresh")
             start_epoch, start_step = 0, 0
@@ -741,16 +775,26 @@ def train_plain_vqc(
         try:
             for epoch in range(start_epoch, epochs):
                 epoch_t0 = time.perf_counter()
+
                 if seed is not None:
                     torch.manual_seed(int(seed) + epoch)
 
                 if resumed_perm is not None and len(resumed_perm) == n:
-                    perm = resumed_perm if torch.is_tensor(resumed_perm) else torch.as_tensor(resumed_perm)
+                    # keep on CPU: map_location=device would put ckpt perm on CUDA, and .numpy() needs host memory
+                    perm = (
+                        resumed_perm.detach().cpu()
+                        if torch.is_tensor(resumed_perm)
+                        else torch.as_tensor(resumed_perm)
+                    )
+                elif use_weighted_sampler:
+                    perm = torch.tensor(list(WeightedRandomSampler(sample_weights, num_samples=n, replacement=True)))
                 else:
                     perm = torch.randperm(n)
                 resumed_perm = None
 
-                epoch_terms = resumed_epoch_terms or {"loss": [], "grad_vars": []}
+                epoch_terms = resumed_epoch_terms or {
+                    "L_total": [], "L_CE": [], "grad_vars": [],
+                }
                 resumed_epoch_terms = None
 
                 step_start_this_epoch = start_step if epoch == start_epoch else 0
@@ -767,15 +811,22 @@ def train_plain_vqc(
                         opt.zero_grad()
                         z, _ = forward_circuit(x_t, theta)
                         logits = head(expectations_to_tensor(z))
-                        loss = ce(logits, y_t)
+                        loss = ce_loss_fn(logits, y_t)
                         loss.backward()
                         torch.nn.utils.clip_grad_norm_(list([theta]) + list(head.parameters()), grad_clip_norm)
                         grad_var = theta.grad.var().item()
                         opt.step()
-                        return {"n": len(xb_s), "loss": loss.item(), "grad_var": grad_var}
+                        return {
+                            "n": len(xb_s),
+                            "loss": loss.item(),
+                            "l_ce": loss.item(),
+                            "grad_var": grad_var,
+                        }
 
                     result = run_with_oom_retry(xb_np, yb_np, _step_fn, device, oom_max_retries)
-                    epoch_terms["loss"].append(result["loss"])
+
+                    epoch_terms["L_total"].append(result["loss"])
+                    epoch_terms["L_CE"].append(result["l_ce"])
                     epoch_terms["grad_vars"].append(result["grad_var"])
                     step_count += 1
 
@@ -784,8 +835,8 @@ def train_plain_vqc(
                         frac = min(1.0, (i + batch_size) / n)
                         eta = elapsed / max(frac, 1e-6) - elapsed
                         print(
-                            f"\t[plain] epoch {epoch+1} step {step_count} ({frac*100:.0f}%) "
-                            f"loss={epoch_terms['loss'][-1]:.4f} elapsed={elapsed:.0f}s eta={eta:.0f}s"
+                            f"\tepoch {epoch+1} step {step_count} ({frac*100:.0f}%) "
+                            f"loss={epoch_terms['L_total'][-1]:.4f} elapsed={elapsed:.0f}s eta={eta:.0f}s"
                         )
 
                     time_budget_hit = (
@@ -816,7 +867,8 @@ def train_plain_vqc(
                         raise _GracefulStop()
 
                 mean_gv = float(np.mean(epoch_terms["grad_vars"])) if epoch_terms["grad_vars"] else float("nan")
-                history["loss"].append(float(np.mean(epoch_terms["loss"])))
+                history["loss"].append(float(np.mean(epoch_terms["L_total"])))
+                history["L_CE"].append(float(np.mean(epoch_terms["L_CE"])))
                 history["grad_var"].append(mean_gv)
                 history["epoch_sec"].append(time.perf_counter() - epoch_t0)
                 history["gpu_mem_mb"].append(peak_gpu_mb())
@@ -831,18 +883,22 @@ def train_plain_vqc(
                             "head_state_dict": {k: v.detach().cpu().clone() for k, v in head.state_dict().items()},
                         }
 
-                if verbose:
+                if verbose and (epoch_1based % log_every == 0):
                     es_msg = (
                         f" | best={early_stop.best_score:.4f}@ep{early_stop.best_epoch} "
                         f"| bad={early_stop.bad_epochs}/{patience}"
                         if early_stopping else ""
                     )
+                    mem = history["gpu_mem_mb"][-1]
+                    mem_msg = f" | peak_mem={mem:.0f}MB" if mem else ""
                     print(
-                        f"[plain VQC] epoch {epoch_1based}/{epochs} | "
-                        f"time {history['epoch_sec'][-1]:.1f}s | "
+                        f"epoch {epoch_1based:2d}/{epochs} | time {history['epoch_sec'][-1]:.1f}s | "
                         f"loss {history['loss'][-1]:.4f} | "
-                        f"grad_var {history['grad_var'][-1]:.2e}{es_msg}"
+                        f"L_CE {history['L_CE'][-1]:.4f} | grad_var {mean_gv:.2e}"
+                        f"{mem_msg}{es_msg}"
                     )
+                    if mean_gv < BARREN_PLATEAU_VAR_THRESHOLD:
+                        print("  barren plateau detected")
 
                 if ckpt_dir is not None and save_every_epoch:
                     saved = _save_all(
@@ -862,6 +918,7 @@ def train_plain_vqc(
                             {
                                 "epoch": epoch_1based,
                                 "loss": history["loss"][-1],
+                                "L_CE": history["L_CE"][-1],
                                 "grad_var": mean_gv,
                                 "epoch_sec": history["epoch_sec"][-1],
                                 "gpu_mem_mb": history["gpu_mem_mb"][-1],
@@ -875,8 +932,9 @@ def train_plain_vqc(
                 if early_stopping and stop:
                     if verbose:
                         print(
-                            f"early stopping at epoch {epoch_1based}: no improvement for "
-                            f"{patience} epochs (best={early_stop.best_score:.4f} @ epoch {early_stop.best_epoch})"
+                            f"early stopping at epoch {epoch_1based}: "
+                            f"no train-loss improvement for {patience} epochs "
+                            f"(best={early_stop.best_score:.4f} @ epoch {early_stop.best_epoch})"
                         )
                     break
 
@@ -911,9 +969,12 @@ def train_plain_vqc(
                     print(f"  emergency checkpoint saved: {crash_ckpt}")
                 if crash_log:
                     print(f"  crash log written: {crash_log}")
+                if ckpt_dir:
+                    print(f"  re-run with resume_from={ckpt_dir / 'plain-latest.pt'} to continue")
             raise
 
         interrupted = stopped_time_budget or _STOP_REQUESTED["flag"]
+
         if early_stopping and best_bundle is not None and not interrupted:
             with torch.no_grad():
                 theta.copy_(best_bundle["theta"].to(device))
@@ -926,6 +987,7 @@ def train_plain_vqc(
                 )
 
         _finalize_history(history, early_stop, early_stopping, interrupted, stopped_time_budget)
+
         if interrupted and verbose:
             print(
                 f"training paused ({history['stop_reason']}) after {history['epochs_ran']} epoch(s) "

@@ -15,13 +15,19 @@ from scripts.utils import to_np_y
 # Dataset loading and preprocessing helpers
 # ============================================================================
 
-def load_split(data_path, name, column_name, categories, csv=False, selected_cols=None, return_df=False):
+def load_split(data_path, name, column_name, categories=None, csv=False, selected_cols=None, return_df=False):
     """
     Load a split of the dataset from a csv or parquet file.
 
     - data_cols: list of ALL columns in the dataset
     - selected_cols: list of columns to select from the dataset (e.g. FROZEN features)
     - feature_cols: list of columns to use as features that may or may not be explicitly selected
+    - categories: optional fixed label order. If None, classes are taken from the
+      label column in this file (sorted). Pass an explicit list when loading
+      several splits so integer codes stay aligned across train/test/etc.
+    - selected_cols: columns to use as features (e.g. FROZEN features); if None,
+      all non-label columns are used.
+    - return_df: return the dataframe with the selected columns and label column or not
     """
     if csv:
         df = pd.read_csv(f"{data_path}/{name}.csv")
@@ -43,11 +49,17 @@ def load_split(data_path, name, column_name, categories, csv=False, selected_col
             raise ValueError(f"Columns {missing_cols} not found in dataset")
         # use only the selected columns
         feature_cols = list(selected_cols)
+
+    if categories is None:
+        categories = sorted(df[column_name].unique().tolist())
+    else:
+        categories = list(categories)
+
     X = df[feature_cols].values
     y = pd.Categorical(df[column_name], categories=categories).codes
     if return_df:
-        return X, y, df[feature_cols + [column_name]].copy()
-    return X, y
+        return X, y, categories, df[feature_cols + [column_name]].copy()
+    return X, y, categories
 
 
 def stratified_head(X, y, n, seed=DEFAULT_SEED, return_index=False):
@@ -377,7 +389,10 @@ def plot_dataset_and_sampling_analysis(X_raw, y_raw, per_class_cap, class_names,
     fig = plt.figure(figsize=(20, 11))
     gs = fig.add_gridspec(2, 3, hspace=0.3, wspace=0.25)
 
-    cmap = plt.cm.get_cmap('tab10', n_classes)
+    try:
+        cmap = plt.cm.get_cmap('tab10', n_classes)
+    except:
+        cmap = plt.colormaps['tab10'].resampled(n_classes)  # for version mismatch
 
     # --- TOP LEFT: True Raw Geometric ---
     ax_raw_geo = fig.add_subplot(gs[0, 0])
@@ -400,7 +415,7 @@ def plot_dataset_and_sampling_analysis(X_raw, y_raw, per_class_cap, class_names,
     for bar, count in zip(bars, counts):
         ax_raw_freq.text(bar.get_x() + bar.get_width() / 2.0, bar.get_height() + max(counts)*0.01,
                          f'{count:,}', ha='center', va='bottom', fontweight='bold', fontsize=9)
-    ax_raw_freq.tick_params(axis='x', rotation=30)
+    ax_raw_freq.tick_params(axis='x', rotation=0)
 
     # --- BOTTOM ROW: Sampling Comparisons ---
     configs = [
