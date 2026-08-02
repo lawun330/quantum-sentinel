@@ -1,0 +1,65 @@
+{
+ "dataset": "BoT-IoT",
+ "seed": 42,
+ "n_features": 17,
+ "features": [
+  "duration",
+  "n_pkts_total",
+  "n_bytes_total",
+  "src_pkts",
+  "dst_pkts",
+  "src_bytes",
+  "dst_bytes",
+  "rate",
+  "rate_src",
+  "rate_dst",
+  "pkt_size_min",
+  "pkt_size_max",
+  "pkt_size_mean",
+  "pkt_size_std",
+  "iat",
+  "protocol",
+  "conn_state"
+ ],
+ "layout": "train(=train+val) / calibration / test / zeroday",
+ "known_classes": [
+  "DDoS",
+  "DoS",
+  "Normal",
+  "Reconnaissance"
+ ],
+ "n_known_classes": 4,
+ "zero_day_families": [
+  "Theft"
+ ],
+ "rows": {
+  "train": 148729,
+  "calibration": 18591,
+  "test": 18591,
+  "zeroday": 683
+ },
+ "class_membership": {
+  "train": {
+   "DDoS": 75291,
+   "DoS": 65079,
+   "Normal": 5527,
+   "Reconnaissance": 2832
+  },
+  "calibration": {
+   "DDoS": 9411,
+   "DoS": 8135,
+   "Normal": 691,
+   "Reconnaissance": 354
+  },
+  "test": {
+   "DDoS": 9411,
+   "DoS": 8135,
+   "Normal": 691,
+   "Reconnaissance": 354
+  },
+  "zeroday": {
+   "Theft": 683
+  }
+ },
+ "calibration_known_only": true
+}

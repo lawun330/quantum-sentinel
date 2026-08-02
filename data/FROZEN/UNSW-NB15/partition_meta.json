@@ -1,0 +1,83 @@
+{
+ "dataset": "UNSW-NB15",
+ "seed": 42,
+ "n_features": 17,
+ "features": [
+  "duration",
+  "n_pkts_total",
+  "n_bytes_total",
+  "src_pkts",
+  "dst_pkts",
+  "src_bytes",
+  "dst_bytes",
+  "rate",
+  "rate_src",
+  "rate_dst",
+  "pkt_size_min",
+  "pkt_size_max",
+  "pkt_size_mean",
+  "pkt_size_std",
+  "iat",
+  "protocol",
+  "conn_state"
+ ],
+ "layout": "train(=train+val) / calibration / test / zeroday",
+ "known_classes": [
+  "Analysis",
+  "Backdoor",
+  "DoS",
+  "Exploits",
+  "Fuzzers",
+  "Generic",
+  "Normal",
+  "Reconnaissance"
+ ],
+ "n_known_classes": 8,
+ "zero_day_families": [
+  "Shellcode",
+  "Worms"
+ ],
+ "rows": {
+  "train": 81215,
+  "calibration": 10112,
+  "test": 10086,
+  "zeroday": 1216
+ },
+ "class_membership": {
+  "train": {
+   "Analysis": 291,
+   "Backdoor": 238,
+   "DoS": 2347,
+   "Exploits": 16241,
+   "Fuzzers": 10331,
+   "Generic": 769,
+   "Normal": 46633,
+   "Reconnaissance": 4365
+  },
+  "calibration": {
+   "Analysis": 33,
+   "Backdoor": 31,
+   "DoS": 284,
+   "Exploits": 2029,
+   "Fuzzers": 1279,
+   "Generic": 92,
+   "Normal": 5820,
+   "Reconnaissance": 544
+  },
+  "test": {
+   "Analysis": 36,
+   "Backdoor": 29,
+   "DoS": 287,
+   "Exploits": 2027,
+   "Fuzzers": 1260,
+   "Generic": 91,
+   "Normal": 5814,
+   "Reconnaissance": 542
+  },
+  "zeroday": {
+   "Shellcode": 1062,
+   "Worms": 154
+  }
+ },
+ "calibration_known_only": true
+}

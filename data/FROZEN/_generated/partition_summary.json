@@ -1,0 +1,44 @@
+{
+ "CICIoT2023": {
+  "rows": {
+   "train": 151049,
+   "calibration": 18883,
+   "test": 18883,
+   "zeroday": 10984
+  },
+  "n_known_classes": 31,
+  "zero_day_families": [
+   "Mirai-greeth_flood",
+   "Mirai-greip_flood",
+   "Mirai-udpplain"
+  ],
+  "calibration_known_only": true
+ },
+ "BoT-IoT": {
+  "rows": {
+   "train": 148729,
+   "calibration": 18591,
+   "test": 18591,
+   "zeroday": 683
+  },
+  "n_known_classes": 4,
+  "zero_day_families": [
+   "Theft"
+  ],
+  "calibration_known_only": true
+ },
+ "UNSW-NB15": {
+  "rows": {
+   "train": 81215,
+   "calibration": 10112,
+   "test": 10086,
+   "zeroday": 1216
+  },
+  "n_known_classes": 8,
+  "zero_day_families": [
+   "Shellcode",
+   "Worms"
+  ],
+  "calibration_known_only": true
+ }
+}
