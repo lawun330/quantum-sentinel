@@ -7,9 +7,9 @@
   "extra": {
     "dataset": "UNSW-NB15",
     "notebook": "22.e2e-algo3_unsw-nb15.ipynb",
-    "checkpoint": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-checkpoint.pt",
-    "lphi_path": "models/prototypes/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-lphi.pt",
-    "q_source": "models/prototypes/UNSW-NB15/19.fgsm-pgd-robustness_unsw-nb15-artifact.pt",
+    "checkpoint": "artifacts/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-checkpoint.pt",
+    "lphi_path": "artifacts/UNSW-NB15/16.estimate-lipschitz_unsw-nb15-lphi.pt",
+    "q_source": "artifacts/UNSW-NB15/19.fgsm-pgd-robustness_unsw-nb15-artifact.pt",
     "q": 0.5477786064147949,
     "alpha": 0.05,
     "L_phi": 1.0,

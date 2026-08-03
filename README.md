@@ -29,6 +29,7 @@ Modified versions of the following datasets:
 ├── legacy_notebooks/
 ├── legacy_scripts/
 ├── scripts/
+├── artifacts/
 │
 ├── 01.setup-guide.md                      # day 1 deliverable
 ├── 02.encoding-data-iris.ipynb            # day 2 deliverable

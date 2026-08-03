@@ -153,6 +153,6 @@
     "L_phi_max": 0.7741279602050781,
     "L_phi_mean": 0.35723426938056946,
     "n_pairs": 300,
-    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt"
+    "checkpoint": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt"
   }
 }

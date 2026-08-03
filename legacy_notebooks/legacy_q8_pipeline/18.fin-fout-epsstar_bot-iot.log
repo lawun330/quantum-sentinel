@@ -41,7 +41,7 @@
     "eps_star_fmax": -0.451494270492395,
     "eps_star_beta_fmax": -0.40059085926776,
     "A5_fmax": false,
-    "checkpoint": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
-    "lphi_path": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-lphi.pt"
+    "checkpoint": "artifacts/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
+    "lphi_path": "artifacts/BoT-IoT/16.estimate-lipschitz_bot-iot-lphi.pt"
   }
 }

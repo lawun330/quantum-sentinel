@@ -68,7 +68,7 @@
     "eps_star_fmax": -0.4828279445827095,
     "eps_star_beta_fmax": -0.35477543599251216,
     "A5_fmax": false,
-    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
-    "lphi_path": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt"
+    "checkpoint": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
+    "lphi_path": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt"
   }
 }

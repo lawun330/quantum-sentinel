@@ -126,6 +126,6 @@
     "L_phi_mean": 1.9119139397352278,
     "n_probe": 128,
     "delta": 0.05,
-    "checkpoint": "models/prototypes/BoT-IoT/estimate-lipschitz_bot-iot-checkpoint.pt"
+    "checkpoint": "artifacts/BoT-IoT/estimate-lipschitz_bot-iot-checkpoint.pt"
   }
 }

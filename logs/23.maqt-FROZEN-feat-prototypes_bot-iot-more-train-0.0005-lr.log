@@ -578,6 +578,6 @@
     "epochs_ran": 50,
     "stop_reason": "completed",
     "interrupted": false,
-    "checkpoint_dir": "models/prototypes/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-more-train-0.0005-lr_seed42"
+    "checkpoint_dir": "artifacts/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-more-train-0.0005-lr_seed42"
   }
 }

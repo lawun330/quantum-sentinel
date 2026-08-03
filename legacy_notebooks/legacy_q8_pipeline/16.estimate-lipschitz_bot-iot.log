@@ -126,6 +126,6 @@
     "L_phi_max": 0.7001050710678101,
     "L_phi_mean": 0.5536105632781982,
     "n_pairs": 300,
-    "checkpoint": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt"
+    "checkpoint": "artifacts/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt"
   }
 }

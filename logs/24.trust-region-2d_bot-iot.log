@@ -2,7 +2,7 @@
   "history": {},
   "extra": {
     "notebook": "24.trust-region-2d_bot-iot",
-    "checkpoint": "models/prototypes/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-checkpoint.pt",
+    "checkpoint": "artifacts/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-checkpoint.pt",
     "dataset": "BoT-IoT",
     "data_path": "data/FROZEN/BoT-IoT",
     "feature_cols": [
@@ -27,8 +27,8 @@
     "n_proto": 4,
     "max_per_class": 100,
     "max_zeroday": 40,
-    "figure_mds": "models/prototypes/BoT-IoT/24.trust-region-2d_bot-iot-mds.png",
-    "figure_pca": "models/prototypes/BoT-IoT/24.trust-region-2d_bot-iot-pca.png",
-    "coords": "models/prototypes/BoT-IoT/24.trust-region-2d_bot-iot-coords.npz"
+    "figure_mds": "artifacts/BoT-IoT/24.trust-region-2d_bot-iot-mds.png",
+    "figure_pca": "artifacts/BoT-IoT/24.trust-region-2d_bot-iot-pca.png",
+    "coords": "artifacts/BoT-IoT/24.trust-region-2d_bot-iot-coords.npz"
   }
 }

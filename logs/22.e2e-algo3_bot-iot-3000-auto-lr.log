@@ -7,7 +7,7 @@
   "extra": {
     "dataset": "BoT-IoT",
     "notebook": "22.e2e-algo3_bot-iot-3000-auto-lr",
-    "checkpoint": "models/prototypes/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-3000-auto-lr-checkpoint.pt",
+    "checkpoint": "artifacts/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-3000-auto-lr-checkpoint.pt",
     "lphi_path": null,
     "L_phi_source": "analytic_lipschitz_bound (R/2)",
     "q_source": "calibrate_threshold(X_cal) on Day-23 checkpoint",

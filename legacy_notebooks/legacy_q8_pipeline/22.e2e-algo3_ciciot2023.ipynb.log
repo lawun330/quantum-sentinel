@@ -7,9 +7,9 @@
   "extra": {
     "dataset": "CICIoT2023",
     "notebook": "22.e2e-algo3_ciciot2023.ipynb",
-    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
-    "lphi_path": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt",
-    "q_source": "models/prototypes/CICIoT2023/19.fgsm-pgd-robustness_ciciot2023-artifact.pt",
+    "checkpoint": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
+    "lphi_path": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt",
+    "q_source": "artifacts/CICIoT2023/19.fgsm-pgd-robustness_ciciot2023-artifact.pt",
     "q": 0.3162590265274048,
     "alpha": 0.05,
     "L_phi": 1.0,

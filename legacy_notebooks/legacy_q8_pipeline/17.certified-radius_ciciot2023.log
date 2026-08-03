@@ -58,7 +58,7 @@
     "accuracy": 0.47704284276862785,
     "mean_R": 0.014033112970743987,
     "median_R": 0.007401188933946411,
-    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
-    "lphi_path": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt"
+    "checkpoint": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
+    "lphi_path": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt"
   }
 }

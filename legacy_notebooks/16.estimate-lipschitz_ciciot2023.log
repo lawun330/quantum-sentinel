@@ -153,6 +153,6 @@
     "L_phi_mean": 1.9645744656717303,
     "n_probe": 128,
     "delta": 0.05,
-    "checkpoint": "models/prototypes/CICIoT2023/estimate-lipschitz_ciciot2023-checkpoint.pt"
+    "checkpoint": "artifacts/CICIoT2023/estimate-lipschitz_ciciot2023-checkpoint.pt"
   }
 }

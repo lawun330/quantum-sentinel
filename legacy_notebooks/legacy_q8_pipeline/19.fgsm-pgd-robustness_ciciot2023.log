@@ -60,7 +60,7 @@
     "bp_pgd_l2": 0.28284271247461906,
     "eps_star_day18": -0.4828279445827095,
     "eps_star_beta_day18": -0.35477543599251216,
-    "checkpoint": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
-    "lphi_path": "models/prototypes/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt"
+    "checkpoint": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-checkpoint.pt",
+    "lphi_path": "artifacts/CICIoT2023/16.estimate-lipschitz_ciciot2023-lphi.pt"
   }
 }

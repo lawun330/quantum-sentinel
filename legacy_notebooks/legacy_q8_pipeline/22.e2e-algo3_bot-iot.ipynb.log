@@ -7,9 +7,9 @@
   "extra": {
     "dataset": "BoT-IoT",
     "notebook": "22.e2e-algo3_bot-iot.ipynb",
-    "checkpoint": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
-    "lphi_path": "models/prototypes/BoT-IoT/16.estimate-lipschitz_bot-iot-lphi.pt",
-    "q_source": "models/prototypes/BoT-IoT/19.fgsm-pgd-robustness_bot-iot-artifact.pt",
+    "checkpoint": "artifacts/BoT-IoT/16.estimate-lipschitz_bot-iot-checkpoint.pt",
+    "lphi_path": "artifacts/BoT-IoT/16.estimate-lipschitz_bot-iot-lphi.pt",
+    "q_source": "artifacts/BoT-IoT/19.fgsm-pgd-robustness_bot-iot-artifact.pt",
     "q": 0.12407523393630981,
     "alpha": 0.05,
     "L_phi": 1.0,
