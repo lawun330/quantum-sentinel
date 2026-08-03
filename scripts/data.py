@@ -57,6 +57,11 @@ def load_split(data_path, name, column_name, categories=None, csv=False, selecte
 
     X = df[feature_cols].values
     y = pd.Categorical(df[column_name], categories=categories).codes
+
+    # drop negative labels (i.e. unknown labels)
+    mask = y >= 0
+    X, y, df = X[mask], y[mask], df.loc[mask].reset_index(drop=True)
+
     if return_df:
         return X, y, categories, df[feature_cols + [column_name]].copy()
     return X, y, categories

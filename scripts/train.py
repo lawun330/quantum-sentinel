@@ -294,6 +294,79 @@ def _finalize_history(history, early_stop, early_stopping, interrupted, stopped_
     )
     return history
 
+
+def _ensure_history_key(history, key):
+    """
+    Ensure a list key exists after resume from older checkpoints.
+    """
+    if key not in history or history[key] is None:
+        history[key] = []
+    return history
+
+
+@torch.no_grad()
+def _mean_maqt_val_loss(
+    theta,
+    head,
+    ce_loss_fn,
+    X_val_np,
+    y_val_np,
+    prototypes,
+    forward_circuit,
+    lam1,
+    lam2,
+    device,
+    batch_size,
+    use_focal,
+    focal_gamma,
+    oom_max_retries,
+):
+    """
+    Mean MAQT total loss on a held-out val set (no grad, no EMA update).
+    """
+    n_val = len(X_val_np)
+    if n_val == 0:
+        return float("nan")
+    totals = []
+    for i in range(0, n_val, batch_size):
+        xb_np, yb_np = X_val_np[i : i + batch_size], y_val_np[i : i + batch_size]
+
+        def _eval_fn(xb_s, yb_s, _protos=prototypes, _lam1=lam1, _lam2=lam2):
+            loss, _, _, _, _, _ = maqt_loss(
+                theta, head, ce_loss_fn, xb_s, yb_s, _protos, forward_circuit,
+                lambda1=_lam1, lambda2=_lam2, device=device,
+                use_focal=use_focal, focal_gamma=focal_gamma,
+            )
+            return {"loss": float(loss.item())}
+
+        result = run_with_oom_retry(xb_np, yb_np, _eval_fn, device, oom_max_retries)
+        totals.append(result["loss"])
+    return float(np.mean(totals))
+
+
+@torch.no_grad()
+def _mean_ce_val_loss(theta, head, ce_loss_fn, X_val_np, y_val_np, forward_circuit, device, batch_size, oom_max_retries):
+    """
+    Mean CE loss on a held-out val set (no grad).
+    """
+    n_val = len(X_val_np)
+    if n_val == 0:
+        return float("nan")
+    totals = []
+    for i in range(0, n_val, batch_size):
+        xb_np, yb_np = X_val_np[i : i + batch_size], y_val_np[i : i + batch_size]
+
+        def _eval_fn(xb_s, yb_s):
+            x_t = to_torch_batch_x(xb_s, device=device)
+            y_t = to_torch_y(yb_s, device=device)
+            z, _ = forward_circuit(x_t, theta)
+            loss = ce_loss_fn(head(expectations_to_tensor(z)), y_t)
+            return {"loss": float(loss.item())}
+
+        result = run_with_oom_retry(xb_np, yb_np, _eval_fn, device, oom_max_retries)
+        totals.append(result["loss"])
+    return float(np.mean(totals))
+
 # ============================================================================
 # MAQT training
 # ============================================================================
@@ -324,6 +397,8 @@ def train_maqt(
     early_stopping=False,
     patience=DEFAULT_PATIENCE,
     min_delta=0.0,
+    X_val=None,
+    y_val=None,
     checkpoint_dir=None,
     save_every_epoch=True,
     resume_from=None,
@@ -342,6 +417,9 @@ def train_maqt(
 
     Keep the full training set on CPU and only move each small batch to the GPU when needed.
     """
+    if (X_val is None) ^ (y_val is None):
+        raise ValueError("pass both X_val and y_val, or neither")
+
     theta = initialize_random_weights(n_layers, n_qubits, device, eps=weight_init_eps, seed=seed)
     head = nn.Linear(n_qubits, n_classes).to(device)
     opt = torch.optim.Adam(list([theta]) + list(head.parameters()), lr=lr)
@@ -352,6 +430,10 @@ def train_maqt(
     y_np = to_np_y(y_train).astype(int)
     n = len(X_np)
 
+    X_val_np = to_np_batch_x(X_val) if X_val is not None else None
+    y_val_np = to_np_y(y_val).astype(int) if y_val is not None else None
+    use_val = X_val_np is not None
+
     sample_weights = (
         torch.as_tensor(class_weights_for_sampler(y_np, n_classes), dtype=torch.double)
         if use_weighted_sampler else None
@@ -359,6 +441,7 @@ def train_maqt(
 
     history = {
         "loss": [], "L_CE": [], "L_intra": [], "L_inter": [],
+        "val_loss": [],
         "grad_var": [], "intra_fid_gap": [], "inter_trace_dist": [],
         "epoch_sec": [], "gpu_mem_mb": [],
     }
@@ -379,6 +462,7 @@ def train_maqt(
             head.to(device)
             opt.load_state_dict(ckpt["optimizer_state_dict"])
             history = _history_to_cpu(ckpt["history"])
+            _ensure_history_key(history, "val_loss")
             start_epoch = int(ckpt.get("epoch", 0))
             start_step = int(ckpt.get("step_in_epoch", 0))
             if ckpt.get("perm") is not None and start_step > 0:
@@ -402,6 +486,7 @@ def train_maqt(
     train_t0 = time.perf_counter()
     stopped_time_budget = False
     epoch, step_count, perm, epoch_terms, lam1, lam2 = start_epoch, 0, None, None, None, None
+    es_metric = "val_loss" if use_val else "train_loss"
 
     with _graceful_signals():
         try:
@@ -531,10 +616,21 @@ def train_maqt(
                 history["epoch_sec"].append(time.perf_counter() - epoch_t0)
                 history["gpu_mem_mb"].append(peak_gpu_mb())
 
+                if use_val:
+                    val_loss = _mean_maqt_val_loss(
+                        theta, head, ce_loss_fn, X_val_np, y_val_np,
+                        ema_protos.snapshot(), forward_circuit, lam1, lam2, device,
+                        batch_size, use_focal, focal_gamma, oom_max_retries,
+                    )
+                else:
+                    val_loss = float("nan")
+                history["val_loss"].append(val_loss)
+
                 epoch_1based = epoch + 1
                 improved, stop = False, False
                 if early_stopping:
-                    improved, stop = early_stop.step(history["loss"][-1], epoch=epoch_1based)
+                    score = val_loss if use_val else history["loss"][-1]
+                    improved, stop = early_stop.step(score, epoch=epoch_1based)
                     if improved:
                         best_bundle = {
                             "theta": theta.detach().cpu().clone(),
@@ -550,13 +646,14 @@ def train_maqt(
                     )
                     mem = history["gpu_mem_mb"][-1]
                     mem_msg = f" | peak_mem={mem:.0f}MB" if mem else ""
+                    val_msg = f" | val_loss {val_loss:.4f}" if use_val else ""
                     print(
                         f"epoch {epoch_1based:2d}/{epochs} | time {history['epoch_sec'][-1]:.1f}s | "
                         f"loss {history['loss'][-1]:.4f} | "
                         f"L_CE {history['L_CE'][-1]:.4f} | L_intra {history['L_intra'][-1]:.4f} | "
                         f"L_inter {history['L_inter'][-1]:.4f} | grad_var {mean_gv:.2e} | "
                         f"intra_fid {history['intra_fid_gap'][-1]:.3f} | inter_TD {mean_inter_td:.3f}"
-                        f"{mem_msg}{es_msg}"
+                        f"{val_msg}{mem_msg}{es_msg}"
                     )
                     if mean_gv < BARREN_PLATEAU_VAR_THRESHOLD:
                         print("  barren plateau detected")
@@ -575,20 +672,19 @@ def train_maqt(
 
                 if log_dir is not None:
                     try:
-                        append_jsonl(
-                            {
-                                "epoch": epoch_1based,
-                                "loss": history["loss"][-1],
-                                "L_CE": history["L_CE"][-1],
-                                "L_intra": history["L_intra"][-1],
-                                "L_inter": history["L_inter"][-1],
-                                "grad_var": mean_gv,
-                                "epoch_sec": history["epoch_sec"][-1],
-                                "gpu_mem_mb": history["gpu_mem_mb"][-1],
-                            },
-                            notebook_name,
-                            log_dir=log_dir,
-                        )
+                        row = {
+                            "epoch": epoch_1based,
+                            "loss": history["loss"][-1],
+                            "L_CE": history["L_CE"][-1],
+                            "L_intra": history["L_intra"][-1],
+                            "L_inter": history["L_inter"][-1],
+                            "grad_var": mean_gv,
+                            "epoch_sec": history["epoch_sec"][-1],
+                            "gpu_mem_mb": history["gpu_mem_mb"][-1],
+                        }
+                        if use_val:
+                            row["val_loss"] = val_loss
+                        append_jsonl(row, notebook_name, log_dir=log_dir)
                     except Exception:
                         pass
 
@@ -596,7 +692,7 @@ def train_maqt(
                     if verbose:
                         print(
                             f"early stopping at epoch {epoch_1based}: "
-                            f"no train-loss improvement for {patience} epochs "
+                            f"no {es_metric} improvement for {patience} epochs "
                             f"(best={early_stop.best_score:.4f} @ epoch {early_stop.best_epoch})"
                         )
                     break
@@ -647,7 +743,7 @@ def train_maqt(
             if verbose:
                 print(
                     f"restored best MAQT weights from epoch {early_stop.best_epoch} "
-                    f"(train loss={early_stop.best_score:.4f})"
+                    f"({es_metric}={early_stop.best_score:.4f})"
                 )
 
         _finalize_history(history, early_stop, early_stopping, interrupted, stopped_time_budget)
@@ -697,6 +793,8 @@ def train_plain_vqc(
     early_stopping=False,
     patience=DEFAULT_PATIENCE,
     min_delta=0.0,
+    X_val=None,
+    y_val=None,
     checkpoint_dir=None,
     save_every_epoch=True,
     resume_from=None,
@@ -713,6 +811,9 @@ def train_plain_vqc(
     """
     Train the CE-only baseline (zero lambdas) with only class labels for robustness ablation.
     """
+    if (X_val is None) ^ (y_val is None):
+        raise ValueError("pass both X_val and y_val, or neither")
+
     theta = initialize_random_weights(n_layers, n_qubits, device, eps=weight_init_eps, seed=seed)
     head = nn.Linear(n_qubits, n_classes).to(device)
     opt = torch.optim.Adam(list([theta]) + list(head.parameters()), lr=lr)
@@ -722,6 +823,10 @@ def train_plain_vqc(
     y_np = to_np_y(y_train).astype(int)
     n = len(X_np)
 
+    X_val_np = to_np_batch_x(X_val) if X_val is not None else None
+    y_val_np = to_np_y(y_val).astype(int) if y_val is not None else None
+    use_val = X_val_np is not None
+
     sample_weights = (
         torch.as_tensor(class_weights_for_sampler(y_np, n_classes), dtype=torch.double)
         if use_weighted_sampler else None
@@ -729,6 +834,7 @@ def train_plain_vqc(
 
     history = {
         "loss": [], "L_CE": [],
+        "val_loss": [],
         "grad_var": [],
         "epoch_sec": [], "gpu_mem_mb": [],
     }
@@ -749,6 +855,7 @@ def train_plain_vqc(
             head.to(device)
             opt.load_state_dict(ckpt["optimizer_state_dict"])
             history = _history_to_cpu(ckpt["history"])
+            _ensure_history_key(history, "val_loss")
             start_epoch = int(ckpt.get("epoch", 0))
             start_step = int(ckpt.get("step_in_epoch", 0))
             if ckpt.get("perm") is not None and start_step > 0:
@@ -770,6 +877,7 @@ def train_plain_vqc(
     train_t0 = time.perf_counter()
     stopped_time_budget = False
     epoch, step_count, perm, epoch_terms = start_epoch, 0, None, None
+    es_metric = "val_loss" if use_val else "train_loss"
 
     with _graceful_signals():
         try:
@@ -873,10 +981,20 @@ def train_plain_vqc(
                 history["epoch_sec"].append(time.perf_counter() - epoch_t0)
                 history["gpu_mem_mb"].append(peak_gpu_mb())
 
+                if use_val:
+                    val_loss = _mean_ce_val_loss(
+                        theta, head, ce_loss_fn, X_val_np, y_val_np, forward_circuit,
+                        device, batch_size, oom_max_retries,
+                    )
+                else:
+                    val_loss = float("nan")
+                history["val_loss"].append(val_loss)
+
                 epoch_1based = epoch + 1
                 improved, stop = False, False
                 if early_stopping:
-                    improved, stop = early_stop.step(history["loss"][-1], epoch=epoch_1based)
+                    score = val_loss if use_val else history["loss"][-1]
+                    improved, stop = early_stop.step(score, epoch=epoch_1based)
                     if improved:
                         best_bundle = {
                             "theta": theta.detach().cpu().clone(),
@@ -891,11 +1009,12 @@ def train_plain_vqc(
                     )
                     mem = history["gpu_mem_mb"][-1]
                     mem_msg = f" | peak_mem={mem:.0f}MB" if mem else ""
+                    val_msg = f" | val_loss {val_loss:.4f}" if use_val else ""
                     print(
                         f"epoch {epoch_1based:2d}/{epochs} | time {history['epoch_sec'][-1]:.1f}s | "
                         f"loss {history['loss'][-1]:.4f} | "
                         f"L_CE {history['L_CE'][-1]:.4f} | grad_var {mean_gv:.2e}"
-                        f"{mem_msg}{es_msg}"
+                        f"{val_msg}{mem_msg}{es_msg}"
                     )
                     if mean_gv < BARREN_PLATEAU_VAR_THRESHOLD:
                         print("  barren plateau detected")
@@ -914,18 +1033,17 @@ def train_plain_vqc(
 
                 if log_dir is not None:
                     try:
-                        append_jsonl(
-                            {
-                                "epoch": epoch_1based,
-                                "loss": history["loss"][-1],
-                                "L_CE": history["L_CE"][-1],
-                                "grad_var": mean_gv,
-                                "epoch_sec": history["epoch_sec"][-1],
-                                "gpu_mem_mb": history["gpu_mem_mb"][-1],
-                            },
-                            notebook_name,
-                            log_dir=log_dir,
-                        )
+                        row = {
+                            "epoch": epoch_1based,
+                            "loss": history["loss"][-1],
+                            "L_CE": history["L_CE"][-1],
+                            "grad_var": mean_gv,
+                            "epoch_sec": history["epoch_sec"][-1],
+                            "gpu_mem_mb": history["gpu_mem_mb"][-1],
+                        }
+                        if use_val:
+                            row["val_loss"] = val_loss
+                        append_jsonl(row, notebook_name, log_dir=log_dir)
                     except Exception:
                         pass
 
@@ -933,7 +1051,7 @@ def train_plain_vqc(
                     if verbose:
                         print(
                             f"early stopping at epoch {epoch_1based}: "
-                            f"no train-loss improvement for {patience} epochs "
+                            f"no {es_metric} improvement for {patience} epochs "
                             f"(best={early_stop.best_score:.4f} @ epoch {early_stop.best_epoch})"
                         )
                     break
@@ -983,7 +1101,7 @@ def train_plain_vqc(
             if verbose:
                 print(
                     f"restored best plain-VQC weights from epoch {early_stop.best_epoch} "
-                    f"(train loss={early_stop.best_score:.4f})"
+                    f"({es_metric}={early_stop.best_score:.4f})"
                 )
 
         _finalize_history(history, early_stop, early_stopping, interrupted, stopped_time_budget)
