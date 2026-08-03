@@ -1,7 +1,7 @@
 {
   "history": {
     "radius_mean": [
-      0.006664966718956647
+      0.012486005661225147
     ]
   },
   "extra": {
@@ -11,7 +11,7 @@
     "lphi_path": null,
     "L_phi_source": "analytic_lipschitz_bound (R/2)",
     "q_source": "calibrate_threshold(X_cal) on Day-23 checkpoint",
-    "q": 0.10952359437942505,
+    "q": 0.3014390468597412,
     "alpha": 0.05,
     "L_phi": 1.0,
     "p": 0.01,
@@ -19,16 +19,16 @@
     "use_pca": true,
     "num_qubits": 5,
     "num_layers": 2,
-    "pipeline_reject_rate": 0.04744231079554628,
-    "pipeline_acc_accepted": 0.6037043311310633,
-    "pipeline_macro_f1_accepted": 0.4670940213112656,
-    "pipeline_radius_mean_accepted": 0.006664966718956647,
-    "zeroday_detection_rate": 0.8682284040995608,
+    "pipeline_reject_rate": 0.04722715292345758,
+    "pipeline_acc_accepted": 0.5173601309772483,
+    "pipeline_macro_f1_accepted": 0.4776462031477472,
+    "pipeline_radius_mean_accepted": 0.012486005661225147,
+    "zeroday_detection_rate": 0.23133235724743778,
     "n_zeroday_eval": 683,
     "RQ1": {
-      "TPR_zeroday": 0.8682284040995608,
-      "FPR_known": 0.04744231079554628,
-      "class_acc_known": 0.6037043311310633,
+      "TPR_zeroday": 0.23133235724743778,
+      "FPR_known": 0.04722715292345758,
+      "class_acc_known": 0.5173601309772483,
       "alpha": 0.05,
       "n_test": 18591,
       "n_zeroday": 683

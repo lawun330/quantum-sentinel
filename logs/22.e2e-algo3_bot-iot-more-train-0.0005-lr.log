@@ -1,0 +1,37 @@
+{
+  "history": {
+    "radius_mean": [
+      0.013175706902956054
+    ]
+  },
+  "extra": {
+    "dataset": "BoT-IoT",
+    "notebook": "22.e2e-algo3_bot-iot-more-train-0.0005-lr",
+    "checkpoint": "models/prototypes/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-more-train-0.0005-lr-checkpoint.pt",
+    "lphi_path": null,
+    "L_phi_source": "analytic_lipschitz_bound (R/2)",
+    "q_source": "calibrate_threshold(X_cal) on Day-23 checkpoint",
+    "q": 0.3013821244239807,
+    "alpha": 0.05,
+    "L_phi": 1.0,
+    "p": 0.01,
+    "C_f": 1.0,
+    "use_pca": true,
+    "num_qubits": 5,
+    "num_layers": 2,
+    "pipeline_reject_rate": 0.047818837071701314,
+    "pipeline_acc_accepted": 0.5319172974805106,
+    "pipeline_macro_f1_accepted": 0.4822143751061849,
+    "pipeline_radius_mean_accepted": 0.013175706902956054,
+    "zeroday_detection_rate": 0.24890190336749635,
+    "n_zeroday_eval": 683,
+    "RQ1": {
+      "TPR_zeroday": 0.24890190336749635,
+      "FPR_known": 0.047818837071701314,
+      "class_acc_known": 0.5319172974805106,
+      "alpha": 0.05,
+      "n_test": 18591,
+      "n_zeroday": 683
+    }
+  }
+}
