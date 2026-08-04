@@ -127,38 +127,22 @@ def cached_calibrate_threshold(entry, prototypes, alpha=DEFAULT_ALPHA, device=No
     return threshold_from_scores(scores, alpha=alpha)
 
 
-def conformal_alpha_sweep_from_scores(cal_scores, test_scores, alphas=(0.01, 0.05, 0.1, 0.2)):
-    """
-    Alpha sweep of q and empirical FAR from already-computed score arrays (no fidelity pass).
-    """
-    cal_scores = np.asarray(cal_scores, dtype=np.float64)
-    test_scores = np.asarray(test_scores, dtype=np.float64)
+def cached_conformal_alpha_sweep(entry_cal, entry_test_known, prototypes,
+                                  alphas=(0.01, 0.05, 0.1, 0.2), device=None, batch_size=256):
+    """Alpha sweep of q and empirical FAR using cached cal/test scores."""
+    cal_scores = cached_nonconformity_scores(entry_cal, prototypes, device=device, batch_size=batch_size)
+    test_scores = cached_nonconformity_scores(entry_test_known, prototypes, device=device, batch_size=batch_size)
     rows = []
     for alpha in alphas:
         q, _ = threshold_from_scores(cal_scores, alpha=alpha)
         rows.append({
-            "alpha": float(alpha),
+            "alpha": alpha,
             "q": q,
             "empirical_false_alarm_rate": float(np.mean(test_scores > q)),
             "min_calibration_size": min_calibration_size(alpha),
-            "n_cal": int(len(cal_scores)),
+            "n_cal": len(cal_scores),
         })
     return rows
-
-
-def cached_conformal_alpha_sweep(entry_cal, entry_test_known, prototypes,
-                                  alphas=(0.01, 0.05, 0.1, 0.2), device=None, batch_size=256,
-                                  cal_scores=None, test_scores=None):
-    """
-    Alpha sweep of q and empirical FAR using cached cal/test scores.
-
-    Pass precomputed `cal_scores` / `test_scores` (e.g. from calibrate + Global infer).
-    """
-    if cal_scores is None:
-        cal_scores = cached_nonconformity_scores(entry_cal, prototypes, device=device, batch_size=batch_size)
-    if test_scores is None:
-        test_scores = cached_nonconformity_scores(entry_test_known, prototypes, device=device, batch_size=batch_size)
-    return conformal_alpha_sweep_from_scores(cal_scores, test_scores, alphas=alphas)
 
 # --------------------------------------------------------------------------------------
 # Cached inference helpers (z / rho; no circuit)
@@ -308,18 +292,15 @@ def cached_lipschitz_percentile(entry, n_pairs=300, min_dist=1e-4, seed=0, perce
     }
 
 
+
 def cached_class_conditional_calibrate(entry, y_cal, prototypes, alpha=DEFAULT_ALPHA,
-                                        device=None, batch_size=256, fallback="global",
-                                        scores=None):
+                                        device=None, batch_size=256, fallback="global"):
     """
     Cached variant of `conformal.class_conditional_calibrate()`.
 
     Mondrian (label-conditional) calibration: one threshold q_c per known class,
     using only that class's calibration samples -- computed from a cached `rho`
     entry, so no circuit forward pass is re-run.
-
-    Pass precomputed `scores` (same order as `entry` / `y_cal`) to skip an extra
-    nonconformity pass when cal scores were already computed for global q.
 
     Per-class guarantee also needs `conformal.min_calibration_size(alpha)` WITHIN
     EVERY CLASS (not just in total). If a class is too small for alpha:
@@ -338,14 +319,7 @@ def cached_class_conditional_calibrate(entry, y_cal, prototypes, alpha=DEFAULT_A
     y_cal = np.asarray(y_cal)
     class_ids = sorted(prototypes.keys())
 
-    if scores is None:
-        global_scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
-    else:
-        global_scores = np.asarray(scores, dtype=np.float64)
-        if len(global_scores) != len(y_cal):
-            raise ValueError(
-                f"scores length {len(global_scores)} != y_cal length {len(y_cal)}"
-            )
+    global_scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
     global_q, _ = threshold_from_scores(global_scores, alpha=alpha)
 
     q_by_class, meta = {}, {}
@@ -368,8 +342,7 @@ def cached_class_conditional_calibrate(entry, y_cal, prototypes, alpha=DEFAULT_A
     return q_by_class, meta
 
 
-def cached_per_class_far(entry, y_known, prototypes, q_by_class, device=None, batch_size=256,
-                          scores=None):
+def cached_per_class_far(entry, y_known, prototypes, q_by_class, device=None, batch_size=256):
     """
     Cached variant of `conformal.per_class_empirical_far()`.
 
@@ -377,21 +350,13 @@ def cached_per_class_far(entry, y_known, prototypes, q_by_class, device=None, ba
     cached entry (e.g. test), under a threshold map `q_by_class` -- no circuit
     forward pass is re-run.
 
-    Pass precomputed `scores` (e.g. `scores_test_g` from Global infer) to skip
-    another nonconformity pass; scores are strategy-agnostic (s = 1 - F_max).
-
     To compare marginal vs Mondrian per-class fairness,
     - call once with `q_by_class = {c: global_q for c in classes}` for marginal calibration
     - call once with `cached_class_conditional_calibrate()` output for Mondrian calibration
     - compare the spread across classes.
     """
     y_known = np.asarray(y_known)
-    if scores is None:
-        scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
-    else:
-        scores = np.asarray(scores, dtype=np.float64)
-        if len(scores) != len(y_known):
-            raise ValueError(f"scores length {len(scores)} != y_known length {len(y_known)}")
+    scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
     rows = []
     for c in sorted(prototypes.keys()):
         mask = y_known == c
@@ -424,7 +389,7 @@ def cached_class_conditional_f_in_f_out(entry_known, y_known, entry_zeroday, pro
     - F_out_c = worst-case (max) fidelity that ANY zero-day sample achieves against
                 THAT class's prototype rho_c (not the pooled F_max over all classes).
 
-    Computed entirely from cached `rho` (no circuit calls).
+    Computed entirely from cached `rho` (no circuit calls). 
 
     Returns a list of dict rows: {"class", "n_known", "F_in_c", "F_out_c"}.
     """

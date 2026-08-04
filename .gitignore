@@ -12,3 +12,6 @@ arjun/
 
 # crash report files from MAQT training
 *-crash-*.json
+
+# cache files from forward caching
+caches/
