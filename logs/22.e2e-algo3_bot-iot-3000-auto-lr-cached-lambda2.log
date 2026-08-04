@@ -6,9 +6,9 @@
   },
   "extra": {
     "dataset": "BoT-IoT",
-    "notebook": "22.e2e-algo3_bot-iot-3000-auto-lr-cached",
-    "checkpoint": "artifacts/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-3000-auto-lr-checkpoint.pt",
-    "cache_path": "caches/BoT-IoT/22.e2e-algo3_bot-iot-3000-auto-lr-cached-forward_cache.pt",
+    "notebook": "22.e2e-algo3_bot-iot-3000-auto-lr-cached-lambda2",
+    "checkpoint": "artifacts/BoT-IoT/23.maqt-bot-iot-3000-auto-lr-lambda2-checkpoint.pt",
+    "cache_path": "caches/BoT-IoT/22.e2e-algo3_bot-iot-3000-auto-lr-cached-lambda2-forward_cache.pt",
     "inference_mode": "ForwardCache + Global/Mondrian cached infer",
     "lphi_path": null,
     "L_phi_source": "analytic_lipschitz_bound (R/2)",
