@@ -2,7 +2,7 @@
   "history": {},
   "extra": {
     "notebook": "24.trust-region-2d_bot-iot",
-    "checkpoint": "artifacts/BoT-IoT/23.maqt-FROZEN-feat-prototypes_bot-iot-checkpoint.pt",
+    "checkpoint": "artifacts/BoT-IoT/4class-3000each-lr0.05-maqt-checkpoint.pt",
     "dataset": "BoT-IoT",
     "data_path": "data/FROZEN/BoT-IoT",
     "feature_cols": [

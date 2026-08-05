@@ -1,0 +1,206 @@
+{
+  "history": {
+    "radius_mean": [
+      0.012045380780347132
+    ]
+  },
+  "extra": {
+    "dataset": "BoT-IoT",
+    "notebook": "4class-3000each-lr0.01auto-lambda2-algo3-cached",
+    "checkpoint": "artifacts/BoT-IoT/4class-3000each-lr0.01auto-lambda2-maqt-cached-checkpoint.pt",
+    "cache_path": "caches/BoT-IoT/4class-3000each-lr0.01auto-lambda2-algo3-cached-forward_cache.pt",
+    "inference_mode": "ForwardCache + Global/Mondrian cached infer",
+    "lphi_path": null,
+    "L_phi_source": "analytic_lipschitz_bound (R/2)",
+    "q_source": "threshold_from_scores(cal_scores) on Day-23 checkpoint + ForwardCache",
+    "q": 0.2927284836769104,
+    "alpha": 0.05,
+    "L_phi": 1.0,
+    "p": 0.01,
+    "C_f": 1.0,
+    "use_pca": true,
+    "num_qubits": 5,
+    "num_layers": 2,
+    "train_eval_rej_rate": 0.1114773495605138,
+    "train_eval_acc": 0.5757633406258917,
+    "train_eval_macro_f1": 0.5132803217728952,
+    "train_eval_radius_mean": 0.0363769415293844,
+    "test_eval_rej_rate": 0.04706578451939114,
+    "test_eval_acc": 0.5207721833370964,
+    "test_eval_macro_f1": 0.47919143305588796,
+    "test_eval_radius_mean": 0.012045380780347132,
+    "test_ce_acc": 0.6473024581786886,
+    "test_ce_macro_f1": 0.6922913804840252,
+    "n_test_ce": 18591,
+    "test_bal_eval_rej_rate": 0.11071428571428577,
+    "test_bal_eval_acc": 0.5726907630522088,
+    "test_bal_eval_macro_f1": 0.4997788415040078,
+    "test_bal_eval_radius_mean": 0.03604039384729301,
+    "zeroday_detection_rate": 0.23865300146412885,
+    "n_zeroday_eval": 683,
+    "chosen_strategy": "global",
+    "strategies": {
+      "global": {
+        "chosen_as_strategy": true,
+        "q": 0.2927284836769104,
+        "TPR_zeroday": 0.23865300146412885,
+        "FPR_known": 0.047065784519391106,
+        "class_acc_known": 0.5207721833370964,
+        "TPR_lo": 0.2071397491631668,
+        "TPR_hi": 0.2724428306548165,
+        "FPR_lo": 0.04406568398815243,
+        "FPR_hi": 0.05020854790265209
+      },
+      "mondrian": {
+        "chosen_as_strategy": false,
+        "q_by_class": {
+          "0": 0.2966260313987732,
+          "1": 0.25792163610458374,
+          "2": 0.47645437717437744,
+          "3": 0.2561984658241272
+        },
+        "TPR_zeroday": 0.28989751098096633,
+        "FPR_known": 0.036738206659136144,
+        "class_acc_known": 0.5259660486933214,
+        "TPR_lo": 0.25610861970213883,
+        "TPR_hi": 0.3255134165676939,
+        "FPR_lo": 0.034079851074694155,
+        "FPR_hi": 0.039542688421582615
+      }
+    },
+    "RQ1": {
+      "chosen_strategy": "global",
+      "TPR_zeroday": 0.23865300146412885,
+      "FPR_known": 0.047065784519391106,
+      "class_acc_known": 0.5207721833370964,
+      "alpha": 0.05,
+      "n_test": 18591,
+      "n_zeroday": 683,
+      "strategies": {
+        "global": {
+          "chosen_as_strategy": true,
+          "q": 0.2927284836769104,
+          "TPR_zeroday": 0.23865300146412885,
+          "FPR_known": 0.047065784519391106,
+          "class_acc_known": 0.5207721833370964,
+          "TPR_lo": 0.2071397491631668,
+          "TPR_hi": 0.2724428306548165,
+          "FPR_lo": 0.04406568398815243,
+          "FPR_hi": 0.05020854790265209
+        },
+        "mondrian": {
+          "chosen_as_strategy": false,
+          "q_by_class": {
+            "0": 0.2966260313987732,
+            "1": 0.25792163610458374,
+            "2": 0.47645437717437744,
+            "3": 0.2561984658241272
+          },
+          "TPR_zeroday": 0.28989751098096633,
+          "FPR_known": 0.036738206659136144,
+          "class_acc_known": 0.5259660486933214,
+          "TPR_lo": 0.25610861970213883,
+          "TPR_hi": 0.3255134165676939,
+          "FPR_lo": 0.034079851074694155,
+          "FPR_hi": 0.039542688421582615
+        }
+      }
+    },
+    "global_vs_mondrian": {
+      "chosen_strategy": "global",
+      "df_far": [
+        {
+          "class": "DDoS",
+          "n": 9411,
+          "FAR_global": 0.05706088619700351,
+          "FAR_mondrian": 0.050685368186165126,
+          "q_global": 0.2927284836769104,
+          "q_mondrian": 0.2966260313987732,
+          "abs_dev_global": 0.007060886197003506,
+          "abs_dev_mondrian": 0.0006853681861651237
+        },
+        {
+          "class": "DoS",
+          "n": 8135,
+          "FAR_global": 0.013644744929317762,
+          "FAR_mondrian": 0.04326982175783651,
+          "q_global": 0.2927284836769104,
+          "q_mondrian": 0.25792163610458374,
+          "abs_dev_global": 0.03635525507068224,
+          "abs_dev_mondrian": 0.006730178242163494
+        },
+        {
+          "class": "Normal",
+          "n": 691,
+          "FAR_global": 0.3140376266280753,
+          "FAR_mondrian": 0.06512301013024602,
+          "q_global": 0.2927284836769104,
+          "q_mondrian": 0.47645437717437744,
+          "abs_dev_global": 0.2640376266280753,
+          "abs_dev_mondrian": 0.015123010130246015
+        },
+        {
+          "class": "Reconnaissance",
+          "n": 354,
+          "FAR_global": 0.02824858757062147,
+          "FAR_mondrian": 0.0423728813559322,
+          "q_global": 0.2927284836769104,
+          "q_mondrian": 0.2561984658241272,
+          "abs_dev_global": 0.021751412429378534,
+          "abs_dev_mondrian": 0.007627118644067801
+        }
+      ],
+      "df_comparison": [
+        {
+          "method": "Global",
+          "TPR": 0.23865300146412885,
+          "TPR_lo": 0.2071397491631668,
+          "TPR_hi": 0.2724428306548165,
+          "FPR": 0.047065784519391106,
+          "FPR_lo": 0.04406568398815243,
+          "FPR_hi": 0.05020854790265209,
+          "class_acc_accepted": 0.5207721833370964
+        },
+        {
+          "method": "Mondrian",
+          "TPR": 0.28989751098096633,
+          "TPR_lo": 0.25610861970213883,
+          "TPR_hi": 0.3255134165676939,
+          "FPR": 0.036738206659136144,
+          "FPR_lo": 0.034079851074694155,
+          "FPR_hi": 0.039542688421582615,
+          "class_acc_accepted": 0.5259660486933214
+        }
+      ],
+      "strategies": {
+        "global": {
+          "chosen_as_strategy": true,
+          "q": 0.2927284836769104,
+          "TPR_zeroday": 0.23865300146412885,
+          "FPR_known": 0.047065784519391106,
+          "class_acc_known": 0.5207721833370964,
+          "TPR_lo": 0.2071397491631668,
+          "TPR_hi": 0.2724428306548165,
+          "FPR_lo": 0.04406568398815243,
+          "FPR_hi": 0.05020854790265209
+        },
+        "mondrian": {
+          "chosen_as_strategy": false,
+          "q_by_class": {
+            "0": 0.2966260313987732,
+            "1": 0.25792163610458374,
+            "2": 0.47645437717437744,
+            "3": 0.2561984658241272
+          },
+          "TPR_zeroday": 0.28989751098096633,
+          "FPR_known": 0.036738206659136144,
+          "class_acc_known": 0.5259660486933214,
+          "TPR_lo": 0.25610861970213883,
+          "TPR_hi": 0.3255134165676939,
+          "FPR_lo": 0.034079851074694155,
+          "FPR_hi": 0.039542688421582615
+        }
+      }
+    }
+  }
+}
