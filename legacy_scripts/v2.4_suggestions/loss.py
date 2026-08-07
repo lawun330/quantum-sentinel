@@ -45,6 +45,9 @@ def ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal=DEFAULT_
 def intra_loss_term(y_t, rho, prototypes, device):
     """
     Intra-class term (L_intra): mean infidelity (1 - F) to each class prototype.
+
+    Gradient flows through `rho` (this step's live forward pass) toward `theta`.
+    `prototypes` are frozen EMA targets (detached) -- this is correct and unchanged.
     """
     y_np = to_np_y(y_t)
     intra_terms = {c: [] for c in prototypes}
@@ -68,6 +71,7 @@ def inter_loss_term(y_t, rho, prototypes, device, margin=DEFAULT_INTER_MARGIN, h
     Inter-class term (L_inter): hinge repulsion of each live sample from its
     NEAREST wrong-class prototype (hardest negative).
 
+
     hardest_only=True uses only the single nearest wrong-class prototype per
     sample (hinge only fires below `margin`), concentrating gradient on the
     classes that are actually confusable (e.g. DDoS <-> DoS) instead of
@@ -87,29 +91,11 @@ def inter_loss_term(y_t, rho, prototypes, device, margin=DEFAULT_INTER_MARGIN, h
 
         neg_d = torch.stack([trace_distance(rho[i], prototypes[cc]) for cc in neg_classes])
         d_ref = neg_d.min() if hardest_only else neg_d.mean()
-        terms.append(torch.relu(margin - d_ref))
+        terms.append(torch.relu(margin - d_ref))  
 
     if not terms:
         return torch.tensor(0.0, device=device)
     return torch.stack(terms).mean()
-
-
-def prototype_pair_separation(prototypes, device=None):
-    """
-    Diagnostic only: negative mean pairwise TD between prototypes (no theta grad).
-    """
-    if not prototypes:
-        raise ValueError("prototypes must be non-empty")
-    if device is None:
-        device = next(iter(prototypes.values())).device
-    class_ids = sorted(prototypes.keys())
-    inter_pairs = []
-    for i, c in enumerate(class_ids):
-        for c_prime in class_ids[i + 1 :]:
-            inter_pairs.append(trace_distance(prototypes[c], prototypes[c_prime]))
-    if not inter_pairs:
-        return torch.tensor(0.0, device=device)
-    return -torch.stack(inter_pairs).mean()
 
 
 def compute_l_ce(theta, classifier_head, ce_loss_fn, X_batch, y_batch, forward_circuit, device=None,
@@ -135,6 +121,7 @@ def compute_l_inter(theta, X_batch, y_batch, prototypes, forward_circuit, device
                      margin=DEFAULT_INTER_MARGIN, hardest_only=True):
     """
     Unit-testable L_inter over a batch.
+
     """
     device = device or theta.device
     y_t, _, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
@@ -147,6 +134,9 @@ def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
             use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
     """
     MAQT loss: L = L_CE + lambda1 * L_intra + lambda2 * L_inter.
+
+    `margin` and `hardest_only` are new, optional, and default-backward-compatible
+    -- no caller (train.py, gradient.py) needs to change unless they want to tune them.
     """
     device = device or theta.device
     y_t, z, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
