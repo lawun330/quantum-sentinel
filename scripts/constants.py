@@ -4,7 +4,7 @@
 DEFAULT_SEED = 42                       # (data.py, hilbert.py)
 DEFAULT_BATCH_SIZE = 64                 # (inference.py, hilbert.py, conformal.py, prototypes.py, attacks.py)
 DEFAULT_LR = 0.01                       # learning rate # (train.py)
-DEFAULT_EPOCHS = 10                     # epochs # (train.py)
+DEFAULT_EPOCHS = 50                     # epochs # (train.py)
 DEFAULT_GRAD_CLIP_NORM = 1.0            # gradient clip norm # (train.py)
 
 # plotting
@@ -19,10 +19,10 @@ DEFAULT_REUPLOAD = True                 # data re-uploading flag # (circuit.py)
 # algorithm 1: curriculum / MAQT loss
 DEFAULT_FOCAL = False                   # focal loss flag # (loss.py)
 DEFAULT_FOCAL_GAMMA = 2.0               # focal loss gamma # (loss.py)
-DEFAULT_LAMBDA1 = 0.5                   # L_intra weight # (loss.py, gradient.py)
-DEFAULT_LAMBDA2 = 0.3                   # L_inter weight # (loss.py, gradient.py)
+DEFAULT_LAMBDA1 = 0.33                  # L_intra weight # (loss.py, gradient.py)
+DEFAULT_LAMBDA2 = 0.66                  # L_inter weight # (loss.py, gradient.py)
 DEFAULT_WARMUP_FRAC = 0.2               # curriculum lambda warmup fraction # (loss.py)
-DEFAULT_PATIENCE = 3                    # patience for early stopping # (train.py)
+DEFAULT_PATIENCE = 5                    # patience for early stopping # (train.py)
 
 # algorithm 1: prototypes / gradients
 BARREN_PLATEAU_VAR_THRESHOLD = 1e-6     # barren-plateau threshold # (sweep.py)

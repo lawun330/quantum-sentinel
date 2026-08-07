@@ -86,6 +86,7 @@ from scripts.loss import (
     inter_loss_term,
     intra_loss_term,
     maqt_loss,
+    prototype_pair_separation,
 )
 from scripts.prototypes import (
     EMAPrototypeBank,
@@ -220,6 +221,7 @@ __all__ = [
     "plot_dataset_and_sampling_analysis",
     "predict_labels",
     "print_h1_report",
+    "prototype_pair_separation",
     "proposition2_epsilon_beta",
     "proposition2_epsilon_robust",
     "proposition2_epsilon_star",
