@@ -1,0 +1,258 @@
+{
+  "history": {
+    "radius_mean": [
+      0.0126656556068407
+    ]
+  },
+  "extra": {
+    "dataset": "UNSW-NB15",
+    "notebook": "final-unsw-nb15-algo3-cached (vqc)",
+    "checkpoint": "final_notebooks/final_artifacts/final-unsw-nb15-vqc-train-checkpoint.pt",
+    "cache_path": "caches/UNSW-NB15/final-unsw-nb15-algo3-cached (vqc)-forward_cache.pt",
+    "inference_mode": "ForwardCache + Global/Mondrian cached infer",
+    "lphi_path": null,
+    "L_phi_source": "analytic_lipschitz_bound (R/2)",
+    "q_source": "threshold_from_scores(cal_scores) on Day-23 checkpoint + ForwardCache",
+    "q": 0.38043081760406494,
+    "alpha": 0.05,
+    "L_phi": 1.0,
+    "p": 0.01,
+    "C_f": 1.0,
+    "use_pca": true,
+    "num_qubits": 4,
+    "num_layers": 2,
+    "train_eval_rej_rate": 0.05973034537954813,
+    "train_eval_acc": 0.3383662458750196,
+    "train_eval_macro_f1": 0.14220973409785093,
+    "train_eval_radius_mean": 0.012616772378281894,
+    "test_eval_rej_rate": 0.054134443783462216,
+    "test_eval_acc": 0.3410901467505241,
+    "test_eval_macro_f1": 0.14445416786028906,
+    "test_eval_radius_mean": 0.0126656556068407,
+    "test_ce_acc": 0.45439222684909775,
+    "test_ce_macro_f1": 0.25964047812643665,
+    "n_test_ce": 10086,
+    "test_bal_eval_rej_rate": 0.12552301255230125,
+    "test_bal_eval_acc": 0.27751196172248804,
+    "test_bal_eval_macro_f1": 0.1835431110420499,
+    "test_bal_eval_radius_mean": 0.007183047080609702,
+    "zeroday_detection_rate": 0.26398026315789475,
+    "n_zeroday_eval": 1216,
+    "chosen_strategy": "global",
+    "strategies": {
+      "global": {
+        "chosen_as_strategy": true,
+        "q": 0.38043081760406494,
+        "TPR_zeroday": 0.26398026315789475,
+        "FPR_known": 0.05413444378346222,
+        "class_acc_known": 0.3410901467505241,
+        "TPR_lo": 0.2393893732114491,
+        "TPR_hi": 0.28971784767284947,
+        "FPR_lo": 0.049798021044416774,
+        "FPR_hi": 0.05873051127300923
+      },
+      "mondrian": {
+        "chosen_as_strategy": false,
+        "q_by_class": {
+          "0": 0.045115768909454346,
+          "1": 0.3915518522262573,
+          "2": 0.4890681505203247,
+          "3": 0.3810466527938843,
+          "4": 0.42787861824035645,
+          "5": 0.45077329874038696,
+          "6": 0.3189406991004944,
+          "7": 0.03856194019317627
+        },
+        "TPR_zeroday": 0.0962171052631579,
+        "FPR_known": 0.23170731707317074,
+        "class_acc_known": 0.41837656471802814,
+        "TPR_lo": 0.08022345300009295,
+        "TPR_hi": 0.11419290171828672,
+        "FPR_lo": 0.22350191563210417,
+        "FPR_hi": 0.24006790273209452
+      }
+    },
+    "RQ1": {
+      "chosen_strategy": "global",
+      "TPR_zeroday": 0.26398026315789475,
+      "FPR_known": 0.05413444378346222,
+      "class_acc_known": 0.3410901467505241,
+      "alpha": 0.05,
+      "n_test": 10086,
+      "n_zeroday": 1216,
+      "strategies": {
+        "global": {
+          "chosen_as_strategy": true,
+          "q": 0.38043081760406494,
+          "TPR_zeroday": 0.26398026315789475,
+          "FPR_known": 0.05413444378346222,
+          "class_acc_known": 0.3410901467505241,
+          "TPR_lo": 0.2393893732114491,
+          "TPR_hi": 0.28971784767284947,
+          "FPR_lo": 0.049798021044416774,
+          "FPR_hi": 0.05873051127300923
+        },
+        "mondrian": {
+          "chosen_as_strategy": false,
+          "q_by_class": {
+            "0": 0.045115768909454346,
+            "1": 0.3915518522262573,
+            "2": 0.4890681505203247,
+            "3": 0.3810466527938843,
+            "4": 0.42787861824035645,
+            "5": 0.45077329874038696,
+            "6": 0.3189406991004944,
+            "7": 0.03856194019317627
+          },
+          "TPR_zeroday": 0.0962171052631579,
+          "FPR_known": 0.23170731707317074,
+          "class_acc_known": 0.41837656471802814,
+          "TPR_lo": 0.08022345300009295,
+          "TPR_hi": 0.11419290171828672,
+          "FPR_lo": 0.22350191563210417,
+          "FPR_hi": 0.24006790273209452
+        }
+      }
+    },
+    "global_vs_mondrian": {
+      "chosen_strategy": "global",
+      "df_far": [
+        {
+          "class": "Analysis",
+          "n": 36,
+          "FAR_global": 0.027777777777777776,
+          "FAR_mondrian": 0.05555555555555555,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.045115768909454346,
+          "abs_dev_global": 0.022222222222222227,
+          "abs_dev_mondrian": 0.00555555555555555
+        },
+        {
+          "class": "Backdoor",
+          "n": 29,
+          "FAR_global": 0.034482758620689655,
+          "FAR_mondrian": 0.034482758620689655,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.3915518522262573,
+          "abs_dev_global": 0.015517241379310348,
+          "abs_dev_mondrian": 0.015517241379310348
+        },
+        {
+          "class": "DoS",
+          "n": 287,
+          "FAR_global": 0.1254355400696864,
+          "FAR_mondrian": 0.04529616724738676,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.4890681505203247,
+          "abs_dev_global": 0.0754355400696864,
+          "abs_dev_mondrian": 0.004703832752613241
+        },
+        {
+          "class": "Exploits",
+          "n": 2027,
+          "FAR_global": 0.05772076961026147,
+          "FAR_mondrian": 0.05772076961026147,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.3810466527938843,
+          "abs_dev_global": 0.007720769610261469,
+          "abs_dev_mondrian": 0.007720769610261469
+        },
+        {
+          "class": "Fuzzers",
+          "n": 1260,
+          "FAR_global": 0.14444444444444443,
+          "FAR_mondrian": 0.05317460317460317,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.42787861824035645,
+          "abs_dev_global": 0.09444444444444443,
+          "abs_dev_mondrian": 0.0031746031746031703
+        },
+        {
+          "class": "Generic",
+          "n": 91,
+          "FAR_global": 0.16483516483516483,
+          "FAR_mondrian": 0.02197802197802198,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.45077329874038696,
+          "abs_dev_global": 0.11483516483516483,
+          "abs_dev_mondrian": 0.028021978021978023
+        },
+        {
+          "class": "Normal",
+          "n": 5814,
+          "FAR_global": 0.032507739938080496,
+          "FAR_mondrian": 0.05091159270725834,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.3189406991004944,
+          "abs_dev_global": 0.017492260061919507,
+          "abs_dev_mondrian": 0.000911592707258338
+        },
+        {
+          "class": "Reconnaissance",
+          "n": 542,
+          "FAR_global": 0.00922509225092251,
+          "FAR_mondrian": 0.04428044280442804,
+          "q_global": 0.38043081760406494,
+          "q_mondrian": 0.03856194019317627,
+          "abs_dev_global": 0.040774907749077494,
+          "abs_dev_mondrian": 0.0057195571955719615
+        }
+      ],
+      "df_comparison": [
+        {
+          "method": "Global",
+          "TPR": 0.26398026315789475,
+          "TPR_lo": 0.2393893732114491,
+          "TPR_hi": 0.28971784767284947,
+          "FPR": 0.05413444378346222,
+          "FPR_lo": 0.049798021044416774,
+          "FPR_hi": 0.05873051127300923,
+          "class_acc_accepted": 0.3410901467505241
+        },
+        {
+          "method": "Mondrian",
+          "TPR": 0.0962171052631579,
+          "TPR_lo": 0.08022345300009295,
+          "TPR_hi": 0.11419290171828672,
+          "FPR": 0.23170731707317074,
+          "FPR_lo": 0.22350191563210417,
+          "FPR_hi": 0.24006790273209452,
+          "class_acc_accepted": 0.41837656471802814
+        }
+      ],
+      "strategies": {
+        "global": {
+          "chosen_as_strategy": true,
+          "q": 0.38043081760406494,
+          "TPR_zeroday": 0.26398026315789475,
+          "FPR_known": 0.05413444378346222,
+          "class_acc_known": 0.3410901467505241,
+          "TPR_lo": 0.2393893732114491,
+          "TPR_hi": 0.28971784767284947,
+          "FPR_lo": 0.049798021044416774,
+          "FPR_hi": 0.05873051127300923
+        },
+        "mondrian": {
+          "chosen_as_strategy": false,
+          "q_by_class": {
+            "0": 0.045115768909454346,
+            "1": 0.3915518522262573,
+            "2": 0.4890681505203247,
+            "3": 0.3810466527938843,
+            "4": 0.42787861824035645,
+            "5": 0.45077329874038696,
+            "6": 0.3189406991004944,
+            "7": 0.03856194019317627
+          },
+          "TPR_zeroday": 0.0962171052631579,
+          "FPR_known": 0.23170731707317074,
+          "class_acc_known": 0.41837656471802814,
+          "TPR_lo": 0.08022345300009295,
+          "TPR_hi": 0.11419290171828672,
+          "FPR_lo": 0.22350191563210417,
+          "FPR_hi": 0.24006790273209452
+        }
+      }
+    }
+  }
+}
