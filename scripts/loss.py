@@ -7,7 +7,7 @@ from scripts.quantum_metrics import fidelity, trace_distance
 from scripts.utils import expectations_to_tensor, to_torch_batch_x, to_torch_y, to_np_y
 from scripts.constants import (
     DEFAULT_FOCAL, DEFAULT_FOCAL_GAMMA, DEFAULT_LAMBDA1, DEFAULT_LAMBDA2,
-    DEFAULT_INTER_MARGIN, DEFAULT_WARMUP_FRAC,
+    DEFAULT_WARMUP_FRAC,
 )
 
 
@@ -63,35 +63,26 @@ def intra_loss_term(y_t, rho, prototypes, device):
     return l_intra
 
 
-def inter_loss_term(y_t, rho, prototypes, device, margin=DEFAULT_INTER_MARGIN, hardest_only=True):
+def inter_loss_term(y_t, rho, prototypes, device):
     """
-    Inter-class term (L_inter): hinge repulsion of each live sample from its
-    NEAREST wrong-class prototype (hardest negative).
+    Inter-class term (L_inter): negative mean trace distance from each sample's
+    state rho(x) to *other-class* prototypes (EMA / stop-grad targets).
+    """
+    if not prototypes:
+        return torch.tensor(0.0, device=device)
 
-    hardest_only=True uses only the single nearest wrong-class prototype per
-    sample (hinge only fires below `margin`), concentrating gradient on the
-    classes that are actually confusable (e.g. DDoS <-> DoS) instead of
-    diluting it across easy pairs that are already well separated.
-    """
     y_np = to_np_y(y_t)
     class_ids = sorted(prototypes.keys())
     terms = []
-
     for i, c_val in enumerate(y_np):
         c = int(c_val)
-        if c not in prototypes:
-            continue
-        neg_classes = [cc for cc in class_ids if cc != c]
-        if not neg_classes:
-            continue
-
-        neg_d = torch.stack([trace_distance(rho[i], prototypes[cc]) for cc in neg_classes])
-        d_ref = neg_d.min() if hardest_only else neg_d.mean()
-        terms.append(torch.relu(margin - d_ref))
-
+        for c_prime in class_ids:
+            if c_prime == c:
+                continue
+            terms.append(trace_distance(rho[i], prototypes[c_prime]))
     if not terms:
         return torch.tensor(0.0, device=device)
-    return torch.stack(terms).mean()
+    return -torch.stack(terms).mean()
 
 
 def prototype_pair_separation(prototypes, device=None):
@@ -131,20 +122,18 @@ def compute_l_intra(theta, X_batch, y_batch, prototypes, forward_circuit, device
     return intra_loss_term(y_t, rho, prototypes, device)
 
 
-def compute_l_inter(theta, X_batch, y_batch, prototypes, forward_circuit, device=None,
-                     margin=DEFAULT_INTER_MARGIN, hardest_only=True):
+def compute_l_inter(theta, X_batch, y_batch, prototypes, forward_circuit, device=None):
     """
     Unit-testable L_inter over a batch.
     """
     device = device or theta.device
     y_t, _, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
-    return inter_loss_term(y_t, rho, prototypes, device, margin=margin, hardest_only=hardest_only)
+    return inter_loss_term(y_t, rho, prototypes, device)
 
 
 def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
             forward_circuit, lambda1=DEFAULT_LAMBDA1, lambda2=DEFAULT_LAMBDA2,
-            margin=DEFAULT_INTER_MARGIN, hardest_only=True, device=None,
-            use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+            device=None, use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
     """
     MAQT loss: L = L_CE + lambda1 * L_intra + lambda2 * L_inter.
     """
@@ -153,7 +142,7 @@ def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
 
     l_ce = ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
     l_intra = intra_loss_term(y_t, rho, prototypes, device)
-    l_inter = inter_loss_term(y_t, rho, prototypes, device, margin=margin, hardest_only=hardest_only)
+    l_inter = inter_loss_term(y_t, rho, prototypes, device)
 
     loss = l_ce + lambda1 * l_intra + lambda2 * l_inter
     return loss, l_ce, l_intra, l_inter, y_t, rho
