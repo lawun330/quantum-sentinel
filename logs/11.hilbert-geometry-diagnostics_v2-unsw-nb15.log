@@ -1,0 +1,44 @@
+notebook=11.hilbert-geometry-diagnostics_v2-unsw-nb15
+checkpoint=final_notebooks/final_artifacts/final-unsw-nb15-maqt-train-checkpoint.pt
+dataset=UNSW-NB15
+max_per_class=50
+mean_intra_fid=0.880085
+mean_inter_fid=0.949367
+fidelity_gap=-0.069282
+mean_inter_trace_distance=0.243397
+intra[Analysis]: n=50 F=0.951426
+intra[Backdoor]: n=50 F=0.915300
+intra[DoS]: n=50 F=0.848581
+intra[Exploits]: n=50 F=0.875741
+intra[Fuzzers]: n=50 F=0.845267
+intra[Generic]: n=50 F=0.764785
+intra[Normal]: n=50 F=0.853794
+intra[Reconnaissance]: n=50 F=0.985786
+pair[Analysis↔Backdoor]: F=0.979880 TD=0.169857
+pair[Analysis↔DoS]: F=0.951750 TD=0.223265
+pair[Analysis↔Exploits]: F=0.946819 TD=0.215647
+pair[Analysis↔Fuzzers]: F=0.948067 TD=0.223876
+pair[Analysis↔Generic]: F=0.925242 TD=0.316492
+pair[Analysis↔Normal]: F=0.920053 TD=0.335582
+pair[Analysis↔Reconnaissance]: F=0.984821 TD=0.156944
+pair[Backdoor↔DoS]: F=0.957860 TD=0.237153
+pair[Backdoor↔Exploits]: F=0.945511 TD=0.268016
+pair[Backdoor↔Fuzzers]: F=0.956413 TD=0.229212
+pair[Backdoor↔Generic]: F=0.923797 TD=0.346803
+pair[Backdoor↔Normal]: F=0.937556 TD=0.297560
+pair[Backdoor↔Reconnaissance]: F=0.981926 TD=0.135525
+pair[DoS↔Exploits]: F=0.987180 TD=0.100833
+pair[DoS↔Fuzzers]: F=0.983808 TD=0.135145
+pair[DoS↔Generic]: F=0.981516 TD=0.153076
+pair[DoS↔Normal]: F=0.958009 TD=0.237143
+pair[DoS↔Reconnaissance]: F=0.927433 TD=0.307688
+pair[Exploits↔Fuzzers]: F=0.970103 TD=0.180383
+pair[Exploits↔Generic]: F=0.962528 TD=0.182713
+pair[Exploits↔Normal]: F=0.957217 TD=0.243159
+pair[Exploits↔Reconnaissance]: F=0.930215 TD=0.295314
+pair[Fuzzers↔Generic]: F=0.972713 TD=0.196129
+pair[Fuzzers↔Normal]: F=0.929292 TD=0.304466
+pair[Fuzzers↔Reconnaissance]: F=0.933863 TD=0.259636
+pair[Generic↔Normal]: F=0.938365 TD=0.285219
+pair[Generic↔Reconnaissance]: F=0.883895 TD=0.411671
+pair[Normal↔Reconnaissance]: F=0.906441 TD=0.366607

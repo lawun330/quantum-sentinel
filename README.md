@@ -10,113 +10,108 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 
 ## Datasets
 
-Modified versions of the following datasets:
+**Notes**: Specific preprocessing modifications have been applied to the original datasets.
+
+### Used
 
 - [CIC IoT 2023 (Canadian Institute for Cybersecurity)](https://www.kaggle.com/datasets/himadri07/ciciot2023)
 - [BoT IoT](https://research.unsw.edu.au/projects/bot-iot-dataset)
 - [UNSW-NB15](https://research.unsw.edu.au/projects/unsw-nb15-dataset)
-- [Edge-IIoTset (Ferrag et al., IEEE Access 2022)](https://www.kaggle.com/datasets/mohamedamineferrag/edgeiiotset-cyber-security-dataset-of-iot-iiot) (discarded later)
-- [TON IoT (UNSW Canberra)](https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset) (discarded later)
+
+### Discarded
+
+- [Edge-IIoTset (Ferrag et al., IEEE Access 2022)](https://www.kaggle.com/datasets/mohamedamineferrag/edgeiiotset-cyber-security-dataset-of-iot-iiot)
+- [TON IoT (UNSW Canberra)](https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset)
 
 ## File Structure
 
 ```
 /
-...
-├── data/
+├── ...
 ├── img/
 ├── documents/
-├── legacy_notebooks/
-├── legacy_scripts/
-├── scripts/
+├── data/
+├── team-artifacts/
+│   ├── ...
+│   └── arjun/
 ├── artifacts/
+├── logs/
 │
-├── 01.setup-guide.md                      # day 1 deliverable
-├── 02.encoding-data-iris.ipynb            # day 2 deliverable
-├── 03.training-iris.ipynb                 # day 3 deliverable
+├── legacy_scripts/
+├── legacy_notebooks/   # see LEGACY_NBS.md for expanded details
 │
-├── # day 4, 5, 6, 7 deliverables ## use PennyLane only ## TON IoT
-│   └── e2e-qs-net_v1.0.ipynb
+├── scripts/
+├── BoT-IoT experiments/
+│   ├── 3class-3000each-lr0.05-{maqt,algo3}.ipynb
+│   ├── 4class-3000each-lr0.05-{maqt,algo3}.ipynb
+│   ├── 4class-3000each-lr0.01auto-{maqt,algo3,algo3-cached}.ipynb
+│   ├── 4class-3000each-lr0.01auto-lambda2-{maqt,algo3-cached}.ipynb
+│   ├── 4class-3000each-lr0.01auto-newlambdas-{maqt,algo3-cached}.ipynb
+│   ├── 4class-10000each-lr0.0005-{maqt,algo3}.ipynb
+│   ├── 4class-20000each-lr0.05-{maqt,algo3}.ipynb
+│   ├── 4class-20000each-lr0.01auto-lambda2-{maqt,algo3-cached}.ipynb
+│   └── 4class-all-lr0.01auto-lambda2-{maqt,algo3-cached}.ipynb
 │
-├── # day 8, 9 deliverables     ## use PennyLane + PyTorch ## TON IoT
-│   ├── e2e-qs-net_v2.0.ipynb   ## epoch curve uses last minibatch only
-│   │                           ## measure grad during weight update, averages over epoch
+│   =========================================
+│   *** ALL DAILY DELIVERABLES START HERE ***
+│   =========================================
+├── 01.setup-guide.md                   # day 1 deliverable
+├── 02.encoding-data-iris.ipynb         # day 2 deliverable
+├── 03.training-iris.ipynb              # day 3 deliverable
+│
+├── final_notebooks/                    # day (4-9, 14) deliverables ## NEW NOTEBOOKS
+│   ├── final-bot-iot-{maqt,vqc}-train.ipynb    ## REAL: MAQT, VQC Training ## BoT-IoT
+│   ├── final-ciciot-maqt-train.ipynb           ## REAL: MAQT Training      ## CICIoT2023
+│   ├── <>                                      ## MISSING CICIoT2023 VQC Training
+│   └── final-unsw-nb15-{maqt,vqc}-train.ipynb  ## REAL: MAQT, VQC Training ## UNSW-NB15
+│
+├── 10.maqt-loss-unit-test-iris.ipynb           # day 10 deliverable
+├── 11.hilbert-geometry-diagnostics_v2.ipynb    # day 11 deliverable
+├── <>                                          # MISSING Day 12
+├── 13.tune-lambdas-bot-iot.ipynb               # day 13 deliverable ## DPP cap(3000) all BoT-IoT
+├── <>                                          # MISSING Day 13 CICIoT2023
+├── 13.tune-lambdas-unsw-nb15.ipynb             # day 13 deliverable ## DPP cap(1000) all UNSW-NB15
+├── 15.depolarizing-channel.ipynb               # day 15 deliverable ## NO DATASET
+│
+├── final_notebooks/                    # day (15-29) deliverables  ## REAL: Full Algo.3 Pipeline
+│   ├── the-final-bot-iot-{maqt,vqc}-results.ipynb
+│   ├── the-final-ciciot-maqt-results.ipynb
+│   ├── <>                              ## MISSING CICIoT2023 VQC Results
+│   ├── the-final-unsw-nb15-{maqt,vqc}-results.ipynb
 │   │
-│   ├── e2e-qs-net_v2.1.ipynb   ## epoch curve uses last minibatch only 
-│   │                           ## measure grad during weight update, averages over epoch
-│   │
-│   └── e2e-qs-net_v2.2.ipynb   ## added logging ## utilize "legacy_scripts/"
-│                               ## epoch curve averages all minibatches
-│                               ## measure grad after weight update, averages over epoch
+│   ├── final-bot-iot-algo3-cached ({maqt,vqc}).ipynb   # REAL: Full Algo.3 Pipeline
+│   ├── <>                                              # MISSING CICIoT2023 MAQT, VQC Algo.3
+│   └── final-unsw-nb15-algo3-cached ({maqt,vqc}).ipynb # REAL: Full Algo.3 Pipeline
+│   =======================================
+│   *** ALL DAILY DELIVERABLES END HERE ***
+│   =======================================
 │
-├── 10.maqt-loss-unit-test-iris.ipynb          # day 10 deliverable
-├── 11.hilbert-geometry-diagnostics_v1.ipynb   # day 11 deliverable ## CICIoT2023
-│
-├── # day 12 deliverable           ## CICIoT2023
-│   ├── 12.fgsm-pgd-dummy.ipynb    ## class-weighted 200 data, 10 epochs, 32 batch size
-│   └── 12.fgsm-pgd-kaggle.ipynb   ## class-weighted all data, 10 epochs, 128 batch size (TIMEOUT)
-│
-├── # day 13 deliverable
-│   ├── 13.tune-lambdas-demo.ipynb
-│   ├── 13.tune-lambdas-ciciot2023.ipynb   ## class-weighted 0.5% of all data, 10 epochs, 64 batch size
-│   ├── 13.tune-lambdas-unsw-nb15.ipynb    ## class-weighted 0.5% of all data, 10 epochs, 32 batch size
-│   └── 13.tune-lambdas-bot-iot.ipynb      ## class-weighted 0.5% of all data, 10 epochs, 64 batch size
-│
-├── # day 14 deliverable demo
-│   ├── 14.maqt-prototypes_ciciot2023.ipynb
-│   ├── 14.maqt-prototypes_unsw-nb15.ipynb
-│   └── 14.maqt-prototypes_bot-iot.ipynb
-│
-├── 15.depolarizing-channel.ipynb           # day 15 deliverable ## no dataset
-│
-├── # day 16 deliverable
-│   ├── 16.estimate-lipschitz_ciciot2023.ipynb     ## capped sample(100), ~2800 data, 10 epochs
-│   ├── 16.estimate-lipschitz_unsw-nb15.ipynb      ## capped sample(400), ~2800 data, 10 epochs
-│   └── 16.estimate-lipschitz_bot-iot.ipynb        ## capped sample(700), ~2800 data, 10 epochs
-│
-├── 17.certified-radius_ciciot2023.ipynb    # day 17 deliverable
-│
-├── # day 18 deliverable
-│   ├── 18.fin-fout-epsstar_ciciot2023.ipynb       ## day 16 artifact
-│   ├── 18.fin-fout-epsstar_unsw-nb15.ipynb        ## day 16 artifact
-│   └── 18.fin-fout-epsstar_bot-iot.ipynb          ## day 16 artifact
-│
-├── # day 19 deliverable
-│   ├── 19.fgsm-pgd-robustness_ciciot2023.ipynb    ## day 16 artifact
-│   ├── 19.fgsm-pgd-robustness_unsw-nb15.ipynb     ## day 16 artifact
-│   └── 19.fgsm-pgd-robustness_bot-iot.ipynb       ## day 16 artifact
-│
-├── 22. e2e-algo3_ciciot2023.ipynb          # day 22, 23 deliverables
-│
-├── # day 23 deliverable
-│   ├── 23.maqt-FROZEN-feat-prototypes_ciciot2023.ipynb
-│   ├── 23.maqt-FROZEN-feat-prototypes_unsw-nb15.ipynb
-│   └── 23.maqt-FROZEN-feat-prototypes_bot-iot.ipynb
-│
-├── # day 24 deliverable
-│   ├── 22.e2e-algo3_unsw-nb15.ipynb
-│   ├── 22.e2e-algo3_bot-iot.ipynb
-│   ├── 24.trust-region-2d_ciciot2023.ipynb       ## day 16 artifact
-│   ├── 24.trust-region-2d_unsw-nb15.ipynb        ## day 16 artifact
-│   └── 24.trust-region-2d_bot-iot.ipynb          ## day 16 artifact
-│
-├── # day 26 deliverable
-│   ├── 26.ce-FROZEN-feat-prototypes_ciciot2023.ipynb
-│   ├── 26.ce-FROZEN-feat-prototypes_unsw-nb15.ipynb
-│   └── 26.ce-FROZEN-feat-prototypes_bot-iot.ipynb
-│
-├── e2e-qs-net_v3.0.ipynb   ## CICIoT2023 class-weighted 200 data, 30 epochs, 64 batch size
-├── e2e-qs-net_v4.0.ipynb   ##
-└──
+└── eda.ipynb
 ```
 
-## `e2e-qs-net` (MAQT + CQ-ZDR + Inference) Architecture Changelog
+---
 
-- **v1:** first working version; simpler quantum backend; noise bolted on afterward; fixed readout; PennyLane trains everything.
-- **v2.x:** same algorithms, but rebuilt so noise and mixed states are native; classification uses a learnable head; training rides PyTorch; (later: balancing, better epoch logging, file logs).
-- **v3.x:** early stopping, richer logging, class-weighted MAQT train, val monitoring, dual known-test eval (head + pipeline); more script modularization.
-- **v4.x:** major redesign for optimization; utilize new optimized "scripts/"; backward incompatible with "legacy_scripts/".
+## Days with Missing Deliverables
+
+- Day 12 (partial): VQC accuracy drops with FGSM
+- Day 13 (partial): CICIoT2023
+- Day 26 (partial): MAQT ablation
+- Day 30
+- Day 31
+- Day 32
+
+## Optional To-Dos
+
+- Improve accuracies: retrain MAQT, VQC models
+- Experiment with Hinge-Loss: use *legacy_scripts/v2.4_suggestions/loss.py* > `inter_loss_term()`
+- Re-organize daily deliverables
+
+---
 
 ## Tech Stack
 
-`PennyLane`, `PyTorch`
+`PennyLane`, `PyTorch`, `NumPy`, `Pandas`, `Scikit-learn`
+
+## License
+
+See [LICENSE](LICENSE)

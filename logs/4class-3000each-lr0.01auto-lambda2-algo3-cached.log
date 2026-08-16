@@ -7,7 +7,7 @@
   "extra": {
     "dataset": "BoT-IoT",
     "notebook": "4class-3000each-lr0.01auto-lambda2-algo3-cached",
-    "checkpoint": "artifacts/BoT-IoT/4class-3000each-lr0.01auto-lambda2-maqt-cached-checkpoint.pt",
+    "checkpoint": "artifacts/BoT-IoT/4class-3000each-lr0.01auto-lambda2-maqt-checkpoint.pt",
     "cache_path": "caches/BoT-IoT/4class-3000each-lr0.01auto-lambda2-algo3-cached-forward_cache.pt",
     "inference_mode": "ForwardCache + Global/Mondrian cached infer",
     "lphi_path": null,

@@ -1,0 +1,18 @@
+notebook=11.hilbert-geometry-diagnostics_v2-bot-iot
+checkpoint=final_notebooks/final_artifacts/final-bot-iot-maqt-train-checkpoint.pt
+dataset=BoT-IoT
+max_per_class=50
+mean_intra_fid=0.822923
+mean_inter_fid=0.786080
+fidelity_gap=0.036843
+mean_inter_trace_distance=0.508791
+intra[DDoS]: n=50 F=0.815318
+intra[DoS]: n=50 F=0.868113
+intra[Normal]: n=50 F=0.735515
+intra[Reconnaissance]: n=50 F=0.872746
+pair[DDoS↔DoS]: F=0.990056 TD=0.109594
+pair[DDoS↔Normal]: F=0.811533 TD=0.498121
+pair[DDoS↔Reconnaissance]: F=0.649506 TD=0.707878
+pair[DoS↔Normal]: F=0.816427 TD=0.493233
+pair[DoS↔Reconnaissance]: F=0.646082 TD=0.709288
+pair[Normal↔Reconnaissance]: F=0.802878 TD=0.534634

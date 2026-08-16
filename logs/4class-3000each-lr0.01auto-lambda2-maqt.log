@@ -608,6 +608,6 @@
     "epochs_ran": 48,
     "stop_reason": "early_stopping",
     "interrupted": false,
-    "checkpoint_dir": "artifacts/BoT-IoT/4class-3000each-lr0.01auto-lambda2-maqt-cached_seed42"
+    "checkpoint_dir": "artifacts/BoT-IoT/4class-3000each-lr0.01auto-lambda2-maqt_seed42"
   }
 }

@@ -1,3 +1,7 @@
+# Notebook Renaming Rules
+
+**Notes**: These notebooks may be legacy now.
+
 | Old name | New name |
 | --- | --- |
 | setup-guide.md | 01.setup-guide.md |
