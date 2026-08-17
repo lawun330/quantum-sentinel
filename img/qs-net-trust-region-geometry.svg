@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="760" viewBox="0 0 1000 760" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>QS-Net Trust-Region Geometry</title>
+<desc>Three clusters with prototype points, concentric distance boundaries, a separability gap, sample points, a certified radius, and a zero-day attack point outside all boundaries.</desc>
+
+<defs>
+  <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9Z" fill="#000000"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="1000" height="760" fill="#FFFFFF"/>
+
+<!-- Title -->
+<text x="500" y="36" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#000000" text-anchor="middle">QS-Net Trust-Region Geometry</text>
+
+<!-- ============ RED CLUSTER ============ -->
+<circle cx="345" cy="255" r="130" fill="none" stroke="#D33A3A" stroke-width="2"/>
+<circle cx="345" cy="255" r="70" fill="none" stroke="#D33A3A" stroke-width="2"/>
+<circle cx="345" cy="255" r="10" fill="#D33A3A"/>
+
+<!-- Red samples (10 dots) inside inner red circle -->
+<circle cx="325" cy="240" r="4" fill="#D33A3A"/>
+<circle cx="360" cy="230" r="4" fill="#D33A3A"/>
+<circle cx="315" cy="265" r="4" fill="#D33A3A"/>
+<circle cx="370" cy="275" r="4" fill="#D33A3A"/>
+<circle cx="335" cy="290" r="4" fill="#D33A3A"/>
+<circle cx="375" cy="245" r="4" fill="#D33A3A"/>
+<circle cx="345" cy="300" r="4" fill="#D33A3A"/>
+<circle cx="310" cy="235" r="4" fill="#D33A3A"/>
+<circle cx="380" cy="285" r="4" fill="#D33A3A"/>
+<circle cx="340" cy="215" r="4" fill="#D33A3A"/>
+
+<!-- d_in label + arrow -> touches inner red circle (not the prototype dot) -->
+<g font-family="Liberation Serif, Times New Roman, Times, serif" fill="#000000">
+  <text x="85" y="140" font-size="18" font-style="italic">d</text>
+  <text x="97" y="146" font-size="12">in</text>
+  <text x="114" y="140" font-size="18">=</text>
+  <!-- one path so the radical check joins the vinculum roof -->
+  <path d="M128 133 L131.5 133 L137 151 L146 120 H210"
+        fill="none" stroke="#000000" stroke-width="1" stroke-linejoin="miter" stroke-linecap="butt"/>
+  <text x="150" y="140" font-size="18">1 &#x2212; </text>
+  <text x="178" y="140" font-size="18" font-style="italic">F</text>
+  <text x="191" y="146" font-size="12">in</text>
+  <text x="204" y="131" font-size="12">2</text>
+</g>
+<text x="85" y="110" font-family="Arial, sans-serif" font-size="17" fill="#000000">known concentration boundary</text>
+<line x1="215" y1="150" x2="290" y2="205" stroke="#000000" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+<!-- d_out label + arrow -> touches outer red circle -->
+<g font-family="Liberation Serif, Times New Roman, Times, serif" fill="#000000">
+  <text x="85" y="435" font-size="18" font-style="italic">d</text>
+  <text x="97" y="441" font-size="12">out</text>
+  <text x="118" y="435" font-size="18">= 1 &#x2212; </text>
+  <text x="166" y="435" font-size="18" font-style="italic">F</text>
+  <text x="178" y="441" font-size="12">out</text>
+</g>
+<text x="85" y="465" font-family="Arial, sans-serif" font-size="17" fill="#000000">zero-day separation boundary</text>
+<line x1="215" y1="435" x2="270" y2="367" stroke="#000000" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+<!-- ============ BLUE CLUSTER ============ -->
+<circle cx="615" cy="255" r="130" fill="none" stroke="#2F6FD6" stroke-width="2"/>
+<circle cx="615" cy="255" r="70" fill="none" stroke="#2F6FD6" stroke-width="2"/>
+<circle cx="615" cy="255" r="10" fill="#2F6FD6"/>
+
+<!-- Blue samples (10 dots) inside inner blue circle -->
+<circle cx="595" cy="240" r="4" fill="#2F6FD6"/>
+<circle cx="630" cy="230" r="4" fill="#2F6FD6"/>
+<circle cx="585" cy="265" r="4" fill="#2F6FD6"/>
+<circle cx="640" cy="275" r="4" fill="#2F6FD6"/>
+<circle cx="605" cy="290" r="4" fill="#2F6FD6"/>
+<circle cx="645" cy="245" r="4" fill="#2F6FD6"/>
+<circle cx="615" cy="300" r="4" fill="#2F6FD6"/>
+<circle cx="580" cy="235" r="4" fill="#2F6FD6"/>
+<circle cx="650" cy="285" r="4" fill="#2F6FD6"/>
+<circle cx="610" cy="215" r="4" fill="#2F6FD6"/>
+
+<!-- class prototype label + arrow -> points to blue prototype dot -->
+<text x="713" y="395" font-family="Arial, sans-serif" font-size="17" fill="#000000">class prototype</text>
+<line x1="711" y1="375" x2="621" y2="264" stroke="#000000" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+<!-- separability gap: double-headed arrow spanning the annulus, delta label sits between the two heads -->
+<line x1="615" y1="143" x2="615" y2="127" stroke="#000000" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+<line x1="615" y1="169" x2="615" y2="183" stroke="#000000" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+<text x="615" y="162" font-family="Arial, sans-serif" font-size="18" fill="#000000" text-anchor="middle">separability gap: &#916;</text>
+
+<!-- ============ GREEN CLUSTER ============ -->
+<circle cx="480" cy="530" r="130" fill="none" stroke="#4C9A2A" stroke-width="2"/>
+<circle cx="480" cy="530" r="70" fill="none" stroke="#4C9A2A" stroke-width="2"/>
+<circle cx="480" cy="530" r="10" fill="#4C9A2A"/>
+
+<!-- Green samples (10 dots) inside inner green circle -->
+<circle cx="460" cy="515" r="4" fill="#4C9A2A"/>
+<circle cx="495" cy="505" r="4" fill="#4C9A2A"/>
+<circle cx="450" cy="540" r="4" fill="#4C9A2A"/>
+<circle cx="505" cy="550" r="4" fill="#4C9A2A"/>
+<circle cx="470" cy="565" r="4" fill="#4C9A2A"/>
+<circle cx="510" cy="520" r="4" fill="#4C9A2A"/>
+<circle cx="480" cy="575" r="4" fill="#4C9A2A"/>
+<circle cx="445" cy="510" r="4" fill="#4C9A2A"/>
+<circle cx="515" cy="560" r="4" fill="#4C9A2A"/>
+<circle cx="475" cy="490" r="4" fill="#4C9A2A"/>
+
+<!-- certified radius: circle around one green sample + label -->
+<circle cx="450" cy="540" r="14" fill="none" stroke="#000000" stroke-width="1.5"/>
+<text x="155" y="570" font-family="Arial, sans-serif" font-size="17" fill="#000000">certified radius (R)</text>
+<line x1="305" y1="566" x2="435" y2="543" stroke="#000000" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+<!-- ============ ZERO-DAY ATTACK (outside all outer circles, no arrow, label directly below) ============ -->
+<circle cx="690" cy="485" r="8" fill="#7A7A7A"/>
+<text x="690" y="523" font-family="Arial, sans-serif" font-size="17" fill="#000000" text-anchor="middle">zero-day attack</text>
+
+<!-- ============ THEORY NOTE ============ -->
+<rect x="30" y="645" width="290" height="42" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="45" y="671" font-family="Arial, sans-serif" font-size="17" fill="#000000">Theory (A5): &#916; &gt; 0</text>
+
+<!-- ============ EMPIRICAL NOTE ============ -->
+<rect x="30" y="695" width="290" height="42" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="45" y="721" font-family="Arial, sans-serif" font-size="17" fill="#000000">Empirical: &#916; &#x2248; 0 (or) &#916; &lt; 0</text>
+
+</svg>

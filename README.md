@@ -1,5 +1,9 @@
 # quantum-sentinel
 
+| 2D | 3D |
+|:---:|:---:|
+| ![](img/qs-net-trust-region-geometry.svg) | ![](img/qs-net-visualized.svg) |
+
 This project applies quantum machine learning to Cyber IoT datasets using the QS-Net architecture. QS-Net combines three stages:
 
 1. **Algorithm 1 (MAQT)**: Trains the variational circuit by minimizing cross-entropy plus intra- and inter-class prototype losses, shaping class geometry in Hilbert space.
@@ -61,21 +65,23 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 │
 ├── final_notebooks/                    # day (4-9, 14) deliverables ## NEW NOTEBOOKS
 │   ├── final-bot-iot-{maqt,vqc}-train.ipynb    ## REAL: MAQT, VQC Training ## BoT-IoT
-│   ├── final-ciciot-maqt-train.ipynb           ## REAL: MAQT Training      ## CICIoT2023
+│   ├── final-ciciot2023-maqt-train.ipynb       ## REAL: MAQT Training      ## CICIoT2023
 │   ├── <>                                      ## MISSING CICIoT2023 VQC Training
 │   └── final-unsw-nb15-{maqt,vqc}-train.ipynb  ## REAL: MAQT, VQC Training ## UNSW-NB15
 │
-├── 10.maqt-loss-unit-test-iris.ipynb           # day 10 deliverable
-├── 11.hilbert-geometry-diagnostics_v2.ipynb    # day 11 deliverable
+├── 10.maqt-loss-unit-test-iris.ipynb                   # day 10 deliverable
+├── 11.hilbert-geometry-diagnostics_v2-bot-iot.ipynb    # day 11 deliverable    ## cap(50) all BoT-IoT
+├── 11.hilbert-geometry-diagnostics_v2-ciciot2023.ipynb # day 11 deliverable    ## cap(50) all CICIoT2023
+├── 11.hilbert-geometry-diagnostics_v2-unsw-nb15.ipynb  # day 11 deliverable    ## cap(50) all UNSW-NB15
 ├── <>                                          # MISSING Day 12
-├── 13.tune-lambdas-bot-iot.ipynb               # day 13 deliverable ## DPP cap(3000) all BoT-IoT
-├── <>                                          # MISSING Day 13 CICIoT2023
-├── 13.tune-lambdas-unsw-nb15.ipynb             # day 13 deliverable ## DPP cap(1000) all UNSW-NB15
+├── 13.tune-lambdas-bot-iot.ipynb               # day 13 deliverable ## DPP cap(3000), ~10000 all BoT-IoT
+├── 13.tune-lambdas-ciciot2023.ipynb            # day 13 deliverable ## DPP cap(500), ~10000 all CICIoT2023
+├── 13.tune-lambdas-unsw-nb15.ipynb             # day 13 deliverable ## DPP cap(1000), ~5600 all UNSW-NB15
 ├── 15.depolarizing-channel.ipynb               # day 15 deliverable ## NO DATASET
 │
 ├── final_notebooks/                    # day (15-29) deliverables  ## REAL: Full Algo.3 Pipeline
 │   ├── the-final-bot-iot-{maqt,vqc}-results.ipynb
-│   ├── the-final-ciciot-maqt-results.ipynb
+│   ├── the-final-ciciot2023-maqt-results.ipynb
 │   ├── <>                              ## MISSING CICIoT2023 VQC Results
 │   ├── the-final-unsw-nb15-{maqt,vqc}-results.ipynb
 │   │
