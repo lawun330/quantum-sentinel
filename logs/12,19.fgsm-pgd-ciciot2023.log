@@ -1,0 +1,41 @@
+notebook=12,19.fgsm-pgd-ciciot2023
+dataset=CICIoT2023
+vqc_checkpoint=final_notebooks/final_artifacts/final-ciciot2023-vqc-train-checkpoint.pt
+maqt_checkpoint=final_notebooks/final_artifacts/final-ciciot2023-maqt-train-checkpoint.pt
+algo3_artifact=final_notebooks/final_artifacts/final-ciciot2023-algo3-cached (maqt).pt
+q=0.226019
+L_phi=1.500000
+day12_n=1000
+day12_eps=0.1
+day12_clean_acc=0.536000
+day12_fgsm_acc=0.183000
+day12_pgd_acc=0.252000
+day12_fgsm_drop=+0.353000
+day12_pgd_drop=+0.284000
+day12_fgsm_hurt=True
+day12_pgd_hurt=True
+day19_n=300
+day19_bp_fgsm=0.1224744871391589
+day19_bp_pgd=0.2449489742783178
+F_in=0.510571
+F_out=1.000000
+delta_strict=-0.859835
+eps_star_strict=-0.289507
+eps_star_beta=-0.279938
+eps_star_strict_vacuous=True
+eps_star_beta_vacuous=True
+H3_holds=True
+fgsm eps_inf=0.000 accept=0.996667 robust_acc=0.650000
+fgsm eps_inf=0.010 accept=0.996667 robust_acc=0.646667
+fgsm eps_inf=0.020 accept=0.993333 robust_acc=0.653333
+fgsm eps_inf=0.050 accept=0.983333 robust_acc=0.633333
+fgsm eps_inf=0.080 accept=0.980000 robust_acc=0.630000
+fgsm eps_inf=0.100 accept=0.976667 robust_acc=0.616667
+fgsm eps_inf=0.150 accept=0.976667 robust_acc=0.600000
+fgsm eps_inf=0.200 accept=0.960000 robust_acc=0.490000
+fgsm eps_inf=0.300 accept=0.726667 robust_acc=0.283333
+pgd eps_inf=0.000 accept=0.996667 robust_acc=0.646667
+pgd eps_inf=0.050 accept=0.993333 robust_acc=0.656667
+pgd eps_inf=0.100 accept=0.973333 robust_acc=0.650000
+pgd eps_inf=0.200 accept=0.946667 robust_acc=0.553333
+pgd eps_inf=0.300 accept=0.860000 robust_acc=0.460000

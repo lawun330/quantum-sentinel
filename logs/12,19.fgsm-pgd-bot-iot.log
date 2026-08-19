@@ -1,0 +1,41 @@
+notebook=12,19.fgsm-pgd-bot-iot
+dataset=BoT-IoT
+vqc_checkpoint=final_notebooks/final_artifacts/final-bot-iot-vqc-train-checkpoint.pt
+maqt_checkpoint=final_notebooks/final_artifacts/final-bot-iot-maqt-train-checkpoint.pt
+algo3_artifact=final_notebooks/final_artifacts/final-bot-iot-algo3-cached (maqt).pt
+q=0.285916
+L_phi=1.000000
+day12_n=1000
+day12_eps=0.1
+day12_clean_acc=0.803000
+day12_fgsm_acc=0.209000
+day12_pgd_acc=0.345000
+day12_fgsm_drop=+0.594000
+day12_pgd_drop=+0.458000
+day12_fgsm_hurt=True
+day12_pgd_hurt=True
+day19_n=300
+day19_bp_fgsm=0.044721359549995794
+day19_bp_pgd=0.1118033988749895
+F_in=0.327413
+F_out=0.927525
+delta_strict=-0.872407
+eps_star_strict=-0.440610
+eps_star_beta=-0.405982
+eps_star_strict_vacuous=True
+eps_star_beta_vacuous=True
+H3_holds=True
+fgsm eps_inf=0.000 accept=1.000000 robust_acc=0.556667
+fgsm eps_inf=0.010 accept=0.990000 robust_acc=0.556667
+fgsm eps_inf=0.020 accept=0.986667 robust_acc=0.563333
+fgsm eps_inf=0.050 accept=0.966667 robust_acc=0.563333
+fgsm eps_inf=0.080 accept=0.943333 robust_acc=0.553333
+fgsm eps_inf=0.100 accept=0.933333 robust_acc=0.550000
+fgsm eps_inf=0.150 accept=0.923333 robust_acc=0.556667
+fgsm eps_inf=0.200 accept=0.853333 robust_acc=0.510000
+fgsm eps_inf=0.300 accept=0.716667 robust_acc=0.386667
+pgd eps_inf=0.000 accept=1.000000 robust_acc=0.556667
+pgd eps_inf=0.050 accept=0.976667 robust_acc=0.556667
+pgd eps_inf=0.100 accept=0.956667 robust_acc=0.570000
+pgd eps_inf=0.200 accept=0.903333 robust_acc=0.520000
+pgd eps_inf=0.300 accept=0.813333 robust_acc=0.443333

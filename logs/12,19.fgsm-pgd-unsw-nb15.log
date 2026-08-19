@@ -1,0 +1,41 @@
+notebook=12,19.fgsm-pgd-unsw-nb15
+dataset=UNSW-NB15
+vqc_checkpoint=final_notebooks/final_artifacts/final-unsw-nb15-vqc-train-checkpoint.pt
+maqt_checkpoint=final_notebooks/final_artifacts/final-unsw-nb15-maqt-train-checkpoint.pt
+algo3_artifact=final_notebooks/final_artifacts/final-unsw-nb15-algo3-cached (maqt).pt
+q=0.379455
+L_phi=1.000000
+day12_n=1000
+day12_eps=0.1
+day12_clean_acc=0.419000
+day12_fgsm_acc=0.120000
+day12_pgd_acc=0.167000
+day12_fgsm_drop=+0.299000
+day12_pgd_drop=+0.252000
+day12_fgsm_hurt=True
+day12_pgd_hurt=True
+day19_n=300
+day19_bp_fgsm=0.16
+day19_bp_pgd=0.2
+F_in=0.351436
+F_out=1.000000
+delta_strict=-0.936212
+eps_star_strict=-0.472834
+eps_star_beta=-0.472834
+eps_star_strict_vacuous=True
+eps_star_beta_vacuous=True
+H3_holds=True
+fgsm eps_inf=0.000 accept=1.000000 robust_acc=0.356667
+fgsm eps_inf=0.010 accept=1.000000 robust_acc=0.360000
+fgsm eps_inf=0.020 accept=1.000000 robust_acc=0.370000
+fgsm eps_inf=0.050 accept=0.990000 robust_acc=0.406667
+fgsm eps_inf=0.080 accept=0.980000 robust_acc=0.403333
+fgsm eps_inf=0.100 accept=0.976667 robust_acc=0.406667
+fgsm eps_inf=0.150 accept=0.950000 robust_acc=0.393333
+fgsm eps_inf=0.200 accept=0.926667 robust_acc=0.393333
+fgsm eps_inf=0.300 accept=0.890000 robust_acc=0.380000
+pgd eps_inf=0.000 accept=1.000000 robust_acc=0.356667
+pgd eps_inf=0.050 accept=0.990000 robust_acc=0.373333
+pgd eps_inf=0.100 accept=0.986667 robust_acc=0.396667
+pgd eps_inf=0.200 accept=0.946667 robust_acc=0.356667
+pgd eps_inf=0.300 accept=0.926667 robust_acc=0.336667
