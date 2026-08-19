@@ -99,6 +99,33 @@ def stack_prototypes(prototypes, device=None, dtype=None):
     return class_ids, stacked
 
 
+def all_fidelities_to_prototypes(rho_batch, proto_stack, eps=DEFAULT_EPS):
+    """
+    Fidelity of each state in a batch against every prototype.
+
+    Loops over classes (usually few) and batches over samples to avoid a
+    (B, C, d, d) memory blow-up on larger qubit counts.
+
+    rho_batch: (B, d, d) or (d, d)
+    proto_stack: (C, d, d)
+    returns: (B, C) float tensor on rho_batch.device
+    """
+    squeezed = False
+    if rho_batch.ndim == 2:
+        rho_batch = rho_batch.unsqueeze(0)
+        squeezed = True
+
+    proto_stack = proto_stack.to(device=rho_batch.device)
+    cols = []
+    for c in range(proto_stack.shape[0]):
+        f_c = fidelity(rho_batch, proto_stack[c], eps=eps)
+        if f_c.ndim == 0:
+            f_c = f_c.expand(rho_batch.shape[0])
+        cols.append(f_c.float())
+    f_mat = torch.stack(cols, dim=1)
+    return f_mat[0] if squeezed else f_mat
+
+
 def max_fidelity_to_prototypes(rho_batch, proto_stack, eps=DEFAULT_EPS):
     """
     Max fidelity of each state in a batch against a prototype stack.
