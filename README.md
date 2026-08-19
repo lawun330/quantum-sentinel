@@ -65,29 +65,29 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 │
 ├── final_notebooks/                    # day (4-9, 14) deliverables ## NEW NOTEBOOKS
 │   ├── final-bot-iot-{maqt,vqc}-train.ipynb    ## REAL: MAQT, VQC Training ## BoT-IoT
-│   ├── final-ciciot2023-maqt-train.ipynb       ## REAL: MAQT Training      ## CICIoT2023
-│   ├── <>                                      ## MISSING CICIoT2023 VQC Training
+│   ├── final-ciciot2023-{maqt,vqc}-train.ipynb ## REAL: MAQT, VQC Training ## CICIoT2023
 │   └── final-unsw-nb15-{maqt,vqc}-train.ipynb  ## REAL: MAQT, VQC Training ## UNSW-NB15
 │
 ├── 10.maqt-loss-unit-test-iris.ipynb                   # day 10 deliverable
-├── 11.hilbert-geometry-diagnostics_v2-bot-iot.ipynb    # day 11 deliverable    ## cap(50) all BoT-IoT
-├── 11.hilbert-geometry-diagnostics_v2-ciciot2023.ipynb # day 11 deliverable    ## cap(50) all CICIoT2023
-├── 11.hilbert-geometry-diagnostics_v2-unsw-nb15.ipynb  # day 11 deliverable    ## cap(50) all UNSW-NB15
-├── <>                                          # MISSING Day 12
-├── 13.tune-lambdas-bot-iot.ipynb               # day 13 deliverable ## DPP cap(3000), ~10000 all BoT-IoT
-├── 13.tune-lambdas-ciciot2023.ipynb            # day 13 deliverable ## DPP cap(500), ~10000 all CICIoT2023
-├── 13.tune-lambdas-unsw-nb15.ipynb             # day 13 deliverable ## DPP cap(1000), ~5600 all UNSW-NB15
+├── 11.hilbert-geometry-diagnostics_v2-bot-iot.ipynb    # day 11 deliverable    ## cap(50) train BoT-IoT
+├── 11.hilbert-geometry-diagnostics_v2-ciciot2023.ipynb # day 11 deliverable    ## cap(50) train CICIoT2023
+├── 11.hilbert-geometry-diagnostics_v2-unsw-nb15.ipynb  # day 11 deliverable    ## cap(50) train UNSW-NB15
+├── 12,19.fgsm-pgd-bot-iot.ipynb                # day 12, 19 deliverables       ## 300 known-accepted test BoT-IoT
+├── 12,19.fgsm-pgd-ciciot2023.ipynb             # day 12, 19 deliverables       ## 300 known-accepted test CICIoT2023
+├── 12,19.fgsm-pgd-unsw-nb15.ipynb              # day 12, 19 deliverables       ## 300 known-accepted test UNSW-NB15
+├── 13.tune-lambdas-bot-iot.ipynb               # day 13 deliverable ## DPP cap(3000), ~10000 train BoT-IoT
+├── 13.tune-lambdas-ciciot2023.ipynb            # day 13 deliverable ## DPP cap(500), ~10000 train CICIoT2023
+├── 13.tune-lambdas-unsw-nb15.ipynb             # day 13 deliverable ## DPP cap(1000), ~5600 train UNSW-NB15
 ├── 15.depolarizing-channel.ipynb               # day 15 deliverable ## NO DATASET
 │
 ├── final_notebooks/                    # day (15-29) deliverables  ## REAL: Full Algo.3 Pipeline
 │   ├── the-final-bot-iot-{maqt,vqc}-results.ipynb
-│   ├── the-final-ciciot2023-maqt-results.ipynb
-│   ├── <>                              ## MISSING CICIoT2023 VQC Results
+│   ├── the-final-ciciot2023-{maqt,vqc}-results-{part1,part2}.ipynb
 │   ├── the-final-unsw-nb15-{maqt,vqc}-results.ipynb
 │   │
-│   ├── final-bot-iot-algo3-cached ({maqt,vqc}).ipynb   # REAL: Full Algo.3 Pipeline
-│   ├── <>                                              # MISSING CICIoT2023 MAQT, VQC Algo.3
-│   └── final-unsw-nb15-algo3-cached ({maqt,vqc}).ipynb # REAL: Full Algo.3 Pipeline
+│   ├── final-bot-iot-algo3-cached ({maqt,vqc}).ipynb       # REAL: Full Algo.3 Pipeline
+│   ├── final-ciciot2023-algo3-cached ({maqt,vqc}).ipynb    # REAL: Full Algo.3 Pipeline
+│   └── final-unsw-nb15-algo3-cached ({maqt,vqc}).ipynb     # REAL: Full Algo.3 Pipeline
 │   =======================================
 │   *** ALL DAILY DELIVERABLES END HERE ***
 │   =======================================
@@ -99,7 +99,6 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 
 ## Days with Missing Deliverables
 
-- Day 12 (partial): VQC accuracy drops with FGSM
 - Day 13 (partial): CICIoT2023
 - Day 26 (partial): MAQT ablation
 - Day 30
