@@ -78,7 +78,9 @@ def read_jsonl(name, log_dir=DEFAULT_LOG_DIR):
         return [json.loads(line) for line in f if line.strip()]
 
 
-def write_crash_log(exc, history=None, extra=None, name="maqt", log_dir=DEFAULT_LOG_DIR):
+def write_crash_log(
+    exc, history=None, extra=None, name="maqt", log_dir=DEFAULT_LOG_DIR
+):
     """
     Dump exception + optional training state to `<name>-crash-<timestamp>.json`.
     """

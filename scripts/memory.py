@@ -9,7 +9,9 @@ def is_oom_error(e):
     """
     Return True when the error looks like the GPU ran out of memory.
     """
-    if hasattr(torch.cuda, "OutOfMemoryError") and isinstance(e, torch.cuda.OutOfMemoryError):
+    if hasattr(torch.cuda, "OutOfMemoryError") and isinstance(
+        e, torch.cuda.OutOfMemoryError
+    ):
         return True
     if not isinstance(e, RuntimeError):
         return False
@@ -42,7 +44,9 @@ def free_memory(device=None):
         torch.cuda.empty_cache()
     except RuntimeError as e:
         if is_fatal_cuda_error(e):
-            print("\t[FATAL] CUDA context corrupted -- restart the kernel before further GPU cells.")
+            print(
+                "\t[FATAL] CUDA context corrupted -- restart the kernel before further GPU cells."
+            )
         else:
             raise
 
@@ -57,7 +61,9 @@ def safe_empty_cache():
             torch.cuda.synchronize()
         except RuntimeError as e:
             if is_fatal_cuda_error(e):
-                print("\t[FATAL] CUDA context corrupted -- restart the kernel before further GPU cells.")
+                print(
+                    "\t[FATAL] CUDA context corrupted -- restart the kernel before further GPU cells."
+                )
             else:
                 raise
 
@@ -73,7 +79,11 @@ def gpu_memory_snapshot(device=None):
     devices = [device] if device is not None else list(range(torch.cuda.device_count()))
     out = {}
     for d in devices:
-        idx = d if isinstance(d, int) else (d.index if getattr(d, "index", None) is not None else 0)
+        idx = (
+            d
+            if isinstance(d, int)
+            else (d.index if getattr(d, "index", None) is not None else 0)
+        )
         out[f"cuda:{idx}"] = {
             "allocated_mb": torch.cuda.memory_allocated(idx) / 1e6,
             "reserved_mb": torch.cuda.memory_reserved(idx) / 1e6,
@@ -120,8 +130,12 @@ def run_with_oom_retry(xb, yb, step_fn, device, max_retries):
         if is_oom_error(e) and max_retries > 0 and len(xb) > 1:
             free_memory(device)
             mid = len(xb) // 2
-            r1 = run_with_oom_retry(xb[:mid], yb[:mid], step_fn, device, max_retries - 1)
-            r2 = run_with_oom_retry(xb[mid:], yb[mid:], step_fn, device, max_retries - 1)
+            r1 = run_with_oom_retry(
+                xb[:mid], yb[:mid], step_fn, device, max_retries - 1
+            )
+            r2 = run_with_oom_retry(
+                xb[mid:], yb[mid:], step_fn, device, max_retries - 1
+            )
             w1, w2 = r1["n"], r2["n"]
             merged = {"n": w1 + w2}
             for k in r1:
@@ -136,7 +150,9 @@ def run_with_oom_retry(xb, yb, step_fn, device, max_retries):
         raise
 
 
-def run_batched_safely(fn, *args, batch_size=8, min_batch=1, on_fail=None, label="", **kwargs):
+def run_batched_safely(
+    fn, *args, batch_size=8, min_batch=1, on_fail=None, label="", **kwargs
+):
     """
     Call a function with a batch size, and keep halving that size if the GPU runs out of memory.
     """
@@ -146,7 +162,9 @@ def run_batched_safely(fn, *args, batch_size=8, min_batch=1, on_fail=None, label
             return fn(*args, batch_size=bs, **kwargs)
         except RuntimeError as e:
             if is_fatal_cuda_error(e):
-                print(f"\t[FATAL{' ' + label if label else ''}] non-recoverable CUDA error, not retrying: {e}")
+                print(
+                    f"\t[FATAL{' ' + label if label else ''}] non-recoverable CUDA error, not retrying: {e}"
+                )
                 safe_empty_cache()
                 return on_fail() if on_fail is not None else None
             if is_oom_error(e) and bs > min_batch:
@@ -158,7 +176,9 @@ def run_batched_safely(fn, *args, batch_size=8, min_batch=1, on_fail=None, label
                 bs = max(bs // 2, min_batch)
                 continue
             if is_oom_error(e):
-                print(f"\t[OOM{' ' + label if label else ''}] failed even at batch_size={min_batch}. Skipping.")
+                print(
+                    f"\t[OOM{' ' + label if label else ''}] failed even at batch_size={min_batch}. Skipping."
+                )
                 safe_empty_cache()
                 return on_fail() if on_fail is not None else None
             raise

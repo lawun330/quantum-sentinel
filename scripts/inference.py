@@ -26,7 +26,9 @@ from scripts.utils import (
 )
 
 
-def algo3_postprocess_f_mat(f_mat, class_ids, q, p, L_phi, Cf, zero_day=ZERO_DAY, q_by_class=None):
+def algo3_postprocess_f_mat(
+    f_mat, class_ids, q, p, L_phi, Cf, zero_day=ZERO_DAY, q_by_class=None
+):
     """
     Algo-3 labels, certified radii, and nonconformity scores from a (B, C) fidelity matrix.
 
@@ -44,7 +46,9 @@ def algo3_postprocess_f_mat(f_mat, class_ids, q, p, L_phi, Cf, zero_day=ZERO_DAY
     s = 1.0 - f_mat[row_idx, c_idx]
 
     if q_by_class is not None:
-        q_vec = torch.tensor([q_by_class[cid] for cid in class_ids], device=device, dtype=f_mat.dtype)
+        q_vec = torch.tensor(
+            [q_by_class[cid] for cid in class_ids], device=device, dtype=f_mat.dtype
+        )
         reject = s > q_vec[c_idx]
     else:
         reject = s > q
@@ -67,17 +71,22 @@ def algo3_postprocess_f_mat(f_mat, class_ids, q, p, L_phi, Cf, zero_day=ZERO_DAY
 def f_maps_from_f_mat(f_mat, class_ids):
     """Build per-sample fidelity dicts from a (B, C) matrix (one CPU sync per batch)."""
     f_np = f_mat.detach().cpu().numpy()
-    return [{class_ids[c]: float(f_np[j, c]) for c in range(len(class_ids))} for j in range(f_np.shape[0])]
+    return [
+        {class_ids[c]: float(f_np[j, c]) for c in range(len(class_ids))}
+        for j in range(f_np.shape[0])
+    ]
 
 
-def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE):
+def predict_labels(
+    X, y, theta, classifier_head, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE
+):
     """
     Batched prediction of class labels using circuit expectations + classical head.
     """
     preds = []
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             z, _ = forward_circuit(x_chunk, theta)
             logits = classifier_head(expectations_to_tensor(z))
             preds.append(logits.argmax(dim=1).cpu().numpy())
@@ -85,8 +94,17 @@ def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_
     return y_true, np.concatenate(preds)
 
 
-def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta=DEFAULT_DELTA,
-                       device=None, batch_size=DEFAULT_BATCH_SIZE, percentile=None, return_ratios=False):
+def estimate_lipschitz(
+    X,
+    theta,
+    forward_circuit,
+    n_probe=DEFAULT_N_PROBE,
+    delta=DEFAULT_DELTA,
+    device=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+    percentile=None,
+    return_ratios=False,
+):
     """
     DEPRECATED for certificates / Day-16 deliverable.
     USE `theory.estimate_lipschitz_percentile()` instead.
@@ -97,7 +115,7 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
     D_tr(ρ(x), ρ(x+δξ)) / δ.
 
     - By default returns the max ratio (legacy).
-    - Pass percentile (e.g. 95) for the Day-16 robust estimator; 
+    - Pass percentile (e.g. 95) for the Day-16 robust estimator;
     - Set return_ratios=True to also get the full ratio distribution.
     """
     X_np = to_np_batch_x(X)
@@ -113,8 +131,8 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
     ratios = []
     with torch.no_grad():
         for i in range(0, len(indices), batch_size):
-            _, r1 = forward_circuit(x_probe[i:i + batch_size], theta)
-            _, r2 = forward_circuit(x_probe_pert[i:i + batch_size], theta)
+            _, r1 = forward_circuit(x_probe[i : i + batch_size], theta)
+            _, r2 = forward_circuit(x_probe_pert[i : i + batch_size], theta)
             for j in range(r1.shape[0]):
                 ratios.append(trace_distance(r1[j], r2[j]) / delta)
 
@@ -131,8 +149,18 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
     return L_phi
 
 
-def qsnet_infer_single(x, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_RATE,
-                L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None):
+def qsnet_infer_single(
+    x,
+    theta,
+    prototypes,
+    q,
+    forward_circuit,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+):
     """
     Single-sample unified inference with disentangled rejection.
     """
@@ -159,9 +187,20 @@ def qsnet_infer_single(x, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE
     return c_star, float(radius), s, f_map
 
 
-def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_RATE,
-                       L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None,
-                       batch_size=DEFAULT_BATCH_SIZE, return_f_maps=True):
+def qsnet_infer_batch(
+    X,
+    theta,
+    prototypes,
+    q,
+    forward_circuit,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+    return_f_maps=True,
+):
     """
     Batched unified inference with disentangled rejection.
 
@@ -175,11 +214,17 @@ def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_
 
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
             f_mat = all_fidelities_to_prototypes(rho_chunk, proto_stack)
             labels_b, radii_b, scores_b = algo3_postprocess_f_mat(
-                f_mat, class_ids, q=q, p=p, L_phi=L_phi, Cf=Cf, zero_day=zero_day,
+                f_mat,
+                class_ids,
+                q=q,
+                p=p,
+                L_phi=L_phi,
+                Cf=Cf,
+                zero_day=zero_day,
             )
             labels.append(labels_b.cpu().numpy())
             radii.append(radii_b.cpu().numpy())
@@ -193,9 +238,20 @@ def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_
     return labels_out, radii_out, scores_out, (f_maps if return_f_maps else [])
 
 
-def qsnet_infer_batch_per_class(X, theta, prototypes, q_by_class, forward_circuit, p=DEFAULT_NOISE_RATE,
-                                 L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None,
-                                 batch_size=DEFAULT_BATCH_SIZE, return_f_maps=True):
+def qsnet_infer_batch_per_class(
+    X,
+    theta,
+    prototypes,
+    q_by_class,
+    forward_circuit,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+    return_f_maps=True,
+):
     """
     Class-conditional (Mondrian) variant of `inference.qsnet_infer_batch()`.
     Non-cached variant of `cache.cached_qsnet_infer_per_class()`.
@@ -217,11 +273,17 @@ def qsnet_infer_batch_per_class(X, theta, prototypes, q_by_class, forward_circui
 
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
             f_mat = all_fidelities_to_prototypes(rho_chunk, proto_stack)
             labels_b, radii_b, scores_b = algo3_postprocess_f_mat(
-                f_mat, class_ids, q=None, p=p, L_phi=L_phi, Cf=Cf, zero_day=zero_day,
+                f_mat,
+                class_ids,
+                q=None,
+                p=p,
+                L_phi=L_phi,
+                Cf=Cf,
+                zero_day=zero_day,
                 q_by_class=q_by_class,
             )
             labels.append(labels_b.cpu().numpy())

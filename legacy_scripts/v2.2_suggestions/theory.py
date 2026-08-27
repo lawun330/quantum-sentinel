@@ -47,6 +47,7 @@ from scripts.utils import to_torch_batch_x
 # Fidelity-convention self-check
 # --------------------------------------------------------------------------------------
 
+
 def verify_fidelity_convention(dim=4, n_trials=20, seed=0, tol=1e-6):
     """
     Confirms scripts.quantum_metrics is using the NON-SQUARED fidelity convention
@@ -69,7 +70,7 @@ def verify_fidelity_convention(dim=4, n_trials=20, seed=0, tol=1e-6):
 
         d_tr = float(trace_distance(rho, sigma))
         lower = 1.0 - f_a
-        upper = math.sqrt(max(1.0 - f_a ** 2, 0.0))
+        upper = math.sqrt(max(1.0 - f_a**2, 0.0))
         violation = max(lower - d_tr, d_tr - upper, 0.0)
         max_fvg_violation = max(max_fvg_violation, violation)
 
@@ -82,7 +83,10 @@ def verify_fidelity_convention(dim=4, n_trials=20, seed=0, tol=1e-6):
         "This means fidelity() is still returning the SQUARED convention "
         "(qml.math.fidelity returns F^2) -- patch quantum_metrics.py to take sqrt()."
     )
-    return {"max_pairwise_disagreement": max_err_pair, "max_fvg_violation": max_fvg_violation}
+    return {
+        "max_pairwise_disagreement": max_err_pair,
+        "max_fvg_violation": max_fvg_violation,
+    }
 
 
 def _random_density_matrix(dim, rng):
@@ -93,8 +97,9 @@ def _random_density_matrix(dim, rng):
 
 
 # --------------------------------------------------------------------------------------
-# Proposition 1: noise contraction  
+# Proposition 1: noise contraction
 # --------------------------------------------------------------------------------------
+
 
 def depolarizing_channel_global(rho, p):
     """Lambda_p(rho) = (1-p) rho + p * I / d   -- the channel Proposition 1 is stated for."""
@@ -103,8 +108,9 @@ def depolarizing_channel_global(rho, p):
     return (1.0 - p) * rho + p * I / d
 
 
-def check_proposition1(dim, p_values=(0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0),
-                        n_pairs=25, seed=0):
+def check_proposition1(
+    dim, p_values=(0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0), n_pairs=25, seed=0
+):
     """
     Numerically confirms D_tr(Lambda_p(rho), Lambda_p(sigma)) = (1-p) D_tr(rho,sigma)
     (Eq. 2). Per the doc's "Note for implementation", the residual should be
@@ -117,11 +123,21 @@ def check_proposition1(dim, p_values=(0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0),
         sigma = _random_density_matrix(dim, rng)
         d0 = float(trace_distance(rho, sigma))
         for p in p_values:
-            d_measured = float(trace_distance(depolarizing_channel_global(rho, p),
-                                               depolarizing_channel_global(sigma, p)))
+            d_measured = float(
+                trace_distance(
+                    depolarizing_channel_global(rho, p),
+                    depolarizing_channel_global(sigma, p),
+                )
+            )
             d_theory = (1.0 - p) * d0
-            records.append({"p": float(p), "D_tr_measured": d_measured,
-                             "D_tr_theory": d_theory, "abs_error": abs(d_measured - d_theory)})
+            records.append(
+                {
+                    "p": float(p),
+                    "D_tr_measured": d_measured,
+                    "D_tr_theory": d_theory,
+                    "abs_error": abs(d_measured - d_theory),
+                }
+            )
     return records
 
 
@@ -139,6 +155,7 @@ def assert_proposition1(records, tol=PROP1_RESIDUAL_TOL):
 # Section 4: analytic Lipschitz bound for angle encoding (Lemma 1)
 # --------------------------------------------------------------------------------------
 
+
 def analytic_lipschitz_bound(n_layers, reupload=True):
     """
     Lemma 1 (+ its data-reuploading extension): for single-qubit-per-feature angle
@@ -151,8 +168,17 @@ def analytic_lipschitz_bound(n_layers, reupload=True):
     return R / 2.0
 
 
-def estimate_lipschitz_percentile(X, theta, forward_circuit, n_pairs=300, min_dist=1e-4,
-                                   device=None, batch_size=64, seed=0, percentile=95):
+def estimate_lipschitz_percentile(
+    X,
+    theta,
+    forward_circuit,
+    n_pairs=300,
+    min_dist=1e-4,
+    device=None,
+    batch_size=64,
+    seed=0,
+    percentile=95,
+):
     """
     TIGHTNESS DIAGNOSTIC ONLY (not a certified bound -- a percentile estimate is not an
     upper bound, since by construction some pairs exceed it.
@@ -169,13 +195,17 @@ def estimate_lipschitz_percentile(X, theta, forward_circuit, n_pairs=300, min_di
     idx1, idx2 = idx1[keep], idx2[keep]
     dists = np.linalg.norm(X_np[idx1] - X_np[idx2], axis=1)
     keep2 = dists > min_dist
-    idx1, idx2, dists = idx1[keep2][:n_pairs], idx2[keep2][:n_pairs], dists[keep2][:n_pairs]
+    idx1, idx2, dists = (
+        idx1[keep2][:n_pairs],
+        idx2[keep2][:n_pairs],
+        dists[keep2][:n_pairs],
+    )
 
     ratios = []
     with torch.no_grad():
         for i in range(0, len(idx1), batch_size):
-            x1 = to_torch_batch_x(X_np[idx1[i:i + batch_size]], device=device)
-            x2 = to_torch_batch_x(X_np[idx2[i:i + batch_size]], device=device)
+            x1 = to_torch_batch_x(X_np[idx1[i : i + batch_size]], device=device)
+            x2 = to_torch_batch_x(X_np[idx2[i : i + batch_size]], device=device)
             _, rho1 = forward_circuit(x1, theta)
             _, rho2 = forward_circuit(x2, theta)
             for k in range(rho1.shape[0]):
@@ -184,7 +214,9 @@ def estimate_lipschitz_percentile(X, theta, forward_circuit, n_pairs=300, min_di
     ratios = np.array(ratios)
     return {
         "ratios": ratios,
-        f"p{percentile}": float(np.percentile(ratios, percentile)) if len(ratios) else float("nan"),
+        f"p{percentile}": float(np.percentile(ratios, percentile))
+        if len(ratios)
+        else float("nan"),
         "max": float(ratios.max()) if len(ratios) else float("nan"),
     }
 
@@ -204,6 +236,7 @@ def check_lipschitz_tightness(diag, l_phi_bound):
 # Section 3.1: L2 <-> L_inf perturbation-budget conversion
 # --------------------------------------------------------------------------------------
 
+
 def linf_to_l2_budget(eps_inf, d=INPUT_DIM_D):
     """||delta||_2 <= sqrt(d) ||delta||_inf."""
     return math.sqrt(d) * eps_inf
@@ -217,9 +250,12 @@ def l2_to_linf_budget(eps_2, d=INPUT_DIM_D):
 # F_max / F_in / F_out  (Section 1 "nearest-prototype quantities"; Assumptions A2/A3/A3')
 # --------------------------------------------------------------------------------------
 
+
 def f_max_batch(X, theta, prototypes, forward_circuit, device=None, batch_size=64):
     """F_max(x) = max_{c in K} F(rho(x), rho_c) for every sample in X (known prototypes only)."""
-    scores = nonconformity_score(X, theta, prototypes, forward_circuit, device=device, batch_size=batch_size)
+    scores = nonconformity_score(
+        X, theta, prototypes, forward_circuit, device=device, batch_size=batch_size
+    )
     return 1.0 - scores
 
 
@@ -246,9 +282,10 @@ def quantile_f_out(f_max_zeroday, beta=DEFAULT_BETA):
 # Proposition 2: gap Delta, epsilon*, quantile-relaxed epsilon^(beta)   (Eq. 3, Eq. 4)
 # --------------------------------------------------------------------------------------
 
+
 def proposition2_gap(F_in, F_out):
     """Delta = (1 - F_out) - sqrt(1 - F_in^2)   (Eq. 3). Delta > 0 is Assumption (A5)."""
-    return (1.0 - F_out) - math.sqrt(max(1.0 - F_in ** 2, 0.0))
+    return (1.0 - F_out) - math.sqrt(max(1.0 - F_in**2, 0.0))
 
 
 def proposition2_epsilon_star(F_in, F_out, L_phi, p=DEFAULT_NOISE_RATE):
@@ -263,7 +300,9 @@ def proposition2_epsilon_star(F_in, F_out, L_phi, p=DEFAULT_NOISE_RATE):
     return delta, eps_star
 
 
-def proposition2_epsilon_beta(F_in, f_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE, beta=DEFAULT_BETA):
+def proposition2_epsilon_beta(
+    F_in, f_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE, beta=DEFAULT_BETA
+):
     """Corollary 1 (quantile-relaxed): returns (F_out_beta, Delta_beta, epsilon_beta)."""
     F_out_beta = quantile_f_out(f_max_zeroday, beta=beta)
     delta_beta, eps_beta = proposition2_epsilon_star(F_in, F_out_beta, L_phi, p=p)
@@ -273,6 +312,7 @@ def proposition2_epsilon_beta(F_in, f_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE, 
 # --------------------------------------------------------------------------------------
 # Attacks that directly target the CQ-ZDR novelty score (for the Day-19/20/25 experiments)
 # --------------------------------------------------------------------------------------
+
 
 def _as_bound_tensor(bound, device):
     """Accepts None / a python scalar / a tensor and returns a device-matched tensor (or None)."""
@@ -289,8 +329,18 @@ def _clear_cuda_cache_if_needed(device):
         torch.cuda.empty_cache()
 
 
-def fgsm_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, device=None,
-                               x_min=None, x_max=None, batch_size=32, proto_stack=None):
+def fgsm_attack_nonconformity(
+    X,
+    theta,
+    prototypes,
+    forward_circuit,
+    eps,
+    device=None,
+    x_min=None,
+    x_max=None,
+    batch_size=32,
+    proto_stack=None,
+):
     """
     One-step FGSM that maximizes the nonconformity score s(x) = 1 - F_max(x) directly,
     i.e. attacks the CQ-ZDR accept/reject boundary rather than the classifier head's
@@ -318,10 +368,14 @@ def fgsm_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, device
 
     chunks = []
     for i in range(0, n, batch_size):
-        X_t = to_torch_batch_x(X_np[i:i + batch_size], device=device).detach().requires_grad_(True)
+        X_t = (
+            to_torch_batch_x(X_np[i : i + batch_size], device=device)
+            .detach()
+            .requires_grad_(True)
+        )
         _, rho = forward_circuit(X_t, theta)
         max_f = max_fidelity_to_prototypes(rho, proto_stack.to(device=rho.device))
-        score = (1.0 - max_f).mean()          # nonconformity score, to be maximized
+        score = (1.0 - max_f).mean()  # nonconformity score, to be maximized
         grad = torch.autograd.grad(score, X_t)[0]
 
         with torch.no_grad():
@@ -334,9 +388,21 @@ def fgsm_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, device
     return torch.cat(chunks, dim=0)
 
 
-def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, steps,
-                              device=None, x_min=None, x_max=None, random_start=True,
-                              batch_size=32, proto_stack=None):
+def pgd_attack_nonconformity(
+    X,
+    theta,
+    prototypes,
+    forward_circuit,
+    eps,
+    alpha,
+    steps,
+    device=None,
+    x_min=None,
+    x_max=None,
+    random_start=True,
+    batch_size=32,
+    proto_stack=None,
+):
     """
     Multi-step PGD version of fgsm_attack_nonconformity, L_inf-projected onto the
     eps-ball. Each per-sample trajectory is independent of every other sample, so
@@ -357,8 +423,12 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
     chunks = []
     for i in range(0, n, batch_size):
-        X0 = to_torch_batch_x(X_np[i:i + batch_size], device=device).detach()
-        X_adv = X0 + torch.empty_like(X0).uniform_(-eps, eps) if random_start else X0.clone()
+        X0 = to_torch_batch_x(X_np[i : i + batch_size], device=device).detach()
+        X_adv = (
+            X0 + torch.empty_like(X0).uniform_(-eps, eps)
+            if random_start
+            else X0.clone()
+        )
         if x_min_t is not None or x_max_t is not None:
             X_adv = torch.clamp(X_adv, min=x_min_t, max=x_max_t)
         X_adv = X_adv.detach()
@@ -372,7 +442,9 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
             with torch.no_grad():
                 X_adv = X_adv + alpha * grad.sign()
-                X_adv = torch.clamp(X_adv, min=X0 - eps, max=X0 + eps)      # fused L_inf-ball projection
+                X_adv = torch.clamp(
+                    X_adv, min=X0 - eps, max=X0 + eps
+                )  # fused L_inf-ball projection
                 if x_min_t is not None or x_max_t is not None:
                     X_adv = torch.clamp(X_adv, min=x_min_t, max=x_max_t)
             X_adv = X_adv.detach()
@@ -386,6 +458,7 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 # --------------------------------------------------------------------------------------
 # Proposition 3 support: two-sample exchangeability diagnostic
 # --------------------------------------------------------------------------------------
+
 
 def two_sample_discriminability_auroc(X_cal, X_test, seed=0):
     """

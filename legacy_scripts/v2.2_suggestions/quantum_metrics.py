@@ -28,7 +28,7 @@ def fidelity(rho_a, rho_b, eps=DEFAULT_EPS):
         f = torch.sqrt(f_sq)
         return torch.clamp(f, 0.0, 1.0 - eps)
     f_sq = max(float(f_sq), 0.0)
-    f = f_sq ** 0.5
+    f = f_sq**0.5
     return min(f, 1.0 - eps)
 
 
@@ -64,7 +64,7 @@ def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
     mid = sqrt_rho @ sigma @ sqrt_rho
     evals = torch.linalg.eigvalsh(_as_complex_hermitian(mid))
     evals = torch.clamp(evals.real, min=0.0)
-    fid = torch.sqrt(evals).sum(dim=-1)          # NOTE: no ** 2 here -- non-squared F
+    fid = torch.sqrt(evals).sum(dim=-1)  # NOTE: no ** 2 here -- non-squared F
     return torch.clamp(fid.real, 0.0, 1.0 - eps)
 
 
@@ -98,7 +98,9 @@ def max_fidelity_to_prototypes(rho_batch, proto_stack, eps=DEFAULT_EPS):
         squeezed = True
 
     proto_stack = proto_stack.to(device=rho_batch.device)
-    max_f = torch.zeros(rho_batch.shape[0], device=rho_batch.device, dtype=torch.float32)
+    max_f = torch.zeros(
+        rho_batch.shape[0], device=rho_batch.device, dtype=torch.float32
+    )
     for c in range(proto_stack.shape[0]):
         f_c = fidelity_pairwise(rho_batch, proto_stack[c], eps=eps)
         max_f = torch.maximum(max_f, f_c.float())

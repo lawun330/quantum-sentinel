@@ -87,9 +87,11 @@ def _graceful_signals():
             except (ValueError, OSError):
                 pass
 
+
 # ============================================================================
 # Early stopping
 # ============================================================================
+
 
 class EarlyStopping:
     """
@@ -129,15 +131,19 @@ class EarlyStopping:
                 self.should_stop = True
         return improved, self.should_stop
 
+
 # ============================================================================
 # Checkpoint I/O (atomic writes so a kill mid-save can't corrupt the file)
 # ============================================================================
+
 
 def _history_to_cpu(history):
     """
     Copy history lists so they are safe to save to disk.
     """
-    return {k: (list(v) if isinstance(v, (list, tuple)) else v) for k, v in history.items()}
+    return {
+        k: (list(v) if isinstance(v, (list, tuple)) else v) for k, v in history.items()
+    }
 
 
 def _atomic_torch_save(payload, path):
@@ -195,7 +201,9 @@ def _build_payload(
     if scheduler is not None:
         payload["scheduler_state_dict"] = scheduler.state_dict()
     if ema_protos is not None:
-        payload["ema_protos"] = {int(k): v.detach().cpu() for k, v in ema_protos.protos.items()}
+        payload["ema_protos"] = {
+            int(k): v.detach().cpu() for k, v in ema_protos.protos.items()
+        }
         payload["ema_momentum"] = float(ema_protos.momentum)
     if best_bundle is not None:
         payload["best_bundle"] = best_bundle
@@ -209,7 +217,9 @@ def _make_cosine_scheduler(opt, epochs, lr, lr_min=None, last_epoch=-1):
     Cosine decay from `lr` down to `lr_min` (default 1% of `lr`) over `epochs`.
     """
     eta_min = float(lr * 0.01 if lr_min is None else lr_min)
-    return CosineAnnealingLR(opt, T_max=max(int(epochs), 1), eta_min=eta_min, last_epoch=last_epoch)
+    return CosineAnnealingLR(
+        opt, T_max=max(int(epochs), 1), eta_min=eta_min, last_epoch=last_epoch
+    )
 
 
 def _current_lr(opt):
@@ -245,7 +255,9 @@ def _save_all(ckpt_dir, prefix, *, write_epoch_file, keep_last_n, **kwargs):
         print(f"warning: failed to write checkpoint (latest): {e!r}")
     if write_epoch_file:
         try:
-            saved = _atomic_torch_save(payload, ckpt_dir / f"{prefix}-epoch{kwargs['epoch']:03d}.pt")
+            saved = _atomic_torch_save(
+                payload, ckpt_dir / f"{prefix}-epoch{kwargs['epoch']:03d}.pt"
+            )
             _prune_old_checkpoints(ckpt_dir, prefix, keep_last_n)
         except Exception as e:
             print(f"warning: failed to write checkpoint (epoch file): {e!r}")
@@ -295,11 +307,15 @@ def _early_stop_state_dict(early_stop):
     }
 
 
-def _finalize_history(history, early_stop, early_stopping, interrupted, stopped_time_budget):
+def _finalize_history(
+    history, early_stop, early_stopping, interrupted, stopped_time_budget
+):
     """
     Add final summary fields to the training history before returning.
     """
-    history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else len(history["loss"])
+    history["best_epoch"] = (
+        int(early_stop.best_epoch) if early_stopping else len(history["loss"])
+    )
     history["best_score"] = (
         float(early_stop.best_score)
         if (early_stopping and early_stop.best_score is not None)
@@ -309,10 +325,13 @@ def _finalize_history(history, early_stop, early_stopping, interrupted, stopped_
     history["epochs_ran"] = len(history["loss"])
     history["interrupted"] = bool(interrupted)
     history["stop_reason"] = (
-        "time_budget" if stopped_time_budget else
-        "signal" if _STOP_REQUESTED["flag"] else
-        "early_stopping" if history["stopped_early"] else
-        "completed"
+        "time_budget"
+        if stopped_time_budget
+        else "signal"
+        if _STOP_REQUESTED["flag"]
+        else "early_stopping"
+        if history["stopped_early"]
+        else "completed"
     )
     return history
 
@@ -355,9 +374,18 @@ def _mean_maqt_val_loss(
 
         def _eval_fn(xb_s, yb_s, _protos=prototypes, _lam1=lam1, _lam2=lam2):
             loss, _, _, _, _, _ = maqt_loss(
-                theta, head, ce_loss_fn, xb_s, yb_s, _protos, forward_circuit,
-                lambda1=_lam1, lambda2=_lam2, device=device,
-                use_focal=use_focal, focal_gamma=focal_gamma,
+                theta,
+                head,
+                ce_loss_fn,
+                xb_s,
+                yb_s,
+                _protos,
+                forward_circuit,
+                lambda1=_lam1,
+                lambda2=_lam2,
+                device=device,
+                use_focal=use_focal,
+                focal_gamma=focal_gamma,
             )
             return {"loss": float(loss.item())}
 
@@ -367,7 +395,17 @@ def _mean_maqt_val_loss(
 
 
 @torch.no_grad()
-def _mean_ce_val_loss(theta, head, ce_loss_fn, X_val_np, y_val_np, forward_circuit, device, batch_size, oom_max_retries):
+def _mean_ce_val_loss(
+    theta,
+    head,
+    ce_loss_fn,
+    X_val_np,
+    y_val_np,
+    forward_circuit,
+    device,
+    batch_size,
+    oom_max_retries,
+):
     """
     Mean CE loss on a held-out val set (no grad).
     """
@@ -389,9 +427,11 @@ def _mean_ce_val_loss(theta, head, ce_loss_fn, X_val_np, y_val_np, forward_circu
         totals.append(result["loss"])
     return float(np.mean(totals))
 
+
 # ============================================================================
 # MAQT training
 # ============================================================================
+
 
 def train_maqt(
     X_train,
@@ -444,7 +484,9 @@ def train_maqt(
     if (X_val is None) ^ (y_val is None):
         raise ValueError("pass both X_val and y_val, or neither")
 
-    theta = initialize_random_weights(n_layers, n_qubits, device, eps=weight_init_eps, seed=seed)
+    theta = initialize_random_weights(
+        n_layers, n_qubits, device, eps=weight_init_eps, seed=seed
+    )
     head = nn.Linear(n_qubits, n_classes).to(device)
     opt = torch.optim.Adam(list([theta]) + list(head.parameters()), lr=lr)
     ce_loss_fn = nn.CrossEntropyLoss()
@@ -460,14 +502,22 @@ def train_maqt(
 
     sample_weights = (
         torch.as_tensor(class_weights_for_sampler(y_np, n_classes), dtype=torch.double)
-        if use_weighted_sampler else None
+        if use_weighted_sampler
+        else None
     )
 
     history = {
-        "loss": [], "L_CE": [], "L_intra": [], "L_inter": [],
-        "val_loss": [], "lr": [],
-        "grad_var": [], "intra_fid_gap": [], "inter_trace_dist": [],
-        "epoch_sec": [], "gpu_mem_mb": [],
+        "loss": [],
+        "L_CE": [],
+        "L_intra": [],
+        "L_inter": [],
+        "val_loss": [],
+        "lr": [],
+        "grad_var": [],
+        "intra_fid_gap": [],
+        "inter_trace_dist": [],
+        "epoch_sec": [],
+        "gpu_mem_mb": [],
     }
 
     early_stop = EarlyStopping(patience=patience, min_delta=min_delta, mode="min")
@@ -476,7 +526,11 @@ def train_maqt(
     resumed_perm, resumed_epoch_terms = None, None
     resumed_scheduler_state = None
     ckpt_dir = Path(checkpoint_dir) if checkpoint_dir is not None else None
-    log_dir = Path(log_dir) if log_dir is not None else (ckpt_dir if ckpt_dir is not None else Path("logs"))
+    log_dir = (
+        Path(log_dir)
+        if log_dir is not None
+        else (ckpt_dir if ckpt_dir is not None else Path("logs"))
+    )
 
     if resume_from is not None and Path(resume_from).exists():
         try:
@@ -495,7 +549,9 @@ def train_maqt(
                 resumed_perm = ckpt["perm"]
                 resumed_epoch_terms = ckpt.get("epoch_terms")
             if "ema_protos" in ckpt:
-                ema_protos.protos = {int(k): v.to(device) for k, v in ckpt["ema_protos"].items()}
+                ema_protos.protos = {
+                    int(k): v.to(device) for k, v in ckpt["ema_protos"].items()
+                }
             _restore_early_stop(early_stop, ckpt.get("early_stop_state"))
             if reset_early_stopping_on_resume:
                 _reset_early_stop_patience(early_stop)
@@ -503,18 +559,24 @@ def train_maqt(
                 best_bundle = ckpt["best_bundle"]
             resumed_scheduler_state = ckpt.get("scheduler_state_dict")
             if verbose:
-                where = f"epoch {start_epoch}" + (f", step {start_step} (mid-epoch)" if start_step else "")
+                where = f"epoch {start_epoch}" + (
+                    f", step {start_step} (mid-epoch)" if start_step else ""
+                )
                 es_note = "\n(patience reset)" if reset_early_stopping_on_resume else ""
                 print(f"resumed MAQT from {resume_from} at {where} / {epochs}{es_note}")
         except Exception as e:
-            print(f"warning: failed to load checkpoint {resume_from} ({e!r}); starting fresh")
+            print(
+                f"warning: failed to load checkpoint {resume_from} ({e!r}); starting fresh"
+            )
             start_epoch, start_step = 0, 0
             resumed_scheduler_state = None
 
     scheduler = None
     if use_lr_schedule:
         if resumed_scheduler_state is not None:
-            scheduler = _make_cosine_scheduler(opt, epochs, lr, lr_min=lr_min, last_epoch=-1)
+            scheduler = _make_cosine_scheduler(
+                opt, epochs, lr, lr_min=lr_min, last_epoch=-1
+            )
             scheduler.load_state_dict(resumed_scheduler_state)
         else:
             # old ckpts / fresh: last_epoch = completed epochs - 1
@@ -524,7 +586,14 @@ def train_maqt(
 
     train_t0 = time.perf_counter()
     stopped_time_budget = False
-    epoch, step_count, perm, epoch_terms, lam1, lam2 = start_epoch, 0, None, None, None, None
+    epoch, step_count, perm, epoch_terms, lam1, lam2 = (
+        start_epoch,
+        0,
+        None,
+        None,
+        None,
+        None,
+    )
     es_metric = "val_loss" if use_val else "train_loss"
 
     with _graceful_signals():
@@ -545,14 +614,24 @@ def train_maqt(
                         else torch.as_tensor(resumed_perm)
                     )
                 elif use_weighted_sampler:
-                    perm = torch.tensor(list(WeightedRandomSampler(sample_weights, num_samples=n, replacement=True)))
+                    perm = torch.tensor(
+                        list(
+                            WeightedRandomSampler(
+                                sample_weights, num_samples=n, replacement=True
+                            )
+                        )
+                    )
                 else:
                     perm = torch.randperm(n)
                 resumed_perm = None
 
                 epoch_terms = resumed_epoch_terms or {
-                    "L_total": [], "L_CE": [], "L_intra": [], "L_inter": [],
-                    "grad_vars": [], "intra_fid_running": [],
+                    "L_total": [],
+                    "L_CE": [],
+                    "L_intra": [],
+                    "L_inter": [],
+                    "grad_vars": [],
+                    "intra_fid_running": [],
                 }
                 resumed_epoch_terms = None
 
@@ -565,15 +644,28 @@ def train_maqt(
                     xb_np, yb_np = X_np[idx], y_np[idx]
                     protos_snapshot = ema_protos.snapshot()
 
-                    def _step_fn(xb_s, yb_s, _protos=protos_snapshot, _lam1=lam1, _lam2=lam2):
+                    def _step_fn(
+                        xb_s, yb_s, _protos=protos_snapshot, _lam1=lam1, _lam2=lam2
+                    ):
                         opt.zero_grad()
                         loss, l_ce, l_intra, l_inter, y_used, rho_used = maqt_loss(
-                            theta, head, ce_loss_fn, xb_s, yb_s, _protos, forward_circuit,
-                            lambda1=_lam1, lambda2=_lam2, device=device,
-                            use_focal=use_focal, focal_gamma=focal_gamma,
+                            theta,
+                            head,
+                            ce_loss_fn,
+                            xb_s,
+                            yb_s,
+                            _protos,
+                            forward_circuit,
+                            lambda1=_lam1,
+                            lambda2=_lam2,
+                            device=device,
+                            use_focal=use_focal,
+                            focal_gamma=focal_gamma,
                         )
                         loss.backward()
-                        torch.nn.utils.clip_grad_norm_(list([theta]) + list(head.parameters()), grad_clip_norm)
+                        torch.nn.utils.clip_grad_norm_(
+                            list([theta]) + list(head.parameters()), grad_clip_norm
+                        )
                         grad_var = theta.grad.var().item()
                         opt.step()
                         return {
@@ -587,8 +679,14 @@ def train_maqt(
                             "rho_used": rho_used,
                         }
 
-                    result = run_with_oom_retry(xb_np, yb_np, _step_fn, device, oom_max_retries)
-                    ema_protos.update(ema_protos.batch_class_means(result["rho_used"].detach(), result["y_used"]))
+                    result = run_with_oom_retry(
+                        xb_np, yb_np, _step_fn, device, oom_max_retries
+                    )
+                    ema_protos.update(
+                        ema_protos.batch_class_means(
+                            result["rho_used"].detach(), result["y_used"]
+                        )
+                    )
 
                     epoch_terms["L_total"].append(result["loss"])
                     epoch_terms["L_CE"].append(result["l_ce"])
@@ -598,12 +696,16 @@ def train_maqt(
                     epoch_terms["intra_fid_running"].append(1 - result["l_intra"])
                     step_count += 1
 
-                    if verbose and heartbeat_every_steps and step_count % heartbeat_every_steps == 0:
+                    if (
+                        verbose
+                        and heartbeat_every_steps
+                        and step_count % heartbeat_every_steps == 0
+                    ):
                         elapsed = time.perf_counter() - epoch_t0
                         frac = min(1.0, (i + batch_size) / n)
                         eta = elapsed / max(frac, 1e-6) - elapsed
                         print(
-                            f"\tepoch {epoch+1} step {step_count} ({frac*100:.0f}%) "
+                            f"\tepoch {epoch + 1} step {step_count} ({frac * 100:.0f}%) "
                             f"loss={epoch_terms['L_total'][-1]:.4f} elapsed={elapsed:.0f}s eta={eta:.0f}s"
                         )
 
@@ -612,20 +714,41 @@ def train_maqt(
                         and (time.perf_counter() - train_t0) > time_budget_sec
                     )
                     if ckpt_dir is not None and (
-                        (checkpoint_every_steps and step_count % checkpoint_every_steps == 0)
+                        (
+                            checkpoint_every_steps
+                            and step_count % checkpoint_every_steps == 0
+                        )
                         or _STOP_REQUESTED["flag"]
                         or time_budget_hit
                     ):
                         _save_all(
-                            ckpt_dir, "maqt", write_epoch_file=False, keep_last_n=keep_last_n_checkpoints,
-                            epoch=epoch, epochs_total=epochs, step_in_epoch=step_count, perm=perm,
-                            theta=theta, head=head, opt=opt, history=history, seed=seed,
-                            early_stopping=early_stopping, early_stop_state=_early_stop_state_dict(early_stop),
-                            ema_protos=ema_protos, best_bundle=best_bundle, epoch_terms=epoch_terms,
-                            lam1=lam1, lam2=lam2, extra=checkpoint_extra, scheduler=scheduler,
+                            ckpt_dir,
+                            "maqt",
+                            write_epoch_file=False,
+                            keep_last_n=keep_last_n_checkpoints,
+                            epoch=epoch,
+                            epochs_total=epochs,
+                            step_in_epoch=step_count,
+                            perm=perm,
+                            theta=theta,
+                            head=head,
+                            opt=opt,
+                            history=history,
+                            seed=seed,
+                            early_stopping=early_stopping,
+                            early_stop_state=_early_stop_state_dict(early_stop),
+                            ema_protos=ema_protos,
+                            best_bundle=best_bundle,
+                            epoch_terms=epoch_terms,
+                            lam1=lam1,
+                            lam2=lam2,
+                            extra=checkpoint_extra,
+                            scheduler=scheduler,
                         )
                         if verbose and (_STOP_REQUESTED["flag"] or time_budget_hit):
-                            print(f"  saved mid-epoch checkpoint (epoch {epoch+1}, step {step_count})")
+                            print(
+                                f"  saved mid-epoch checkpoint (epoch {epoch + 1}, step {step_count})"
+                            )
 
                     if step_count % 200 == 0:
                         free_memory(device)
@@ -640,26 +763,48 @@ def train_maqt(
                 for a in range(len(keys)):
                     for b in range(a + 1, len(keys)):
                         diag_pairs.append(
-                            float(trace_distance(ema_protos.protos[keys[a]], ema_protos.protos[keys[b]]))
+                            float(
+                                trace_distance(
+                                    ema_protos.protos[keys[a]],
+                                    ema_protos.protos[keys[b]],
+                                )
+                            )
                         )
                 mean_inter_td = float(np.mean(diag_pairs)) if diag_pairs else 0.0
-                mean_gv = float(np.mean(epoch_terms["grad_vars"])) if epoch_terms["grad_vars"] else float("nan")
+                mean_gv = (
+                    float(np.mean(epoch_terms["grad_vars"]))
+                    if epoch_terms["grad_vars"]
+                    else float("nan")
+                )
 
                 history["loss"].append(float(np.mean(epoch_terms["L_total"])))
                 history["L_CE"].append(float(np.mean(epoch_terms["L_CE"])))
                 history["L_intra"].append(float(np.mean(epoch_terms["L_intra"])))
                 history["L_inter"].append(float(np.mean(epoch_terms["L_inter"])))
                 history["grad_var"].append(mean_gv)
-                history["intra_fid_gap"].append(float(np.mean(epoch_terms["intra_fid_running"])))
+                history["intra_fid_gap"].append(
+                    float(np.mean(epoch_terms["intra_fid_running"]))
+                )
                 history["inter_trace_dist"].append(mean_inter_td)
                 history["epoch_sec"].append(time.perf_counter() - epoch_t0)
                 history["gpu_mem_mb"].append(peak_gpu_mb())
 
                 if use_val:
                     val_loss = _mean_maqt_val_loss(
-                        theta, head, ce_loss_fn, X_val_np, y_val_np,
-                        ema_protos.snapshot(), forward_circuit, lam1, lam2, device,
-                        batch_size, use_focal, focal_gamma, oom_max_retries,
+                        theta,
+                        head,
+                        ce_loss_fn,
+                        X_val_np,
+                        y_val_np,
+                        ema_protos.snapshot(),
+                        forward_circuit,
+                        lam1,
+                        lam2,
+                        device,
+                        batch_size,
+                        use_focal,
+                        focal_gamma,
+                        oom_max_retries,
                     )
                 else:
                     val_loss = float("nan")
@@ -676,15 +821,22 @@ def train_maqt(
                     if improved:
                         best_bundle = {
                             "theta": theta.detach().cpu().clone(),
-                            "head_state_dict": {k: v.detach().cpu().clone() for k, v in head.state_dict().items()},
-                            "ema_protos": {int(k): v.detach().cpu().clone() for k, v in ema_protos.protos.items()},
+                            "head_state_dict": {
+                                k: v.detach().cpu().clone()
+                                for k, v in head.state_dict().items()
+                            },
+                            "ema_protos": {
+                                int(k): v.detach().cpu().clone()
+                                for k, v in ema_protos.protos.items()
+                            },
                         }
 
                 if verbose and (epoch_1based % log_every == 0):
                     es_msg = (
                         f" | best={early_stop.best_score:.4f}@ep{early_stop.best_epoch} "
                         f"| bad={early_stop.bad_epochs}/{patience}"
-                        if early_stopping else ""
+                        if early_stopping
+                        else ""
                     )
                     mem = history["gpu_mem_mb"][-1]
                     mem_msg = f" | peak_mem={mem:.0f}MB" if mem else ""
@@ -706,12 +858,28 @@ def train_maqt(
 
                 if ckpt_dir is not None and save_every_epoch:
                     saved = _save_all(
-                        ckpt_dir, "maqt", write_epoch_file=True, keep_last_n=keep_last_n_checkpoints,
-                        epoch=epoch_1based, epochs_total=epochs, step_in_epoch=0, perm=None,
-                        theta=theta, head=head, opt=opt, history=history, seed=seed,
-                        early_stopping=early_stopping, early_stop_state=_early_stop_state_dict(early_stop),
-                        ema_protos=ema_protos, best_bundle=best_bundle, epoch_terms=None,
-                        lam1=lam1, lam2=lam2, extra=checkpoint_extra, scheduler=scheduler,
+                        ckpt_dir,
+                        "maqt",
+                        write_epoch_file=True,
+                        keep_last_n=keep_last_n_checkpoints,
+                        epoch=epoch_1based,
+                        epochs_total=epochs,
+                        step_in_epoch=0,
+                        perm=None,
+                        theta=theta,
+                        head=head,
+                        opt=opt,
+                        history=history,
+                        seed=seed,
+                        early_stopping=early_stopping,
+                        early_stop_state=_early_stop_state_dict(early_stop),
+                        ema_protos=ema_protos,
+                        best_bundle=best_bundle,
+                        epoch_terms=None,
+                        lam1=lam1,
+                        lam2=lam2,
+                        extra=checkpoint_extra,
+                        scheduler=scheduler,
                     )
                     if verbose and saved:
                         print(f"  saved checkpoint: {saved}")
@@ -751,12 +919,28 @@ def train_maqt(
             if ckpt_dir is not None:
                 try:
                     crash_ckpt = _save_all(
-                        ckpt_dir, "maqt", write_epoch_file=False, keep_last_n=keep_last_n_checkpoints,
-                        epoch=epoch, epochs_total=epochs, step_in_epoch=step_count, perm=perm,
-                        theta=theta, head=head, opt=opt, history=history, seed=seed,
-                        early_stopping=early_stopping, early_stop_state=_early_stop_state_dict(early_stop),
-                        ema_protos=ema_protos, best_bundle=best_bundle, epoch_terms=epoch_terms,
-                        lam1=lam1, lam2=lam2, extra=checkpoint_extra, scheduler=scheduler,
+                        ckpt_dir,
+                        "maqt",
+                        write_epoch_file=False,
+                        keep_last_n=keep_last_n_checkpoints,
+                        epoch=epoch,
+                        epochs_total=epochs,
+                        step_in_epoch=step_count,
+                        perm=perm,
+                        theta=theta,
+                        head=head,
+                        opt=opt,
+                        history=history,
+                        seed=seed,
+                        early_stopping=early_stopping,
+                        early_stop_state=_early_stop_state_dict(early_stop),
+                        ema_protos=ema_protos,
+                        best_bundle=best_bundle,
+                        epoch_terms=epoch_terms,
+                        lam1=lam1,
+                        lam2=lam2,
+                        extra=checkpoint_extra,
+                        scheduler=scheduler,
                     )
                 except Exception:
                     pass
@@ -764,19 +948,29 @@ def train_maqt(
             if log_dir is not None:
                 try:
                     crash_log = write_crash_log(
-                        e, history=history, extra=checkpoint_extra, name=notebook_name, log_dir=log_dir
+                        e,
+                        history=history,
+                        extra=checkpoint_extra,
+                        name=notebook_name,
+                        log_dir=log_dir,
                     )
                 except Exception:
                     pass
             if verbose:
-                kind = "KeyboardInterrupt" if isinstance(e, KeyboardInterrupt) else type(e).__name__
+                kind = (
+                    "KeyboardInterrupt"
+                    if isinstance(e, KeyboardInterrupt)
+                    else type(e).__name__
+                )
                 print(f"\n[train_maqt] stopped by {kind}: {e}")
                 if crash_ckpt:
                     print(f"  emergency checkpoint saved: {crash_ckpt}")
                 if crash_log:
                     print(f"  crash log written: {crash_log}")
                 if ckpt_dir:
-                    print(f"  re-run with resume_from={ckpt_dir / 'maqt-latest.pt'} to continue")
+                    print(
+                        f"  re-run with resume_from={ckpt_dir / 'maqt-latest.pt'} to continue"
+                    )
             raise
 
         interrupted = stopped_time_budget or _STOP_REQUESTED["flag"]
@@ -786,14 +980,18 @@ def train_maqt(
                 theta.copy_(best_bundle["theta"].to(device))
             head.load_state_dict(best_bundle["head_state_dict"])
             head.to(device)
-            ema_protos.protos = {int(k): v.to(device) for k, v in best_bundle["ema_protos"].items()}
+            ema_protos.protos = {
+                int(k): v.to(device) for k, v in best_bundle["ema_protos"].items()
+            }
             if verbose:
                 print(
                     f"restored best MAQT weights from epoch {early_stop.best_epoch} "
                     f"({es_metric}={early_stop.best_score:.4f})"
                 )
 
-        _finalize_history(history, early_stop, early_stopping, interrupted, stopped_time_budget)
+        _finalize_history(
+            history, early_stop, early_stopping, interrupted, stopped_time_budget
+        )
 
         if interrupted:
             if verbose:
@@ -801,7 +999,9 @@ def train_maqt(
                     f"training paused ({history['stop_reason']}) after {history['epochs_ran']} epoch(s) "
                     f"-- re-run with resume_from=<latest checkpoint> to continue"
                 )
-            final_prototypes = {k: v.detach().clone() for k, v in ema_protos.protos.items()}
+            final_prototypes = {
+                k: v.detach().clone() for k, v in ema_protos.protos.items()
+            }
             return theta, head, final_prototypes, ema_protos, history
 
         try:
@@ -811,14 +1011,20 @@ def train_maqt(
             )
         except Exception as e:
             if verbose:
-                print(f"warning: failed to compute final exact prototypes ({e!r}); using EMA")
-            final_prototypes = {k: v.detach().clone() for k, v in ema_protos.protos.items()}
+                print(
+                    f"warning: failed to compute final exact prototypes ({e!r}); using EMA"
+                )
+            final_prototypes = {
+                k: v.detach().clone() for k, v in ema_protos.protos.items()
+            }
 
         return theta, head, final_prototypes, ema_protos, history
+
 
 # ============================================================================
 # Plain-CE baseline (same loop as MAQT; CE loss only)
 # ============================================================================
+
 
 def train_plain_vqc(
     X_train,
@@ -863,7 +1069,9 @@ def train_plain_vqc(
     if (X_val is None) ^ (y_val is None):
         raise ValueError("pass both X_val and y_val, or neither")
 
-    theta = initialize_random_weights(n_layers, n_qubits, device, eps=weight_init_eps, seed=seed)
+    theta = initialize_random_weights(
+        n_layers, n_qubits, device, eps=weight_init_eps, seed=seed
+    )
     head = nn.Linear(n_qubits, n_classes).to(device)
     opt = torch.optim.Adam(list([theta]) + list(head.parameters()), lr=lr)
     ce_loss_fn = nn.CrossEntropyLoss()
@@ -878,14 +1086,18 @@ def train_plain_vqc(
 
     sample_weights = (
         torch.as_tensor(class_weights_for_sampler(y_np, n_classes), dtype=torch.double)
-        if use_weighted_sampler else None
+        if use_weighted_sampler
+        else None
     )
 
     history = {
-        "loss": [], "L_CE": [],
-        "val_loss": [], "lr": [],
+        "loss": [],
+        "L_CE": [],
+        "val_loss": [],
+        "lr": [],
         "grad_var": [],
-        "epoch_sec": [], "gpu_mem_mb": [],
+        "epoch_sec": [],
+        "gpu_mem_mb": [],
     }
 
     early_stop = EarlyStopping(patience=patience, min_delta=min_delta, mode="min")
@@ -894,7 +1106,11 @@ def train_plain_vqc(
     resumed_perm, resumed_epoch_terms = None, None
     resumed_scheduler_state = None
     ckpt_dir = Path(checkpoint_dir) if checkpoint_dir is not None else None
-    log_dir = Path(log_dir) if log_dir is not None else (ckpt_dir if ckpt_dir is not None else Path("logs"))
+    log_dir = (
+        Path(log_dir)
+        if log_dir is not None
+        else (ckpt_dir if ckpt_dir is not None else Path("logs"))
+    )
 
     if resume_from is not None and Path(resume_from).exists():
         try:
@@ -919,18 +1135,26 @@ def train_plain_vqc(
                 best_bundle = ckpt["best_bundle"]
             resumed_scheduler_state = ckpt.get("scheduler_state_dict")
             if verbose:
-                where = f"epoch {start_epoch}" + (f", step {start_step} (mid-epoch)" if start_step else "")
+                where = f"epoch {start_epoch}" + (
+                    f", step {start_step} (mid-epoch)" if start_step else ""
+                )
                 es_note = "\n(patience reset)" if reset_early_stopping_on_resume else ""
-                print(f"resumed plain VQC from {resume_from} at {where} / {epochs}{es_note}")
+                print(
+                    f"resumed plain VQC from {resume_from} at {where} / {epochs}{es_note}"
+                )
         except Exception as e:
-            print(f"warning: failed to load checkpoint {resume_from} ({e!r}); starting fresh")
+            print(
+                f"warning: failed to load checkpoint {resume_from} ({e!r}); starting fresh"
+            )
             start_epoch, start_step = 0, 0
             resumed_scheduler_state = None
 
     scheduler = None
     if use_lr_schedule:
         if resumed_scheduler_state is not None:
-            scheduler = _make_cosine_scheduler(opt, epochs, lr, lr_min=lr_min, last_epoch=-1)
+            scheduler = _make_cosine_scheduler(
+                opt, epochs, lr, lr_min=lr_min, last_epoch=-1
+            )
             scheduler.load_state_dict(resumed_scheduler_state)
         else:
             scheduler = _make_cosine_scheduler(
@@ -958,13 +1182,21 @@ def train_plain_vqc(
                         else torch.as_tensor(resumed_perm)
                     )
                 elif use_weighted_sampler:
-                    perm = torch.tensor(list(WeightedRandomSampler(sample_weights, num_samples=n, replacement=True)))
+                    perm = torch.tensor(
+                        list(
+                            WeightedRandomSampler(
+                                sample_weights, num_samples=n, replacement=True
+                            )
+                        )
+                    )
                 else:
                     perm = torch.randperm(n)
                 resumed_perm = None
 
                 epoch_terms = resumed_epoch_terms or {
-                    "L_total": [], "L_CE": [], "grad_vars": [],
+                    "L_total": [],
+                    "L_CE": [],
+                    "grad_vars": [],
                 }
                 resumed_epoch_terms = None
 
@@ -984,7 +1216,9 @@ def train_plain_vqc(
                         logits = head(expectations_to_tensor(z))
                         loss = ce_loss_fn(logits, y_t)
                         loss.backward()
-                        torch.nn.utils.clip_grad_norm_(list([theta]) + list(head.parameters()), grad_clip_norm)
+                        torch.nn.utils.clip_grad_norm_(
+                            list([theta]) + list(head.parameters()), grad_clip_norm
+                        )
                         grad_var = theta.grad.var().item()
                         opt.step()
                         return {
@@ -994,19 +1228,25 @@ def train_plain_vqc(
                             "grad_var": grad_var,
                         }
 
-                    result = run_with_oom_retry(xb_np, yb_np, _step_fn, device, oom_max_retries)
+                    result = run_with_oom_retry(
+                        xb_np, yb_np, _step_fn, device, oom_max_retries
+                    )
 
                     epoch_terms["L_total"].append(result["loss"])
                     epoch_terms["L_CE"].append(result["l_ce"])
                     epoch_terms["grad_vars"].append(result["grad_var"])
                     step_count += 1
 
-                    if verbose and heartbeat_every_steps and step_count % heartbeat_every_steps == 0:
+                    if (
+                        verbose
+                        and heartbeat_every_steps
+                        and step_count % heartbeat_every_steps == 0
+                    ):
                         elapsed = time.perf_counter() - epoch_t0
                         frac = min(1.0, (i + batch_size) / n)
                         eta = elapsed / max(frac, 1e-6) - elapsed
                         print(
-                            f"\tepoch {epoch+1} step {step_count} ({frac*100:.0f}%) "
+                            f"\tepoch {epoch + 1} step {step_count} ({frac * 100:.0f}%) "
                             f"loss={epoch_terms['L_total'][-1]:.4f} elapsed={elapsed:.0f}s eta={eta:.0f}s"
                         )
 
@@ -1015,20 +1255,41 @@ def train_plain_vqc(
                         and (time.perf_counter() - train_t0) > time_budget_sec
                     )
                     if ckpt_dir is not None and (
-                        (checkpoint_every_steps and step_count % checkpoint_every_steps == 0)
+                        (
+                            checkpoint_every_steps
+                            and step_count % checkpoint_every_steps == 0
+                        )
                         or _STOP_REQUESTED["flag"]
                         or time_budget_hit
                     ):
                         _save_all(
-                            ckpt_dir, "plain", write_epoch_file=False, keep_last_n=keep_last_n_checkpoints,
-                            epoch=epoch, epochs_total=epochs, step_in_epoch=step_count, perm=perm,
-                            theta=theta, head=head, opt=opt, history=history, seed=seed,
-                            early_stopping=early_stopping, early_stop_state=_early_stop_state_dict(early_stop),
-                            ema_protos=None, best_bundle=best_bundle, epoch_terms=epoch_terms,
-                            lam1=None, lam2=None, extra=checkpoint_extra, scheduler=scheduler,
+                            ckpt_dir,
+                            "plain",
+                            write_epoch_file=False,
+                            keep_last_n=keep_last_n_checkpoints,
+                            epoch=epoch,
+                            epochs_total=epochs,
+                            step_in_epoch=step_count,
+                            perm=perm,
+                            theta=theta,
+                            head=head,
+                            opt=opt,
+                            history=history,
+                            seed=seed,
+                            early_stopping=early_stopping,
+                            early_stop_state=_early_stop_state_dict(early_stop),
+                            ema_protos=None,
+                            best_bundle=best_bundle,
+                            epoch_terms=epoch_terms,
+                            lam1=None,
+                            lam2=None,
+                            extra=checkpoint_extra,
+                            scheduler=scheduler,
                         )
                         if verbose and (_STOP_REQUESTED["flag"] or time_budget_hit):
-                            print(f"  saved mid-epoch checkpoint (epoch {epoch+1}, step {step_count})")
+                            print(
+                                f"  saved mid-epoch checkpoint (epoch {epoch + 1}, step {step_count})"
+                            )
 
                     if step_count % 200 == 0:
                         free_memory(device)
@@ -1037,7 +1298,11 @@ def train_plain_vqc(
                         stopped_time_budget = time_budget_hit
                         raise _GracefulStop()
 
-                mean_gv = float(np.mean(epoch_terms["grad_vars"])) if epoch_terms["grad_vars"] else float("nan")
+                mean_gv = (
+                    float(np.mean(epoch_terms["grad_vars"]))
+                    if epoch_terms["grad_vars"]
+                    else float("nan")
+                )
                 history["loss"].append(float(np.mean(epoch_terms["L_total"])))
                 history["L_CE"].append(float(np.mean(epoch_terms["L_CE"])))
                 history["grad_var"].append(mean_gv)
@@ -1046,8 +1311,15 @@ def train_plain_vqc(
 
                 if use_val:
                     val_loss = _mean_ce_val_loss(
-                        theta, head, ce_loss_fn, X_val_np, y_val_np, forward_circuit,
-                        device, batch_size, oom_max_retries,
+                        theta,
+                        head,
+                        ce_loss_fn,
+                        X_val_np,
+                        y_val_np,
+                        forward_circuit,
+                        device,
+                        batch_size,
+                        oom_max_retries,
                     )
                 else:
                     val_loss = float("nan")
@@ -1064,14 +1336,18 @@ def train_plain_vqc(
                     if improved:
                         best_bundle = {
                             "theta": theta.detach().cpu().clone(),
-                            "head_state_dict": {k: v.detach().cpu().clone() for k, v in head.state_dict().items()},
+                            "head_state_dict": {
+                                k: v.detach().cpu().clone()
+                                for k, v in head.state_dict().items()
+                            },
                         }
 
                 if verbose and (epoch_1based % log_every == 0):
                     es_msg = (
                         f" | best={early_stop.best_score:.4f}@ep{early_stop.best_epoch} "
                         f"| bad={early_stop.bad_epochs}/{patience}"
-                        if early_stopping else ""
+                        if early_stopping
+                        else ""
                     )
                     mem = history["gpu_mem_mb"][-1]
                     mem_msg = f" | peak_mem={mem:.0f}MB" if mem else ""
@@ -1091,12 +1367,28 @@ def train_plain_vqc(
 
                 if ckpt_dir is not None and save_every_epoch:
                     saved = _save_all(
-                        ckpt_dir, "plain", write_epoch_file=True, keep_last_n=keep_last_n_checkpoints,
-                        epoch=epoch_1based, epochs_total=epochs, step_in_epoch=0, perm=None,
-                        theta=theta, head=head, opt=opt, history=history, seed=seed,
-                        early_stopping=early_stopping, early_stop_state=_early_stop_state_dict(early_stop),
-                        ema_protos=None, best_bundle=best_bundle, epoch_terms=None,
-                        lam1=None, lam2=None, extra=checkpoint_extra, scheduler=scheduler,
+                        ckpt_dir,
+                        "plain",
+                        write_epoch_file=True,
+                        keep_last_n=keep_last_n_checkpoints,
+                        epoch=epoch_1based,
+                        epochs_total=epochs,
+                        step_in_epoch=0,
+                        perm=None,
+                        theta=theta,
+                        head=head,
+                        opt=opt,
+                        history=history,
+                        seed=seed,
+                        early_stopping=early_stopping,
+                        early_stop_state=_early_stop_state_dict(early_stop),
+                        ema_protos=None,
+                        best_bundle=best_bundle,
+                        epoch_terms=None,
+                        lam1=None,
+                        lam2=None,
+                        extra=checkpoint_extra,
+                        scheduler=scheduler,
                     )
                     if verbose and saved:
                         print(f"  saved checkpoint: {saved}")
@@ -1134,12 +1426,28 @@ def train_plain_vqc(
             if ckpt_dir is not None:
                 try:
                     crash_ckpt = _save_all(
-                        ckpt_dir, "plain", write_epoch_file=False, keep_last_n=keep_last_n_checkpoints,
-                        epoch=epoch, epochs_total=epochs, step_in_epoch=step_count, perm=perm,
-                        theta=theta, head=head, opt=opt, history=history, seed=seed,
-                        early_stopping=early_stopping, early_stop_state=_early_stop_state_dict(early_stop),
-                        ema_protos=None, best_bundle=best_bundle, epoch_terms=epoch_terms,
-                        lam1=None, lam2=None, extra=checkpoint_extra, scheduler=scheduler,
+                        ckpt_dir,
+                        "plain",
+                        write_epoch_file=False,
+                        keep_last_n=keep_last_n_checkpoints,
+                        epoch=epoch,
+                        epochs_total=epochs,
+                        step_in_epoch=step_count,
+                        perm=perm,
+                        theta=theta,
+                        head=head,
+                        opt=opt,
+                        history=history,
+                        seed=seed,
+                        early_stopping=early_stopping,
+                        early_stop_state=_early_stop_state_dict(early_stop),
+                        ema_protos=None,
+                        best_bundle=best_bundle,
+                        epoch_terms=epoch_terms,
+                        lam1=None,
+                        lam2=None,
+                        extra=checkpoint_extra,
+                        scheduler=scheduler,
                     )
                 except Exception:
                     pass
@@ -1147,19 +1455,29 @@ def train_plain_vqc(
             if log_dir is not None:
                 try:
                     crash_log = write_crash_log(
-                        e, history=history, extra=checkpoint_extra, name=notebook_name, log_dir=log_dir
+                        e,
+                        history=history,
+                        extra=checkpoint_extra,
+                        name=notebook_name,
+                        log_dir=log_dir,
                     )
                 except Exception:
                     pass
             if verbose:
-                kind = "KeyboardInterrupt" if isinstance(e, KeyboardInterrupt) else type(e).__name__
+                kind = (
+                    "KeyboardInterrupt"
+                    if isinstance(e, KeyboardInterrupt)
+                    else type(e).__name__
+                )
                 print(f"\n[train_plain_vqc] stopped by {kind}: {e}")
                 if crash_ckpt:
                     print(f"  emergency checkpoint saved: {crash_ckpt}")
                 if crash_log:
                     print(f"  crash log written: {crash_log}")
                 if ckpt_dir:
-                    print(f"  re-run with resume_from={ckpt_dir / 'plain-latest.pt'} to continue")
+                    print(
+                        f"  re-run with resume_from={ckpt_dir / 'plain-latest.pt'} to continue"
+                    )
             raise
 
         interrupted = stopped_time_budget or _STOP_REQUESTED["flag"]
@@ -1175,7 +1493,9 @@ def train_plain_vqc(
                     f"({es_metric}={early_stop.best_score:.4f})"
                 )
 
-        _finalize_history(history, early_stop, early_stopping, interrupted, stopped_time_budget)
+        _finalize_history(
+            history, early_stop, early_stopping, interrupted, stopped_time_budget
+        )
 
         if interrupted and verbose:
             print(

@@ -62,6 +62,7 @@ def write_sweep_log(sweep_df, name, log_dir=DEFAULT_SWEEP_LOG_DIR):
 # Crash-safe incremental logging
 # --------------------------------------------------------------------------------------
 
+
 def append_jsonl(record, name, log_dir=DEFAULT_LOG_DIR):
     """
     Append one JSON line to `<log_dir>/<name>.jsonl`.
@@ -87,7 +88,9 @@ def read_jsonl(name, log_dir=DEFAULT_LOG_DIR):
         return [json.loads(line) for line in f if line.strip()]
 
 
-def write_crash_log(exc, history=None, extra=None, name="maqt", log_dir=DEFAULT_LOG_DIR):
+def write_crash_log(
+    exc, history=None, extra=None, name="maqt", log_dir=DEFAULT_LOG_DIR
+):
     """
     Dump the exception traceback + whatever training state exists to
     `<log_dir>/<name>-crash-<timestamp>.json`, so a failure is diagnosable later
@@ -112,6 +115,7 @@ def write_crash_log(exc, history=None, extra=None, name="maqt", log_dir=DEFAULT_
 # GPU memory diagnostics (dual-T4 / Kaggle memory-constraint debugging)
 # --------------------------------------------------------------------------------------
 
+
 def gpu_memory_snapshot(device=None):
     """
     Current + peak CUDA memory (MB) for `device` (or all visible devices if None).
@@ -123,7 +127,11 @@ def gpu_memory_snapshot(device=None):
     devices = [device] if device is not None else list(range(torch.cuda.device_count()))
     out = {}
     for d in devices:
-        idx = d if isinstance(d, int) else (d.index if getattr(d, "index", None) is not None else 0)
+        idx = (
+            d
+            if isinstance(d, int)
+            else (d.index if getattr(d, "index", None) is not None else 0)
+        )
         out[f"cuda:{idx}"] = {
             "allocated_mb": torch.cuda.memory_allocated(idx) / 1e6,
             "reserved_mb": torch.cuda.memory_reserved(idx) / 1e6,
@@ -139,6 +147,8 @@ def print_gpu_memory(device=None, tag=""):
         print(f"[mem{f' {tag}' if tag else ''}] CPU-only run")
         return
     for dev, stats in snap.items():
-        print(f"[mem{f' {tag}' if tag else ''}] {dev}: "
-              f"alloc={stats['allocated_mb']:.0f}MB reserved={stats['reserved_mb']:.0f}MB "
-              f"peak={stats['max_allocated_mb']:.0f}MB")
+        print(
+            f"[mem{f' {tag}' if tag else ''}] {dev}: "
+            f"alloc={stats['allocated_mb']:.0f}MB reserved={stats['reserved_mb']:.0f}MB "
+            f"peak={stats['max_allocated_mb']:.0f}MB"
+        )

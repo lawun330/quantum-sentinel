@@ -25,7 +25,9 @@ def initialize_zero_weights(n_layers, n_wires, device):
     return torch.nn.Parameter(torch.zeros(shape, device=device))
 
 
-def initialize_random_weights(n_layers, n_wires, device, eps=DEFAULT_WEIGHT_INIT_EPS, seed=None):
+def initialize_random_weights(
+    n_layers, n_wires, device, eps=DEFAULT_WEIGHT_INIT_EPS, seed=None
+):
     """
     Initialize weights for the variational circuit using random identity rotations.
     """
@@ -38,7 +40,13 @@ def initialize_random_weights(n_layers, n_wires, device, eps=DEFAULT_WEIGHT_INIT
     return torch.nn.Parameter(theta)
 
 
-def build_forward_circuit(dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_RATE, reupload=DEFAULT_REUPLOAD):
+def build_forward_circuit(
+    dev,
+    num_qubits,
+    num_layers,
+    noise_rate=DEFAULT_NOISE_RATE,
+    reupload=DEFAULT_REUPLOAD,
+):
     """
     Build the QS-Net forward QNode: encode, variational layers, depolarizing noise, readout.
 
@@ -53,9 +61,13 @@ def build_forward_circuit(dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_
         Circuit for encoding, variational, adding noise, and readout.
         """
         for layer in range(num_layers):
-            if reupload or layer == 0: # if data reupload is enabled, or it's the first layer, embed the data
+            if (
+                reupload or layer == 0
+            ):  # if data reupload is enabled, or it's the first layer, embed the data
                 qp.AngleEmbedding(X, wires=range(num_qubits), rotation="Y")
-            qp.StronglyEntanglingLayers(theta[layer : layer + 1], wires=range(num_qubits))
+            qp.StronglyEntanglingLayers(
+                theta[layer : layer + 1], wires=range(num_qubits)
+            )
             for w in range(num_qubits):
                 qp.DepolarizingChannel(noise_rate, wires=w)
         z = [qp.expval(qp.PauliZ(w)) for w in range(num_qubits)]

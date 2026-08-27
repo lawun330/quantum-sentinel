@@ -34,7 +34,9 @@ def initialize_weights_random_identity(n_layers, n_wires, device, eps=1e-2, seed
     return torch.nn.Parameter(theta)
 
 
-def build_forward_circuit(dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_RATE, reupload=True):
+def build_forward_circuit(
+    dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_RATE, reupload=True
+):
     """
     Build the QS-Net forward QNode: encode, variational layers, depolarizing noise, readout.
 
@@ -62,7 +64,9 @@ def build_forward_circuit(dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_
         for layer in range(num_layers):
             if reupload or layer == 0:
                 qp.AngleEmbedding(x_batch, wires=range(num_qubits), rotation="Y")
-            qp.StronglyEntanglingLayers(theta[layer:layer + 1], wires=range(num_qubits))
+            qp.StronglyEntanglingLayers(
+                theta[layer : layer + 1], wires=range(num_qubits)
+            )
             for w in range(num_qubits):
                 qp.DepolarizingChannel(noise_rate, wires=w)
         z = [qp.expval(qp.PauliZ(w)) for w in range(num_qubits)]
@@ -72,7 +76,9 @@ def build_forward_circuit(dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_
     return forward_circuit
 
 
-def gradient_variance_probe(forward_circuit, x_probe, n_qubits, n_layers, n_trials=30, eps=1e-2, device=None):
+def gradient_variance_probe(
+    forward_circuit, x_probe, n_qubits, n_layers, n_trials=30, eps=1e-2, device=None
+):
     """
      pre-training barren-plateau check.
     Runs n_trials fresh small-random inits through the circuit on a fixed

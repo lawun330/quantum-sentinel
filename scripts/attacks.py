@@ -17,8 +17,18 @@ def logits_from_batch(X, theta, classifier_head, forward_circuit):
     return classifier_head(expectations_to_tensor(z))
 
 
-def fgsm_attack(X, y, theta, classifier_head, forward_circuit, eps, device,
-                x_min=None, x_max=None, ce_loss_fn=None):
+def fgsm_attack(
+    X,
+    y,
+    theta,
+    classifier_head,
+    forward_circuit,
+    eps,
+    device,
+    x_min=None,
+    x_max=None,
+    ce_loss_fn=None,
+):
     """
     Batched one-step FGSM.
     Perturbs features by eps along the sign of the CE loss gradient.
@@ -33,7 +43,7 @@ def fgsm_attack(X, y, theta, classifier_head, forward_circuit, eps, device,
     if getattr(ce_loss_fn, "weight", None) is None:
         loss = ce_loss_fn(logits, y_t)
     else:
-        loss = nn.CrossEntropyLoss()(logits, y_t)   # attacks use unweighted CE
+        loss = nn.CrossEntropyLoss()(logits, y_t)  # attacks use unweighted CE
 
     grad = torch.autograd.grad(loss, X_t)[0]
 
@@ -45,8 +55,21 @@ def fgsm_attack(X, y, theta, classifier_head, forward_circuit, eps, device,
     return X_adv.detach()
 
 
-def pgd_attack(X, y, theta, classifier_head, forward_circuit, eps, alpha, steps,
-               device, x_min=None, x_max=None, ce_loss_fn=None, random_start=True):
+def pgd_attack(
+    X,
+    y,
+    theta,
+    classifier_head,
+    forward_circuit,
+    eps,
+    alpha,
+    steps,
+    device,
+    x_min=None,
+    x_max=None,
+    ce_loss_fn=None,
+    random_start=True,
+):
     """
     Batched multi-step PGD with L_inf projection onto the eps-ball around X.
     Perturbs features by alpha along the sign of the CE loss gradient.
@@ -69,8 +92,11 @@ def pgd_attack(X, y, theta, classifier_head, forward_circuit, eps, alpha, steps,
     for _ in range(steps):
         X_adv.requires_grad_(True)
         logits = logits_from_batch(X_adv, theta, classifier_head, forward_circuit)
-        loss = ce_loss_fn(logits, y_t) if getattr(ce_loss_fn, "weight", None) is None \
+        loss = (
+            ce_loss_fn(logits, y_t)
+            if getattr(ce_loss_fn, "weight", None) is None
             else nn.CrossEntropyLoss()(logits, y_t)
+        )
         grad = torch.autograd.grad(loss, X_adv)[0]
 
         with torch.no_grad():
@@ -84,8 +110,18 @@ def pgd_attack(X, y, theta, classifier_head, forward_circuit, eps, alpha, steps,
     return X_adv
 
 
-def eval_attacked(attack_fn, X, y, theta, classifier_head, forward_circuit, device,
-                  labels=None, batch_size=DEFAULT_BATCH_SIZE, **attack_kwargs):
+def eval_attacked(
+    attack_fn,
+    X,
+    y,
+    theta,
+    classifier_head,
+    forward_circuit,
+    device,
+    labels=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+    **attack_kwargs,
+):
     """
     Run an attack over a dataset and report accuracy + macro-F1.
     """
@@ -93,13 +129,22 @@ def eval_attacked(attack_fn, X, y, theta, classifier_head, forward_circuit, devi
     preds = []
     with torch.enable_grad():
         for i in range(0, len(X), batch_size):
-            X_chunk = X[i:i + batch_size]
-            y_chunk = y_true[i:i + batch_size]
+            X_chunk = X[i : i + batch_size]
+            y_chunk = y_true[i : i + batch_size]
 
-            X_adv = attack_fn(X_chunk, y_chunk, theta, classifier_head, forward_circuit,
-                               device=device, **attack_kwargs)
+            X_adv = attack_fn(
+                X_chunk,
+                y_chunk,
+                theta,
+                classifier_head,
+                forward_circuit,
+                device=device,
+                **attack_kwargs,
+            )
             with torch.no_grad():
-                logits = logits_from_batch(X_adv, theta, classifier_head, forward_circuit)
+                logits = logits_from_batch(
+                    X_adv, theta, classifier_head, forward_circuit
+                )
                 preds.append(logits.argmax(dim=1).cpu().numpy())
 
     preds = np.concatenate(preds)
@@ -119,8 +164,17 @@ def eval_attacked(attack_fn, X, y, theta, classifier_head, forward_circuit, devi
     }
 
 
-def train_plain_baseline(X_train, y_train, n_classes, forward_circuit, n_qubits,
-                        epochs, lr, device, batch_size=DEFAULT_CONTROL_BATCH_SIZE):
+def train_plain_baseline(
+    X_train,
+    y_train,
+    n_classes,
+    forward_circuit,
+    n_qubits,
+    epochs,
+    lr,
+    device,
+    batch_size=DEFAULT_CONTROL_BATCH_SIZE,
+):
     """
     Plain-CE control model for FGSM/PGD ablation (no prototype / MAQT losses).
     """
@@ -128,32 +182,63 @@ def train_plain_baseline(X_train, y_train, n_classes, forward_circuit, n_qubits,
 
     # theta = initialize_random_weights(n_layers=None, n_wires=n_qubits,
     #                                     device=device, eps=DEFAULT_WEIGHT_INIT_EPS)
-    
+
     # raise NotImplementedError(
     #     "Wire this to your project's theta/head init (see train.py's train_maqt for the pattern); "
     #     "kept as a stub here since layer count isn't known inside attacks.py."
     # )
 
 
-def robustness_ablation(X_test, y_test, theta_maqt, head_maqt, theta_plain, head_plain,
-                         forward_circuit, epsilons, device, attack_fn=fgsm_attack,
-                         batch_size=DEFAULT_BATCH_SIZE, **attack_kwargs):
+def robustness_ablation(
+    X_test,
+    y_test,
+    theta_maqt,
+    head_maqt,
+    theta_plain,
+    head_plain,
+    forward_circuit,
+    epsilons,
+    device,
+    attack_fn=fgsm_attack,
+    batch_size=DEFAULT_BATCH_SIZE,
+    **attack_kwargs,
+):
     """
     Compares MAQT-trained model vs. plain-CE baseline under the same attack at each epsilon.
     """
     results = []
     for eps in epsilons:
-        maqt_res = eval_attacked(attack_fn, X_test, y_test, theta_maqt, head_maqt,
-                                    forward_circuit, device, batch_size=batch_size,
-                                    eps=eps, **attack_kwargs)
-        plain_res = eval_attacked(attack_fn, X_test, y_test, theta_plain, head_plain,
-                                    forward_circuit, device, batch_size=batch_size,
-                                    eps=eps, **attack_kwargs)
-        results.append({
-            "eps": eps,
-            "maqt_acc": maqt_res["acc"],
-            "maqt_macro_f1": maqt_res["macro_f1"],
-            "plain_acc": plain_res["acc"],
-            "plain_macro_f1": plain_res["macro_f1"],
-        })
+        maqt_res = eval_attacked(
+            attack_fn,
+            X_test,
+            y_test,
+            theta_maqt,
+            head_maqt,
+            forward_circuit,
+            device,
+            batch_size=batch_size,
+            eps=eps,
+            **attack_kwargs,
+        )
+        plain_res = eval_attacked(
+            attack_fn,
+            X_test,
+            y_test,
+            theta_plain,
+            head_plain,
+            forward_circuit,
+            device,
+            batch_size=batch_size,
+            eps=eps,
+            **attack_kwargs,
+        )
+        results.append(
+            {
+                "eps": eps,
+                "maqt_acc": maqt_res["acc"],
+                "maqt_macro_f1": maqt_res["macro_f1"],
+                "plain_acc": plain_res["acc"],
+                "plain_macro_f1": plain_res["macro_f1"],
+            }
+        )
     return results

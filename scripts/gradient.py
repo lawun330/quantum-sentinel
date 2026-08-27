@@ -14,8 +14,15 @@ from scripts.loss import maqt_loss
 from scripts.utils import get_torch_device, to_torch_batch_x
 
 
-def gradient_variance_probe(forward_circuit, x_probe, n_qubits, n_layers, 
-                            n_trials=DEFAULT_N_TRIALS, eps=DEFAULT_WEIGHT_INIT_EPS, device=None):
+def gradient_variance_probe(
+    forward_circuit,
+    x_probe,
+    n_qubits,
+    n_layers,
+    n_trials=DEFAULT_N_TRIALS,
+    eps=DEFAULT_WEIGHT_INIT_EPS,
+    device=None,
+):
     """
     Pre-training barren-plateau check to catch barren-plateau architectures cheaply.
 
@@ -37,14 +44,34 @@ def gradient_variance_probe(forward_circuit, x_probe, n_qubits, n_layers,
     return var, grad_samples
 
 
-def gradient_variance(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes, forward_circuit,
-                      lambda1=DEFAULT_LAMBDA1, lambda2=DEFAULT_LAMBDA2, device=None):
+def gradient_variance(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    lambda1=DEFAULT_LAMBDA1,
+    lambda2=DEFAULT_LAMBDA2,
+    device=None,
+):
     """
     Fresh grad of MAQT loss w.r.t. circuit theta, then variance over parameters.
     """
     device = device or theta.device
-    loss, *_ = maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
-                                forward_circuit, lambda1=lambda1, lambda2=lambda2, device=device)
+    loss, *_ = maqt_loss(
+        theta,
+        classifier_head,
+        ce_loss_fn,
+        X_batch,
+        y_batch,
+        prototypes,
+        forward_circuit,
+        lambda1=lambda1,
+        lambda2=lambda2,
+        device=device,
+    )
     grads = torch.autograd.grad(loss, theta, retain_graph=False, create_graph=False)[0]
     flat = grads.reshape(-1)
     return float(flat.var().item()), grads

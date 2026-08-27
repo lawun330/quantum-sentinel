@@ -87,7 +87,9 @@ class EMAPrototypeBank:
         return self.protos
 
 
-def compute_prototypes(theta, X, y, classes, forward_circuit, device=None, batch_size=64):
+def compute_prototypes(
+    theta, X, y, classes, forward_circuit, device=None, batch_size=64
+):
     """
     Build final class prototypes by averaging states over training samples,
     with theta frozen (torch.no_grad()).
@@ -101,7 +103,11 @@ def compute_prototypes(theta, X, y, classes, forward_circuit, device=None, batch
 
     with torch.no_grad():
         for c in classes:
-            idx = (y_labels == c).nonzero()[0] if hasattr((y_labels == c), "nonzero") else None
+            idx = (
+                (y_labels == c).nonzero()[0]
+                if hasattr((y_labels == c), "nonzero")
+                else None
+            )
             idx = (y_labels == c).nonzero()[0]
             if len(idx) == 0:
                 continue
@@ -109,7 +115,7 @@ def compute_prototypes(theta, X, y, classes, forward_circuit, device=None, batch
             proto_sum = None
             count = 0
             for i in range(0, len(idx), batch_size):
-                chunk_idx = idx[i:i + batch_size]
+                chunk_idx = idx[i : i + batch_size]
                 x_chunk = to_torch_batch(X[chunk_idx], device=device)
                 _, rho_chunk = forward_circuit(x_chunk, theta)
                 chunk_sum = rho_chunk.sum(dim=0)
@@ -133,9 +139,11 @@ def prototype_summary(prototypes, class_names=None):
     for c in sorted(prototypes):
         rho_c = prototypes[c]
         name = class_names[c] if class_names is not None else str(c)
-        rows.append({
-            "class": name,
-            "dim": int(rho_c.shape[0]),
-            "trace": float(torch.trace(rho_c).real.item()),
-        })
+        rows.append(
+            {
+                "class": name,
+                "dim": int(rho_c.shape[0]),
+                "trace": float(torch.trace(rho_c).real.item()),
+            }
+        )
     return rows

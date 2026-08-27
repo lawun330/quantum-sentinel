@@ -47,7 +47,9 @@ def balanced_sample(X, y, n_per_class=None, seed=42):
     for c in classes:
         c_idx = np.where(y == c)[0]
         if len(c_idx) < n_per_class:
-            raise ValueError(f"class {c} has only {len(c_idx)} samples, need {n_per_class}")
+            raise ValueError(
+                f"class {c} has only {len(c_idx)} samples, need {n_per_class}"
+            )
         idxs.append(rng.choice(c_idx, size=n_per_class, replace=False))
 
     idxs = rng.permutation(np.concatenate(idxs))
@@ -88,10 +90,12 @@ def class_balance_table(y, class_names):
     """Return per-class counts and percentages for label vector y (zeros included)."""
     y = to_np_x(y).astype(int)
     counts = pd.Series(y).value_counts()
-    df = pd.DataFrame({
-        "class": class_names,
-        "count": [int(counts.get(i, 0)) for i in range(len(class_names))],
-    })
+    df = pd.DataFrame(
+        {
+            "class": class_names,
+            "count": [int(counts.get(i, 0)) for i in range(len(class_names))],
+        }
+    )
     df["pct"] = 100 * df["count"] / df["count"].sum()
     return df
 
@@ -105,13 +109,24 @@ def plot_class_balance_pie(y, class_names, title="Class balance", ax=None, min_p
 
     def autopct(p):
         return f"{p:.1f}%" if p >= min_pct else ""
+
     wedges, _, _ = ax.pie(
-        df["count"], labels=None, autopct=autopct, startangle=90, pctdistance=0.7,
+        df["count"],
+        labels=None,
+        autopct=autopct,
+        startangle=90,
+        pctdistance=0.7,
     )
     ax.legend(
         wedges,
-        [f"{c}: {n} ({p:.1f}%)" for c, n, p in zip(df["class"], df["count"], df["pct"])],
-        title="class", loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize=9,
+        [
+            f"{c}: {n} ({p:.1f}%)"
+            for c, n, p in zip(df["class"], df["count"], df["pct"])
+        ],
+        title="class",
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        fontsize=9,
     )
     ax.set_title(title)
     return ax

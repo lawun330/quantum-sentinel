@@ -33,7 +33,9 @@ def to_torch_batch(X, device=None):
         device = get_torch_device()
     if torch.is_tensor(X):
         return X.detach().clone().to(device=device, dtype=torch.float32)
-    return torch.tensor(np.asarray(X, dtype=np.float32), dtype=torch.float32, device=device)
+    return torch.tensor(
+        np.asarray(X, dtype=np.float32), dtype=torch.float32, device=device
+    )
 
 
 def to_np_x(x):

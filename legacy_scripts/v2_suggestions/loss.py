@@ -40,7 +40,9 @@ def _forward_batch(theta, X_batch, y_batch, forward_circuit, device):
     return y_t, z, rho
 
 
-def ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal=False, focal_gamma=2.0):
+def ce_loss_term(
+    y_t, z, classifier_head, ce_loss_fn, device, use_focal=False, focal_gamma=2.0
+):
     """
     Cross-entropy (or focal) term L_CE from batched circuit expectations + linear head.
     """
@@ -82,19 +84,30 @@ def inter_loss_term(prototypes, device):
     class_list = sorted(prototypes.keys())
     inter_pairs = []
     for i, c in enumerate(class_list):
-        for c_prime in class_list[i + 1:]:
+        for c_prime in class_list[i + 1 :]:
             inter_pairs.append(trace_distance(prototypes[c], prototypes[c_prime]))
     if not inter_pairs:
         return torch.tensor(0.0, device=device)
     return -torch.stack(inter_pairs).mean()
 
 
-def compute_l_ce(theta, classifier_head, ce_loss_fn, X_batch, y_batch, forward_circuit,
-                  device=None, use_focal=False, focal_gamma=2.0):
+def compute_l_ce(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    forward_circuit,
+    device=None,
+    use_focal=False,
+    focal_gamma=2.0,
+):
     """Unit-testable L_CE over a batch."""
     device = device or theta.device
     y_t, z, _ = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
-    return ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
+    return ce_loss_term(
+        y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma
+    )
 
 
 def compute_l_intra(theta, X_batch, y_batch, prototypes, forward_circuit, device=None):
@@ -112,9 +125,20 @@ def compute_l_inter(prototypes, device=None):
     return inter_loss_term(prototypes, device)
 
 
-def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
-              forward_circuit, lambda1=0.5, lambda2=0.3, device=None,
-              use_focal=False, focal_gamma=2.0):
+def maqt_loss(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    lambda1=0.5,
+    lambda2=0.3,
+    device=None,
+    use_focal=False,
+    focal_gamma=2.0,
+):
     """
     MAQT loss: L = L_CE + lambda1 * L_intra + lambda2 * L_inter.
 
@@ -129,7 +153,9 @@ def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
     device = device or theta.device
     y_t, z, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
 
-    l_ce = ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
+    l_ce = ce_loss_term(
+        y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma
+    )
     l_intra = intra_loss_term(y_t, rho, prototypes, device)
     l_inter = inter_loss_term(prototypes, device)
 
@@ -137,13 +163,31 @@ def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
     return loss, l_ce, l_intra, l_inter, y_t, rho
 
 
-def gradient_variance(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
-                       forward_circuit, lambda1=0.5, lambda2=0.3, device=None):
+def gradient_variance(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    lambda1=0.5,
+    lambda2=0.3,
+    device=None,
+):
     """Fresh grad of MAQT loss w.r.t. circuit theta, then variance."""
     device = device or theta.device
     loss, *_ = maqt_loss(
-        theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
-        forward_circuit, lambda1=lambda1, lambda2=lambda2, device=device,
+        theta,
+        classifier_head,
+        ce_loss_fn,
+        X_batch,
+        y_batch,
+        prototypes,
+        forward_circuit,
+        lambda1=lambda1,
+        lambda2=lambda2,
+        device=device,
     )
     grads = torch.autograd.grad(loss, theta, retain_graph=False, create_graph=False)[0]
     flat = grads.reshape(-1)

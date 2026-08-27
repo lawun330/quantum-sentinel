@@ -70,6 +70,7 @@ from scripts.utils import to_torch_batch_x
 # Fidelity-convention self-check (SOFTWARE unit test -- see module docstring)
 # --------------------------------------------------------------------------------------
 
+
 def verify_fidelity_convention(dim=4, n_trials=20, seed=0, tol=1e-6):
     """
     Confirms scripts.quantum_metrics is using the NON-SQUARED fidelity convention
@@ -94,7 +95,7 @@ def verify_fidelity_convention(dim=4, n_trials=20, seed=0, tol=1e-6):
 
         d_tr = float(trace_distance(rho, sigma))
         lower = 1.0 - f_a
-        upper = math.sqrt(max(1.0 - f_a ** 2, 0.0))
+        upper = math.sqrt(max(1.0 - f_a**2, 0.0))
         violation = max(lower - d_tr, d_tr - upper, 0.0)
         max_fvg_violation = max(max_fvg_violation, violation)
 
@@ -107,7 +108,10 @@ def verify_fidelity_convention(dim=4, n_trials=20, seed=0, tol=1e-6):
         "This means fidelity() is still returning the SQUARED convention "
         "(qml.math.fidelity returns F^2) -- patch quantum_metrics.py to take sqrt()."
     )
-    return {"max_pairwise_disagreement": max_err_pair, "max_fvg_violation": max_fvg_violation}
+    return {
+        "max_pairwise_disagreement": max_err_pair,
+        "max_fvg_violation": max_fvg_violation,
+    }
 
 
 def _random_test_fixture_matrix(dim, rng):
@@ -122,6 +126,7 @@ def _random_test_fixture_matrix(dim, rng):
 # Proposition 1: noise contraction  (Section 2, Eq. 2) -- REAL DATA ONLY
 # --------------------------------------------------------------------------------------
 
+
 def depolarizing_channel_global(rho, p):
     """Lambda_p(rho) = (1-p) rho + p * I / d   -- the channel Proposition 1 is stated for."""
     d = rho.shape[-1]
@@ -129,8 +134,9 @@ def depolarizing_channel_global(rho, p):
     return (1.0 - p) * rho + p * I / d
 
 
-def check_proposition1_on_data(rho_real, p_values=(0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0),
-                                n_pairs=25, seed=0):
+def check_proposition1_on_data(
+    rho_real, p_values=(0.0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 1.0), n_pairs=25, seed=0
+):
     """
     Numerically confirms D_tr(Lambda_p(rho), Lambda_p(sigma)) = (1-p) D_tr(rho,sigma)
     (Eq. 2) using pairs of the encoder's OWN density matrices rho(x) on REAL dataset
@@ -155,12 +161,23 @@ def check_proposition1_on_data(rho_real, p_values=(0.0, 0.01, 0.05, 0.1, 0.3, 0.
         sigma = rho_real[i2].to(torch.complex128)
         d0 = float(trace_distance(rho, sigma))
         for p in p_values:
-            d_measured = float(trace_distance(depolarizing_channel_global(rho, p),
-                                               depolarizing_channel_global(sigma, p)))
+            d_measured = float(
+                trace_distance(
+                    depolarizing_channel_global(rho, p),
+                    depolarizing_channel_global(sigma, p),
+                )
+            )
             d_theory = (1.0 - p) * d0
-            records.append({"p": float(p), "sample_i": int(i1), "sample_j": int(i2),
-                             "D_tr_measured": d_measured, "D_tr_theory": d_theory,
-                             "abs_error": abs(d_measured - d_theory)})
+            records.append(
+                {
+                    "p": float(p),
+                    "sample_i": int(i1),
+                    "sample_j": int(i2),
+                    "D_tr_measured": d_measured,
+                    "D_tr_theory": d_theory,
+                    "abs_error": abs(d_measured - d_theory),
+                }
+            )
     return records
 
 
@@ -177,6 +194,7 @@ def assert_proposition1(records, tol=PROP1_RESIDUAL_TOL):
 # --------------------------------------------------------------------------------------
 # Section 4: analytic Lipschitz bound for angle encoding (Lemma 1)
 # --------------------------------------------------------------------------------------
+
 
 def analytic_lipschitz_bound(n_layers, reupload=True):
     """
@@ -205,6 +223,7 @@ def check_lipschitz_tightness(diag, l_phi_bound):
 # Section 3.1: L2 <-> L_inf perturbation-budget conversion
 # --------------------------------------------------------------------------------------
 
+
 def linf_to_l2_budget(eps_inf, d=INPUT_DIM_D):
     """||delta||_2 <= sqrt(d) ||delta||_inf."""
     return math.sqrt(d) * eps_inf
@@ -218,13 +237,16 @@ def l2_to_linf_budget(eps_2, d=INPUT_DIM_D):
 # F_max / F_in / F_out  (Section 1 "nearest-prototype quantities"; Assumptions A2/A3/A3')
 # --------------------------------------------------------------------------------------
 
+
 def f_max_batch(X, theta, prototypes, forward_circuit, device=None, batch_size=64):
     """
     F_max(x) = max_{c in K} F(rho(x), rho_c) for every sample in X (known prototypes only).
     Prefer scripts.cache.cached_f_max if you already have a ForwardCache entry for X --
     this variant re-runs the circuit and exists for callers without a cache.
     """
-    scores = nonconformity_score(X, theta, prototypes, forward_circuit, device=device, batch_size=batch_size)
+    scores = nonconformity_score(
+        X, theta, prototypes, forward_circuit, device=device, batch_size=batch_size
+    )
     return 1.0 - scores
 
 
@@ -251,9 +273,10 @@ def quantile_f_out(f_max_zeroday, beta=DEFAULT_BETA):
 # Proposition 2: gap Delta, epsilon*, quantile-relaxed epsilon^(beta)   (Eq. 3, Eq. 4)
 # --------------------------------------------------------------------------------------
 
+
 def proposition2_gap(F_in, F_out):
     """Delta = (1 - F_out) - sqrt(1 - F_in^2)   (Eq. 3). Delta > 0 is Assumption (A5)."""
-    return (1.0 - F_out) - math.sqrt(max(1.0 - F_in ** 2, 0.0))
+    return (1.0 - F_out) - math.sqrt(max(1.0 - F_in**2, 0.0))
 
 
 def proposition2_epsilon_star(F_in, F_out, L_phi, p=DEFAULT_NOISE_RATE):
@@ -272,7 +295,9 @@ def proposition2_epsilon_star(F_in, F_out, L_phi, p=DEFAULT_NOISE_RATE):
     return delta, eps_star
 
 
-def proposition2_epsilon_beta(F_in, f_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE, beta=DEFAULT_BETA):
+def proposition2_epsilon_beta(
+    F_in, f_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE, beta=DEFAULT_BETA
+):
     """Corollary 1 (quantile-relaxed): returns (F_out_beta, Delta_beta, epsilon_beta)."""
     F_out_beta = quantile_f_out(f_max_zeroday, beta=beta)
     delta_beta, eps_beta = proposition2_epsilon_star(F_in, F_out_beta, L_phi, p=p)
@@ -298,6 +323,7 @@ def plot_safe_epsilon(eps_star):
 # Attacks that directly target the CQ-ZDR novelty score (for the Day-19/20/25 experiments)
 # --------------------------------------------------------------------------------------
 
+
 def _as_bound_tensor(bound, device):
     """Accepts None / a python scalar / a tensor and returns a device-matched tensor (or None)."""
     if bound is None:
@@ -313,7 +339,9 @@ def _clear_cuda_cache_if_needed(device):
         torch.cuda.empty_cache()
 
 
-def fgsm_gradient_sign(X, theta, prototypes, forward_circuit, device=None, batch_size=32, proto_stack=None):
+def fgsm_gradient_sign(
+    X, theta, prototypes, forward_circuit, device=None, batch_size=32, proto_stack=None
+):
     """
     Computes sign(grad_x [1 - F_max(x)]) ONCE -- the FGSM attack DIRECTION, which does
     NOT depend on the perturbation budget eps. Reuse the returned tensor across an
@@ -333,7 +361,11 @@ def fgsm_gradient_sign(X, theta, prototypes, forward_circuit, device=None, batch
 
     chunks = []
     for i in range(0, n, batch_size):
-        X_t = to_torch_batch_x(X_np[i:i + batch_size], device=device).detach().requires_grad_(True)
+        X_t = (
+            to_torch_batch_x(X_np[i : i + batch_size], device=device)
+            .detach()
+            .requires_grad_(True)
+        )
         _, rho = forward_circuit(X_t, theta)
         max_f = max_fidelity_to_prototypes(rho, proto_stack.to(device=rho.device))
         score = (1.0 - max_f).mean()
@@ -361,8 +393,18 @@ def apply_fgsm_perturbation(X, grad_sign, eps, device=None, x_min=None, x_max=No
     return X_adv.detach()
 
 
-def fgsm_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, device=None,
-                               x_min=None, x_max=None, batch_size=32, proto_stack=None):
+def fgsm_attack_nonconformity(
+    X,
+    theta,
+    prototypes,
+    forward_circuit,
+    eps,
+    device=None,
+    x_min=None,
+    x_max=None,
+    batch_size=32,
+    proto_stack=None,
+):
     """
     One-step FGSM that maximizes the nonconformity score s(x) = 1 - F_max(x) directly,
     i.e. attacks the CQ-ZDR accept/reject boundary rather than the classifier head's
@@ -372,14 +414,35 @@ def fgsm_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, device
     SINGLE eps value. If you need multiple eps values against the same X (a sweep),
     call those two functions directly instead -- see the module docstring.
     """
-    grad_sign = fgsm_gradient_sign(X, theta, prototypes, forward_circuit, device=device,
-                                    batch_size=batch_size, proto_stack=proto_stack)
-    return apply_fgsm_perturbation(X, grad_sign, eps, device=device, x_min=x_min, x_max=x_max)
+    grad_sign = fgsm_gradient_sign(
+        X,
+        theta,
+        prototypes,
+        forward_circuit,
+        device=device,
+        batch_size=batch_size,
+        proto_stack=proto_stack,
+    )
+    return apply_fgsm_perturbation(
+        X, grad_sign, eps, device=device, x_min=x_min, x_max=x_max
+    )
 
 
-def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, steps,
-                              device=None, x_min=None, x_max=None, random_start=True,
-                              batch_size=32, proto_stack=None):
+def pgd_attack_nonconformity(
+    X,
+    theta,
+    prototypes,
+    forward_circuit,
+    eps,
+    alpha,
+    steps,
+    device=None,
+    x_min=None,
+    x_max=None,
+    random_start=True,
+    batch_size=32,
+    proto_stack=None,
+):
     """
     Multi-step PGD version of fgsm_attack_nonconformity, L_inf-projected onto the
     eps-ball. Unlike one-step FGSM, each step's gradient genuinely depends on eps (via
@@ -402,8 +465,12 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
     chunks = []
     for i in range(0, n, batch_size):
-        X0 = to_torch_batch_x(X_np[i:i + batch_size], device=device).detach()
-        X_adv = X0 + torch.empty_like(X0).uniform_(-eps, eps) if random_start else X0.clone()
+        X0 = to_torch_batch_x(X_np[i : i + batch_size], device=device).detach()
+        X_adv = (
+            X0 + torch.empty_like(X0).uniform_(-eps, eps)
+            if random_start
+            else X0.clone()
+        )
         if x_min_t is not None or x_max_t is not None:
             X_adv = torch.clamp(X_adv, min=x_min_t, max=x_max_t)
         X_adv = X_adv.detach()
@@ -417,7 +484,9 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
             with torch.no_grad():
                 X_adv = X_adv + alpha * grad.sign()
-                X_adv = torch.clamp(X_adv, min=X0 - eps, max=X0 + eps)      # fused L_inf-ball projection
+                X_adv = torch.clamp(
+                    X_adv, min=X0 - eps, max=X0 + eps
+                )  # fused L_inf-ball projection
                 if x_min_t is not None or x_max_t is not None:
                     X_adv = torch.clamp(X_adv, min=x_min_t, max=x_max_t)
             X_adv = X_adv.detach()
@@ -431,6 +500,7 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 # --------------------------------------------------------------------------------------
 # Proposition 3 support: exchangeability diagnostic + honest interval reporting
 # --------------------------------------------------------------------------------------
+
 
 def two_sample_discriminability_auroc(X_cal, X_test, seed=0):
     """
@@ -457,12 +527,20 @@ def clopper_pearson_ci(successes, n, alpha=0.05):
     interval alongside the point estimate rather than the bare fraction.
     """
     from scipy.stats import beta as beta_dist
+
     if n == 0:
         return (float("nan"), float("nan"))
-    lo = 0.0 if successes == 0 else float(beta_dist.ppf(alpha / 2, successes, n - successes + 1))
-    hi = 1.0 if successes == n else float(beta_dist.ppf(1 - alpha / 2, successes + 1, n - successes))
+    lo = (
+        0.0
+        if successes == 0
+        else float(beta_dist.ppf(alpha / 2, successes, n - successes + 1))
+    )
+    hi = (
+        1.0
+        if successes == n
+        else float(beta_dist.ppf(1 - alpha / 2, successes + 1, n - successes))
+    )
     return lo, hi
-
 
 
 def robust_f_in(f_max_known, lower_percentile=5.0):
@@ -491,8 +569,14 @@ def robust_f_out(f_max_zeroday, upper_percentile=97.0):
     return quantile_f_out(f_max_zeroday, beta=beta)
 
 
-def proposition2_epsilon_robust(F_max_known, F_max_zeroday, L_phi, p=DEFAULT_NOISE_RATE,
-                                 lower_percentile=5.0, upper_percentile=97.0):
+def proposition2_epsilon_robust(
+    F_max_known,
+    F_max_zeroday,
+    L_phi,
+    p=DEFAULT_NOISE_RATE,
+    lower_percentile=5.0,
+    upper_percentile=97.0,
+):
     """
     A SYMMETRIC, doubly-relaxed variant of Eq. 3/4 that trims both tails instead of only
     the zero-day side. The source document's Corollary 1 only formalizes relaxing F_out
@@ -511,6 +595,7 @@ def proposition2_epsilon_robust(F_max_known, F_max_zeroday, L_phi, p=DEFAULT_NOI
     """
     F_in_robust = robust_f_in(F_max_known, lower_percentile=lower_percentile)
     F_out_robust = robust_f_out(F_max_zeroday, upper_percentile=upper_percentile)
-    delta_robust, eps_robust = proposition2_epsilon_star(F_in_robust, F_out_robust, L_phi, p=p)
+    delta_robust, eps_robust = proposition2_epsilon_star(
+        F_in_robust, F_out_robust, L_phi, p=p
+    )
     return F_in_robust, F_out_robust, delta_robust, eps_robust
-

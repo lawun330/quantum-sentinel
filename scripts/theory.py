@@ -69,14 +69,17 @@ from scripts.utils import (
 # Fidelity-convention self-check
 # --------------------------------------------------------------------------------------
 
-def verify_fidelity_convention(dim=4, n_trials=20, seed=DEFAULT_SEED, tol1=1e-6, tol2=1e-3):
+
+def verify_fidelity_convention(
+    dim=4, n_trials=20, seed=DEFAULT_SEED, tol1=1e-6, tol2=1e-3
+):
     """
     (Section 1, Eq. 1)
     Check non-squared fidelity convention and Fuchs-van de Graaf bounds.
     """
     torch.manual_seed(seed)
     device = get_torch_device()
-    max_err, max_viol = 0.0, 0.0    # error and Fuchs-van de Graaf violation
+    max_err, max_viol = 0.0, 0.0  # error and Fuchs-van de Graaf violation
 
     for _ in range(n_trials):
         rho = _random_density_matrix(dim, device)
@@ -94,8 +97,12 @@ def verify_fidelity_convention(dim=4, n_trials=20, seed=DEFAULT_SEED, tol1=1e-6,
         viol = max(lower_bound - d, d - upper_bound, 0.0)
         max_viol = max(max_viol, viol)
 
-    assert max_err < tol1, f"fidelity mismatch: {max_err:.3e} (please ensure non-squared fidelity is used!)"
-    assert max_viol < tol2, f"FvG violation: {max_viol:.3e} (please ensure non-squared fidelity is used!)"
+    assert max_err < tol1, (
+        f"fidelity mismatch: {max_err:.3e} (please ensure non-squared fidelity is used!)"
+    )
+    assert max_viol < tol2, (
+        f"FvG violation: {max_viol:.3e} (please ensure non-squared fidelity is used!)"
+    )
     return {"max_pairwise_disagreement": max_err, "max_fvg_violation": max_viol}
 
 
@@ -105,18 +112,20 @@ def _random_density_matrix(dim, device, dtype=torch.complex128, mix_val=DEFAULT_
 
     Defaults to complex128 so Proposition-1 residual stays near machine precision.
     """
-    z = torch.randn(dim, dim, device=device, dtype=dtype)   # random matrix
-    q, _ = torch.linalg.qr(z)   # orthonomal columns
-    psi = q[:, 0]   # first column as unit vector
+    z = torch.randn(dim, dim, device=device, dtype=dtype)  # random matrix
+    q, _ = torch.linalg.qr(z)  # orthonomal columns
+    psi = q[:, 0]  # first column as unit vector
     rho = torch.outer(psi, psi.conj())
     mix = float(torch.rand(1, dtype=torch.float64).item()) * mix_val
     I = torch.eye(dim, device=device, dtype=dtype) / dim
     rho = (1.0 - mix) * rho + mix * I
-    return 0.5 * (rho + rho.mH) # symmetrize to make it a density matrix
+    return 0.5 * (rho + rho.mH)  # symmetrize to make it a density matrix
+
 
 # --------------------------------------------------------------------------------------
 # Proposition 1: noise contraction
 # --------------------------------------------------------------------------------------
+
 
 def depolarizing_channel_global(rho, p):
     """
@@ -136,7 +145,9 @@ def depolarizing_channel_global(rho, p):
     return (1.0 - p) * rho + p * I / d
 
 
-def check_proposition1_synthetic(dim, p_values=DEFAULT_P_VALS, n_pairs=DEFAULT_N_PAIRS, seed=DEFAULT_SEED):
+def check_proposition1_synthetic(
+    dim, p_values=DEFAULT_P_VALS, n_pairs=DEFAULT_N_PAIRS, seed=DEFAULT_SEED
+):
     """
     (Section 2, Proposition 1, Eq. 2)
     Use synthetic density matrices to compute the residual of Proposition 1 for each p value and return a list of records.
@@ -148,14 +159,28 @@ def check_proposition1_synthetic(dim, p_values=DEFAULT_P_VALS, n_pairs=DEFAULT_N
         sigma = _random_density_matrix(dim, device)
         d_clean = float(trace_distance(rho, sigma))
         for p in p_values:
-            d_noisy = float(trace_distance(depolarizing_channel_global(rho, p), depolarizing_channel_global(sigma, p)))
+            d_noisy = float(
+                trace_distance(
+                    depolarizing_channel_global(rho, p),
+                    depolarizing_channel_global(sigma, p),
+                )
+            )
             d_expected = (1.0 - p) * d_clean
-            records.append({"p": float(p), "D_tr_clean": d_clean, "D_tr_noisy": d_noisy,
-                            "D_tr_expected": d_expected, "residual": abs(d_noisy - d_expected)})
+            records.append(
+                {
+                    "p": float(p),
+                    "D_tr_clean": d_clean,
+                    "D_tr_noisy": d_noisy,
+                    "D_tr_expected": d_expected,
+                    "residual": abs(d_noisy - d_expected),
+                }
+            )
     return records
 
 
-def check_proposition1_real_data(rho_real, p_values=DEFAULT_P_VALS, n_pairs=DEFAULT_N_PAIRS, seed=DEFAULT_SEED):
+def check_proposition1_real_data(
+    rho_real, p_values=DEFAULT_P_VALS, n_pairs=DEFAULT_N_PAIRS, seed=DEFAULT_SEED
+):
     """
     (Section 2, Proposition 1, Eq. 2)
     Use real density matrices to compute the residual of Proposition 1 for each p value and return a list of records.
@@ -169,10 +194,17 @@ def check_proposition1_real_data(rho_real, p_values=DEFAULT_P_VALS, n_pairs=DEFA
         raise ValueError("need at least 2 cached density matrices to form pairs")
 
     rng = np.random.default_rng(seed)
-    idx1 = rng.integers(0, n, size=n_pairs * 3) # sample 3x more than needed to ensure getting at least n_pairs distinct pairs
-    idx2 = rng.integers(0, n, size=n_pairs * 3) # sample 3x more than needed to ensure getting at least n_pairs distinct pairs
+    idx1 = rng.integers(
+        0, n, size=n_pairs * 3
+    )  # sample 3x more than needed to ensure getting at least n_pairs distinct pairs
+    idx2 = rng.integers(
+        0, n, size=n_pairs * 3
+    )  # sample 3x more than needed to ensure getting at least n_pairs distinct pairs
     keep = idx1 != idx2
-    idx1, idx2 = idx1[keep][:n_pairs], idx2[keep][:n_pairs] # keep only n_pairs distinct pairs
+    idx1, idx2 = (
+        idx1[keep][:n_pairs],
+        idx2[keep][:n_pairs],
+    )  # keep only n_pairs distinct pairs
     if len(idx1) < n_pairs:
         raise ValueError(f"could not sample {n_pairs} distinct pairs from n={n}")
 
@@ -182,11 +214,24 @@ def check_proposition1_real_data(rho_real, p_values=DEFAULT_P_VALS, n_pairs=DEFA
         sigma = rho_real[i2].to(torch.complex128)
         d0 = float(trace_distance(rho, sigma))
         for p in p_values:
-            d_noisy = float(trace_distance(depolarizing_channel_global(rho, p), depolarizing_channel_global(sigma, p)))
+            d_noisy = float(
+                trace_distance(
+                    depolarizing_channel_global(rho, p),
+                    depolarizing_channel_global(sigma, p),
+                )
+            )
             d_expected = (1.0 - p) * d0
-            records.append({"p": float(p), "sample_i": int(i1), "sample_j": int(i2),
-                            "D_tr_clean": d0, "D_tr_noisy": d_noisy,
-                            "D_tr_expected": d_expected, "residual": abs(d_noisy - d_expected)})
+            records.append(
+                {
+                    "p": float(p),
+                    "sample_i": int(i1),
+                    "sample_j": int(i2),
+                    "D_tr_clean": d0,
+                    "D_tr_noisy": d_noisy,
+                    "D_tr_expected": d_expected,
+                    "residual": abs(d_noisy - d_expected),
+                }
+            )
     return records
 
 
@@ -222,19 +267,28 @@ def regulariser_contraction_curve(rho_list, p_grid=None):
     if p_grid is None:
         p_grid = np.linspace(0.0, 1.0, 11)
     p_grid = np.asarray(p_grid, dtype=float)
-    d0 = _mean_pairwise_td(rho_list)    # D_tr(p=0)
-    d_p = np.asarray([
-        _mean_pairwise_td([depolarizing_channel_global(r, float(p)) for r in rho_list])
-        for p in p_grid
-    ], dtype=float) # D_tr(p)
+    d0 = _mean_pairwise_td(rho_list)  # D_tr(p=0)
+    d_p = np.asarray(
+        [
+            _mean_pairwise_td(
+                [depolarizing_channel_global(r, float(p)) for r in rho_list]
+            )
+            for p in p_grid
+        ],
+        dtype=float,
+    )  # D_tr(p)
     d_theory = (1.0 - p_grid) * d0  # (1-p) * D_tr(p=0)
     return p_grid, d0, d_p, d_theory
+
 
 # --------------------------------------------------------------------------------------
 # Proposition 2: adversarial-novelty separation (F_max / F_in / F_out)
 # --------------------------------------------------------------------------------------
 
-def collect_known_fidelities(X, y, theta, prototypes, forward_circuit, device, batch_size):
+
+def collect_known_fidelities(
+    X, y, theta, prototypes, forward_circuit, device, batch_size
+):
     """
     Return non-squared F_own and F_max on known-labeled samples.
     """
@@ -245,9 +299,9 @@ def collect_known_fidelities(X, y, theta, prototypes, forward_circuit, device, b
     f_own_list, f_max_list = [], []
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
-            y_chunk = y_np[i:i + batch_size]
+            y_chunk = y_np[i : i + batch_size]
 
             f_max_chunk = max_fidelity_to_prototypes(rho_chunk, proto_stack)
             for j in range(rho_chunk.shape[0]):
@@ -255,18 +309,26 @@ def collect_known_fidelities(X, y, theta, prototypes, forward_circuit, device, b
                 if c not in id_to_pos:
                     continue
                 f_own_val = fidelity(rho_chunk[j], prototypes[c])
-                f_own_list.append(float(f_own_val.item() if torch.is_tensor(f_own_val) else f_own_val))
+                f_own_list.append(
+                    float(f_own_val.item() if torch.is_tensor(f_own_val) else f_own_val)
+                )
                 f_max_list.append(float(f_max_chunk[j].item()))
-    return np.asarray(f_own_list, dtype=np.float64), np.asarray(f_max_list, dtype=np.float64)
+    return np.asarray(f_own_list, dtype=np.float64), np.asarray(
+        f_max_list, dtype=np.float64
+    )
 
 
-def f_max_batch(X, theta, prototypes, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE):
+def f_max_batch(
+    X, theta, prototypes, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE
+):
     """
     Mini-batched F_max over X.
 
     Use `cache.cached_f_max()` over this when a ForwardCache entry exists.
     """
-    scores = nonconformity_score(X, theta, prototypes, forward_circuit, device=device, batch_size=batch_size)
+    scores = nonconformity_score(
+        X, theta, prototypes, forward_circuit, device=device, batch_size=batch_size
+    )
     return 1.0 - scores
 
 
@@ -312,22 +374,26 @@ def robust_f_out(f_max_zeroday, upper_percentile=DEFAULT_UPPER_PERCENTILE):
     beta = 1.0 - upper_percentile / 100.0
     return quantile_f_out(f_max_zeroday, beta=beta)
 
+
 # --------------------------------------------------------------------------------------
 # Proposition 2: gap Delta, epsilon*, quantile-relaxed epsilon_beta
 # --------------------------------------------------------------------------------------
+
 
 def proposition2_gap(F_in, F_out):
     """
     (Section 3.1, Proposition 2, Eq. 3)
     Delta and eps* ingredients from non-squared fidelities.
     """
-    d_in = float(np.sqrt(max(0.0, 1.0 - F_in ** 2)))
+    d_in = float(np.sqrt(max(0.0, 1.0 - F_in**2)))
     d_out = float(1.0 - F_out)
     delta = d_out - d_in
     return d_in, d_out, delta
 
 
-def proposition2_epsilon_star_from_gap(delta, p=DEFAULT_NOISE_RATE, L_phi=DEFAULT_L_PHI):
+def proposition2_epsilon_star_from_gap(
+    delta, p=DEFAULT_NOISE_RATE, L_phi=DEFAULT_L_PHI
+):
     """
     (Section 3.2, Proposition 2, Eq. 4)
     Proposition-2 predicted separable budget (epsilon*) from gap Delta, noise rate, and L_phi.
@@ -349,13 +415,17 @@ def proposition2_epsilon_star(F_in, F_out, p=DEFAULT_NOISE_RATE, L_phi=DEFAULT_L
     return delta, epsilon_star
 
 
-def proposition2_epsilon_beta(F_in, f_max_zeroday, L_phi=DEFAULT_L_PHI, p=DEFAULT_NOISE_RATE, beta=DEFAULT_BETA):
+def proposition2_epsilon_beta(
+    F_in, f_max_zeroday, L_phi=DEFAULT_L_PHI, p=DEFAULT_NOISE_RATE, beta=DEFAULT_BETA
+):
     """
     (Section 3.5, Proposition 2, A3', Corollary 1)
     Quantile-relaxed Proposition-2 separation budget (epsilon_beta).
     """
     F_out_beta = quantile_f_out(f_max_zeroday, beta=beta)
-    delta_beta, epsilon_beta = proposition2_epsilon_star(F_in, F_out_beta, p=p, L_phi=L_phi)
+    delta_beta, epsilon_beta = proposition2_epsilon_star(
+        F_in, F_out_beta, p=p, L_phi=L_phi
+    )
     return F_out_beta, delta_beta, epsilon_beta
 
 
@@ -373,7 +443,14 @@ def is_eps_safe_to_plot(eps_star):
     return eps_star, True
 
 
-def proposition2_epsilon_robust(F_max_known, F_max_zeroday, p=DEFAULT_NOISE_RATE, L_phi=DEFAULT_L_PHI, lower_percentile=DEFAULT_LOWER_PERCENTILE, upper_percentile=DEFAULT_UPPER_PERCENTILE):
+def proposition2_epsilon_robust(
+    F_max_known,
+    F_max_zeroday,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=DEFAULT_L_PHI,
+    lower_percentile=DEFAULT_LOWER_PERCENTILE,
+    upper_percentile=DEFAULT_UPPER_PERCENTILE,
+):
     """
     INVESTIGATION: Symmetric, doubly quantile-relaxed, non-formalized variant of Eq. 3/4.
 
@@ -383,14 +460,20 @@ def proposition2_epsilon_robust(F_max_known, F_max_zeroday, p=DEFAULT_NOISE_RATE
     """
     F_in_robust = robust_f_in(F_max_known, lower_percentile=lower_percentile)
     F_out_robust = robust_f_out(F_max_zeroday, upper_percentile=upper_percentile)
-    delta_robust, eps_robust = proposition2_epsilon_star(F_in_robust, F_out_robust, p=p, L_phi=L_phi)
+    delta_robust, eps_robust = proposition2_epsilon_star(
+        F_in_robust, F_out_robust, p=p, L_phi=L_phi
+    )
     return F_in_robust, F_out_robust, delta_robust, eps_robust
+
 
 # --------------------------------------------------------------------------------------
 # FGSM + PGD attacks that directly target the CQ-ZDR novelty score
 # --------------------------------------------------------------------------------------
 
-def fgsm_gradient_sign(X, theta, prototypes, forward_circuit, device=None, batch_size=32, proto_stack=None):
+
+def fgsm_gradient_sign(
+    X, theta, prototypes, forward_circuit, device=None, batch_size=32, proto_stack=None
+):
     """
     (Section 3.1, Proposition 2, A1)
     Batched FGSM that computes sign(grad_x [CQ-ZDR novelty score(x)]) ONCE.
@@ -411,10 +494,14 @@ def fgsm_gradient_sign(X, theta, prototypes, forward_circuit, device=None, batch
 
     chunks = []
     for i in range(0, n, batch_size):
-        X_t = to_torch_batch_x(X_np[i:i + batch_size], device=device).detach().requires_grad_(True)
+        X_t = (
+            to_torch_batch_x(X_np[i : i + batch_size], device=device)
+            .detach()
+            .requires_grad_(True)
+        )
         _, rho = forward_circuit(X_t, theta)
         max_f = max_fidelity_to_prototypes(rho, proto_stack.to(device=rho.device))
-        score = (1.0 - max_f).mean()    # CQ-ZDR novelty score, to be maximized
+        score = (1.0 - max_f).mean()  # CQ-ZDR novelty score, to be maximized
         grad = torch.autograd.grad(score, X_t)[0]
         chunks.append(grad.sign().detach())
         _clear_cuda_cache_if_needed(device)
@@ -441,21 +528,52 @@ def apply_fgsm_perturbation(X, grad_sign, eps, device=None, x_min=None, x_max=No
     return X_adv.detach()
 
 
-def fgsm_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, device=None,
-                               x_min=None, x_max=None, batch_size=32, proto_stack=None):
+def fgsm_attack_nonconformity(
+    X,
+    theta,
+    prototypes,
+    forward_circuit,
+    eps,
+    device=None,
+    x_min=None,
+    x_max=None,
+    batch_size=32,
+    proto_stack=None,
+):
     """
     (Section 3.1, Proposition 2, A1)
     Batched one-step FGSM that maximizes the CQ-ZDR novelty score s(x) = 1 - F_max(x) directly,
     i.e. attacks the CQ-ZDR accept/reject boundary.
     """
-    grad_sign = fgsm_gradient_sign(X, theta, prototypes, forward_circuit,
-                                    device=device, batch_size=batch_size, proto_stack=proto_stack)
-    return apply_fgsm_perturbation(X, grad_sign, eps, device=device, x_min=x_min, x_max=x_max)
+    grad_sign = fgsm_gradient_sign(
+        X,
+        theta,
+        prototypes,
+        forward_circuit,
+        device=device,
+        batch_size=batch_size,
+        proto_stack=proto_stack,
+    )
+    return apply_fgsm_perturbation(
+        X, grad_sign, eps, device=device, x_min=x_min, x_max=x_max
+    )
 
 
-def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, steps,
-                              device=None, x_min=None, x_max=None, random_start=True,
-                              batch_size=DEFAULT_BATCH_SIZE, proto_stack=None):
+def pgd_attack_nonconformity(
+    X,
+    theta,
+    prototypes,
+    forward_circuit,
+    eps,
+    alpha,
+    steps,
+    device=None,
+    x_min=None,
+    x_max=None,
+    random_start=True,
+    batch_size=DEFAULT_BATCH_SIZE,
+    proto_stack=None,
+):
     """
     (Section 3.1, Proposition 2, A1)
     Batched multi-step PGD with L_inf projection onto the eps-ball around X.
@@ -478,8 +596,12 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
     chunks = []
     for i in range(0, n, batch_size):
-        X0 = to_torch_batch_x(X_np[i:i + batch_size], device=device).detach()
-        X_adv = X0 + torch.empty_like(X0).uniform_(-eps, eps) if random_start else X0.clone()
+        X0 = to_torch_batch_x(X_np[i : i + batch_size], device=device).detach()
+        X_adv = (
+            X0 + torch.empty_like(X0).uniform_(-eps, eps)
+            if random_start
+            else X0.clone()
+        )
         if x_min_t is not None or x_max_t is not None:
             X_adv = torch.clamp(X_adv, min=x_min_t, max=x_max_t)
         X_adv = X_adv.detach()
@@ -493,7 +615,9 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
             with torch.no_grad():
                 X_adv = X_adv + alpha * grad.sign()
-                X_adv = torch.clamp(X_adv, min=X0 - eps, max=X0 + eps)  # fused L_inf-ball projection
+                X_adv = torch.clamp(
+                    X_adv, min=X0 - eps, max=X0 + eps
+                )  # fused L_inf-ball projection
                 if x_min_t is not None or x_max_t is not None:
                     X_adv = torch.clamp(X_adv, min=x_min_t, max=x_max_t)
             X_adv = X_adv.detach()
@@ -503,11 +627,15 @@ def pgd_attack_nonconformity(X, theta, prototypes, forward_circuit, eps, alpha, 
 
     return torch.cat(chunks, dim=0)
 
+
 # --------------------------------------------------------------------------------------
 # Proposition 3: two-sample exchangeability diagnostic
 # --------------------------------------------------------------------------------------
 
-def two_sample_discriminability_auroc(X_cal, X_test, seed=DEFAULT_SEED, cv=DEFAULT_CV, max_iter=DEFAULT_MAX_ITER):
+
+def two_sample_discriminability_auroc(
+    X_cal, X_test, seed=DEFAULT_SEED, cv=DEFAULT_CV, max_iter=DEFAULT_MAX_ITER
+):
     """
     (Section 5, Proposition 3)
     Trains a simple classifier to distinguish calibration vs. test features and reports its AUROC.
@@ -532,15 +660,26 @@ def clopper_pearson_ci(successes, n, alpha=DEFAULT_ALPHA):
     Report the CI with the point estimate for rates like TPR / FPR.
     """
     from scipy.stats import beta as beta_dist
+
     if n == 0:
         return (float("nan"), float("nan"))
-    lo = 0.0 if successes == 0 else float(beta_dist.ppf(alpha / 2, successes, n - successes + 1))
-    hi = 1.0 if successes == n else float(beta_dist.ppf(1 - alpha / 2, successes + 1, n - successes))
+    lo = (
+        0.0
+        if successes == 0
+        else float(beta_dist.ppf(alpha / 2, successes, n - successes + 1))
+    )
+    hi = (
+        1.0
+        if successes == n
+        else float(beta_dist.ppf(1 - alpha / 2, successes + 1, n - successes))
+    )
     return lo, hi
+
 
 # --------------------------------------------------------------------------------------
 # Section 3.1: L2 <-> L_inf perturbation-budget conversion
 # --------------------------------------------------------------------------------------
+
 
 def linf_to_l2_budget(eps_inf, d=INPUT_DIM_D):
     """
@@ -559,9 +698,11 @@ def l2_to_linf_budget(eps_2, d=INPUT_DIM_D):
     """
     return eps_2 / math.sqrt(d)
 
+
 # --------------------------------------------------------------------------------------
 # Section 4: analytic Lipschitz bound for angle encoding (Lemma 1)
 # --------------------------------------------------------------------------------------
+
 
 def analytic_lipschitz_bound(n_layers, reupload=True):
     """
@@ -575,11 +716,20 @@ def analytic_lipschitz_bound(n_layers, reupload=True):
     return R / 2.0
 
 
-def estimate_lipschitz_percentile(X, theta, forward_circuit, n_pairs=300, min_dist=1e-4,
-                                   device=None, batch_size=64, seed=0, percentile=95):
+def estimate_lipschitz_percentile(
+    X,
+    theta,
+    forward_circuit,
+    n_pairs=300,
+    min_dist=1e-4,
+    device=None,
+    batch_size=64,
+    seed=0,
+    percentile=95,
+):
     """
     (Section 3.1, A1) - (Section 4, Lemma 1)
-    Estimates the Lipschitz constant by sampling pairs (x, x') and computing D_tr/||x-x'||_2.    
+    Estimates the Lipschitz constant by sampling pairs (x, x') and computing D_tr/||x-x'||_2.
 
     Every sampled pair should satisfy Lemma 1,
     and any violation indicates a bug in the encoder, not a looser true constant.
@@ -594,13 +744,17 @@ def estimate_lipschitz_percentile(X, theta, forward_circuit, n_pairs=300, min_di
     idx1, idx2 = idx1[keep], idx2[keep]
     dists = np.linalg.norm(X_np[idx1] - X_np[idx2], axis=1)
     keep2 = dists > min_dist
-    idx1, idx2, dists = idx1[keep2][:n_pairs], idx2[keep2][:n_pairs], dists[keep2][:n_pairs]
+    idx1, idx2, dists = (
+        idx1[keep2][:n_pairs],
+        idx2[keep2][:n_pairs],
+        dists[keep2][:n_pairs],
+    )
 
     ratios = []
     with torch.no_grad():
         for i in range(0, len(idx1), batch_size):
-            x1 = to_torch_batch_x(X_np[idx1[i:i + batch_size]], device=device)
-            x2 = to_torch_batch_x(X_np[idx2[i:i + batch_size]], device=device)
+            x1 = to_torch_batch_x(X_np[idx1[i : i + batch_size]], device=device)
+            x2 = to_torch_batch_x(X_np[idx2[i : i + batch_size]], device=device)
             _, rho1 = forward_circuit(x1, theta)
             _, rho2 = forward_circuit(x2, theta)
             for k in range(rho1.shape[0]):
@@ -609,7 +763,9 @@ def estimate_lipschitz_percentile(X, theta, forward_circuit, n_pairs=300, min_di
     ratios = np.array(ratios)
     return {
         "ratios": ratios,
-        f"p{percentile}": float(np.percentile(ratios, percentile)) if len(ratios) else float("nan"),
+        f"p{percentile}": float(np.percentile(ratios, percentile))
+        if len(ratios)
+        else float("nan"),
         "max": float(ratios.max()) if len(ratios) else float("nan"),
     }
 

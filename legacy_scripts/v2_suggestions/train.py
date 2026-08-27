@@ -24,11 +24,28 @@ from scripts.loss import curriculum_weight, maqt_loss
 from scripts.prototypes import EMAPrototypeBank, PrototypeBank, compute_prototypes
 
 
-def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit, device,
-                epochs=10, lr=0.05, batch_size=16, lambda1_max=0.5, lambda2_max=0.3,
-                warmup_frac=DEFAULT_WARMUP_FRAC, grad_clip_norm=1.0,
-                ema_momentum=DEFAULT_EMA_MOMENTUM, use_focal=False, focal_gamma=DEFAULT_FOCAL_GAMMA,
-                use_weighted_sampler=True, log_every=1, verbose=True):
+def train_maqt(
+    X_train,
+    y_train,
+    n_classes,
+    n_qubits,
+    n_layers,
+    forward_circuit,
+    device,
+    epochs=10,
+    lr=0.05,
+    batch_size=16,
+    lambda1_max=0.5,
+    lambda2_max=0.3,
+    warmup_frac=DEFAULT_WARMUP_FRAC,
+    grad_clip_norm=1.0,
+    ema_momentum=DEFAULT_EMA_MOMENTUM,
+    use_focal=False,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+    use_weighted_sampler=True,
+    log_every=1,
+    verbose=True,
+):
     theta = initialize_weights_random_identity(n_layers, n_qubits, device, eps=1e-2)
     head = nn.Linear(n_qubits, n_classes).to(device)
     opt = torch.optim.Adam(list([theta]) + list(head.parameters()), lr=lr)
@@ -45,8 +62,15 @@ def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit,
     else:
         sample_weights = None
 
-    history = {"loss": [], "L_CE": [], "L_intra": [], "L_inter": [],
-               "grad_var": [], "intra_fid_gap": [], "inter_trace_dist": []}
+    history = {
+        "loss": [],
+        "L_CE": [],
+        "L_intra": [],
+        "L_inter": [],
+        "grad_var": [],
+        "intra_fid_gap": [],
+        "inter_trace_dist": [],
+    }
 
     n = len(X_t)
     for epoch in range(epochs):
@@ -54,7 +78,13 @@ def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit,
         lam2 = curriculum_weight(epoch, epochs, lambda2_max, warmup_frac)
 
         if use_weighted_sampler:
-            perm = torch.tensor(list(WeightedRandomSampler(sample_weights, num_samples=n, replacement=True)))
+            perm = torch.tensor(
+                list(
+                    WeightedRandomSampler(
+                        sample_weights, num_samples=n, replacement=True
+                    )
+                )
+            )
         else:
             perm = torch.randperm(n)
 
@@ -62,7 +92,7 @@ def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit,
         grad_vars, intra_fid_running = [], []
 
         for i in range(0, n, batch_size):
-            idx = perm[i:i + batch_size]
+            idx = perm[i : i + batch_size]
             xb, yb = X_t[idx], y_t[idx]
 
             protos_snapshot = ema_protos.snapshot()
@@ -72,14 +102,25 @@ def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit,
                 protos_snapshot = {}
 
             loss, l_ce, l_intra, l_inter, y_used, rho_used = maqt_loss(
-                theta, head, ce_loss_fn, xb, yb, protos_snapshot, forward_circuit,
-                lambda1=lam1, lambda2=lam2, device=device,
-                use_focal=use_focal, focal_gamma=focal_gamma,
+                theta,
+                head,
+                ce_loss_fn,
+                xb,
+                yb,
+                protos_snapshot,
+                forward_circuit,
+                lambda1=lam1,
+                lambda2=lam2,
+                device=device,
+                use_focal=use_focal,
+                focal_gamma=focal_gamma,
             )
 
             opt.zero_grad()
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(list([theta]) + list(head.parameters()), grad_clip_norm)
+            torch.nn.utils.clip_grad_norm_(
+                list([theta]) + list(head.parameters()), grad_clip_norm
+            )
             grad_vars.append(theta.grad.var().item())
             opt.step()
 
@@ -98,7 +139,14 @@ def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit,
         for a in range(len(keys)):
             for b in range(a + 1, len(keys)):
                 from scripts.quantum_metrics import trace_distance
-                diag_pairs.append(float(trace_distance(ema_protos.protos[keys[a]], ema_protos.protos[keys[b]])))
+
+                diag_pairs.append(
+                    float(
+                        trace_distance(
+                            ema_protos.protos[keys[a]], ema_protos.protos[keys[b]]
+                        )
+                    )
+                )
         mean_inter_td = float(np.mean(diag_pairs)) if diag_pairs else 0.0
         mean_gv = float(np.mean(grad_vars))
 
@@ -111,24 +159,41 @@ def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit,
         history["inter_trace_dist"].append(mean_inter_td)
 
         if verbose and (epoch + 1) % log_every == 0:
-            print(f"epoch {epoch+1:2d}/{epochs} | loss {history['loss'][-1]:.4f} | "
-                  f"L_CE {history['L_CE'][-1]:.4f} | L_intra {history['L_intra'][-1]:.4f} | "
-                  f"L_inter {history['L_inter'][-1]:.4f} | grad_var {mean_gv:.2e} | "
-                  f"intra_fid {history['intra_fid_gap'][-1]:.3f} | inter_TD {mean_inter_td:.3f}")
+            print(
+                f"epoch {epoch + 1:2d}/{epochs} | loss {history['loss'][-1]:.4f} | "
+                f"L_CE {history['L_CE'][-1]:.4f} | L_intra {history['L_intra'][-1]:.4f} | "
+                f"L_inter {history['L_inter'][-1]:.4f} | grad_var {mean_gv:.2e} | "
+                f"intra_fid {history['intra_fid_gap'][-1]:.3f} | inter_TD {mean_inter_td:.3f}"
+            )
             if mean_gv < 1e-6:
                 print("  barren plateau detected")
 
     # Final, unbiased prototypes for deployment (conformal.py / inference.py):
     static_bank = PrototypeBank(classes=range(n_classes))
-    final_prototypes = compute_prototypes(theta, np.asarray(X_train), np.asarray(y_train),
-                                           classes=range(n_classes), forward_circuit=forward_circuit,
-                                           device=device)
+    final_prototypes = compute_prototypes(
+        theta,
+        np.asarray(X_train),
+        np.asarray(y_train),
+        classes=range(n_classes),
+        forward_circuit=forward_circuit,
+        device=device,
+    )
 
     return theta, head, final_prototypes, ema_protos, history
 
 
-def train_plain_vqc(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit, device,
-                     epochs=8, lr=0.05, batch_size=16):
+def train_plain_vqc(
+    X_train,
+    y_train,
+    n_classes,
+    n_qubits,
+    n_layers,
+    forward_circuit,
+    device,
+    epochs=8,
+    lr=0.05,
+    batch_size=16,
+):
     """CE-only baseline (no prototype terms) -- control group for robustness ablation."""
     theta = initialize_weights_random_identity(n_layers, n_qubits, device, eps=1e-2)
     head = nn.Linear(n_qubits, n_classes).to(device)
@@ -141,17 +206,19 @@ def train_plain_vqc(X_train, y_train, n_classes, n_qubits, n_layers, forward_cir
     losses = []
 
     from scripts.utils import expectations_to_tensor
+
     for epoch in range(epochs):
         perm = torch.randperm(n)
         for i in range(0, n, batch_size):
-            idx = perm[i:i + batch_size]
+            idx = perm[i : i + batch_size]
             xb, yb = X_t[idx], y_t[idx]
             z, _ = forward_circuit(xb, theta)
             logits = head(expectations_to_tensor(z))
             loss = ce(logits, yb)
-            opt.zero_grad(); loss.backward()
+            opt.zero_grad()
+            loss.backward()
             torch.nn.utils.clip_grad_norm_(list([theta]) + list(head.parameters()), 1.0)
             opt.step()
         losses.append(loss.item())
-        print(f"[plain VQC] epoch {epoch+1}/{epochs} loss {loss.item():.4f}")
+        print(f"[plain VQC] epoch {epoch + 1}/{epochs} loss {loss.item():.4f}")
     return theta, head, losses

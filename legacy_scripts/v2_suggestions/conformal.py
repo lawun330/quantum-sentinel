@@ -7,7 +7,9 @@ from scripts.quantum_metrics import fidelity
 from scripts.utils import to_torch_batch
 
 
-def nonconformity_score_batch(X, theta, prototypes, forward_circuit, device=None, batch_size=64):
+def nonconformity_score_batch(
+    X, theta, prototypes, forward_circuit, device=None, batch_size=64
+):
     """
     FIX: batches the circuit forward pass for the calibration set instead of
     one call per sample.
@@ -16,7 +18,7 @@ def nonconformity_score_batch(X, theta, prototypes, forward_circuit, device=None
     class_ids = sorted(prototypes)
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch(X[i : i + batch_size], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
             for j in range(rho_chunk.shape[0]):
                 fids = [fidelity(rho_chunk[j], prototypes[c]) for c in class_ids]
@@ -24,10 +26,13 @@ def nonconformity_score_batch(X, theta, prototypes, forward_circuit, device=None
     return np.array(scores)
 
 
-def calibrate_threshold(theta, X_cal, prototypes, forward_circuit, alpha=0.05, device=None, batch_size=64):
+def calibrate_threshold(
+    theta, X_cal, prototypes, forward_circuit, alpha=0.05, device=None, batch_size=64
+):
     """Calibrate the CQ-ZDR threshold q from the calibration split."""
-    scores = nonconformity_score_batch(X_cal, theta, prototypes, forward_circuit,
-                                        device=device, batch_size=batch_size)
+    scores = nonconformity_score_batch(
+        X_cal, theta, prototypes, forward_circuit, device=device, batch_size=batch_size
+    )
     scores_sorted = np.sort(scores)
     n = len(scores_sorted)
     k = int(np.ceil((1.0 - alpha) * (n + 1))) - 1

@@ -73,9 +73,11 @@ def prototype_summary(prototypes, class_names=None):
     for c in sorted(prototypes):
         rho_c = prototypes[c]
         name = class_names[c] if class_names is not None else str(c)
-        rows.append({
-            "class": name,
-            "dim": int(rho_c.shape[0]),
-            "trace": float(torch.trace(rho_c).real.item()),
-        })
+        rows.append(
+            {
+                "class": name,
+                "dim": int(rho_c.shape[0]),
+                "trace": float(torch.trace(rho_c).real.item()),
+            }
+        )
     return rows

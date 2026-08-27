@@ -12,7 +12,7 @@ def fidelity_gap_proxy(prototypes, l_intra):
     classes = sorted(prototypes)
     inter_fids = []
     for i, c in enumerate(classes):
-        for c2 in classes[i + 1:]:
+        for c2 in classes[i + 1 :]:
             f = fidelity(prototypes[c], prototypes[c2])
             inter_fids.append(float(f.real.item() if torch.is_tensor(f) else f))
     mean_intra_fid_proxy = 1.0 - float(l_intra)
@@ -25,8 +25,18 @@ def fidelity_gap_proxy(prototypes, l_intra):
 
 
 @torch.no_grad()
-def hilbert_geometry_diagnostics(theta, X, y, prototypes, forward_circuit, class_names=None,
-                                  device=None, max_per_class=None, seed=42, batch_size=64):
+def hilbert_geometry_diagnostics(
+    theta,
+    X,
+    y,
+    prototypes,
+    forward_circuit,
+    class_names=None,
+    device=None,
+    max_per_class=None,
+    seed=42,
+    batch_size=64,
+):
     """
     Compute H1 (intra/inter fidelity gaps) in Hilbert space.
     FIX: batches the per-class forward passes instead of a per-sample loop.
@@ -46,7 +56,7 @@ def hilbert_geometry_diagnostics(theta, X, y, prototypes, forward_circuit, class
 
         fids = []
         for i in range(0, len(idx), batch_size):
-            chunk_idx = idx[i:i + batch_size]
+            chunk_idx = idx[i : i + batch_size]
             x_chunk = to_torch_batch(X[chunk_idx], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
             for j in range(rho_chunk.shape[0]):
@@ -66,7 +76,7 @@ def hilbert_geometry_diagnostics(theta, X, y, prototypes, forward_circuit, class
     pair_inter_fids, pair_inter_tds = [], []
     pair_rows = []
     for i, c in enumerate(classes):
-        for c2 in classes[i + 1:]:
+        for c2 in classes[i + 1 :]:
             f = fidelity(prototypes[c], prototypes[c2])
             td = trace_distance(prototypes[c], prototypes[c2])
             f = float(f.real.item() if torch.is_tensor(f) else f)
@@ -75,17 +85,31 @@ def hilbert_geometry_diagnostics(theta, X, y, prototypes, forward_circuit, class
             pair_inter_tds.append(td)
             n1 = class_names[c] if class_names is not None else str(c)
             n2 = class_names[c2] if class_names is not None else str(c2)
-            pair_rows.append({"pair": f"{n1}\u2194{n2}", "pair_inter_fid": f, "pair_trace_distance": td})
+            pair_rows.append(
+                {
+                    "pair": f"{n1}\u2194{n2}",
+                    "pair_inter_fid": f,
+                    "pair_trace_distance": td,
+                }
+            )
 
-    mean_intra_fid = float(np.mean(mean_intra_fid_per_class)) if mean_intra_fid_per_class else float("nan")
-    mean_inter_fid = float(np.mean(pair_inter_fids)) if pair_inter_fids else float("nan")
+    mean_intra_fid = (
+        float(np.mean(mean_intra_fid_per_class))
+        if mean_intra_fid_per_class
+        else float("nan")
+    )
+    mean_inter_fid = (
+        float(np.mean(pair_inter_fids)) if pair_inter_fids else float("nan")
+    )
     fidelity_gap = mean_intra_fid - mean_inter_fid
 
     return {
         "mean_intra_fid": mean_intra_fid,
         "mean_inter_fid": mean_inter_fid,
         "fidelity_gap": fidelity_gap,
-        "mean_inter_trace_distance": float(np.mean(pair_inter_tds)) if pair_inter_tds else float("nan"),
+        "mean_inter_trace_distance": float(np.mean(pair_inter_tds))
+        if pair_inter_tds
+        else float("nan"),
         "per_class": per_class,
         "pairs": pair_rows,
     }
@@ -95,8 +119,12 @@ def print_h1_report(report):
     print("=== H1 Hilbert geometry (fidelity gaps) ===")
     print(f"mean intra-class fidelity : {report['mean_intra_fid']:.4f}")
     print(f"mean inter-class fidelity : {report['mean_inter_fid']:.4f}")
-    print(f"fidelity gap (intra-inter): {report['fidelity_gap']:.4f}  \u2190 want \u2191")
-    print(f"mean inter trace distance : {report['mean_inter_trace_distance']:.4f}  \u2190 want \u2191")
+    print(
+        f"fidelity gap (intra-inter): {report['fidelity_gap']:.4f}  \u2190 want \u2191"
+    )
+    print(
+        f"mean inter trace distance : {report['mean_inter_trace_distance']:.4f}  \u2190 want \u2191"
+    )
     print("\nper-class intra fidelity:")
     for name, row in report["per_class"].items():
         print(f"  {name:28s} n={row['n']:4d}  F={row['mean_intra_fid_c']:.4f}")

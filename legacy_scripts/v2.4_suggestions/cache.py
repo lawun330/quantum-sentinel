@@ -39,6 +39,7 @@ from scripts.utils import expectations_to_tensor, to_np_y, to_torch_batch_x
 # ForwardCache
 # --------------------------------------------------------------------------------------
 
+
 class ForwardCache:
     """
     Store {"z": (N, n_qubits), "rho": (N, d, d)} for named datasets (CPU by default).
@@ -49,8 +50,17 @@ class ForwardCache:
         self.store_device = store_device
         self._entries = {}  # key -> {"z", "rho", "n", "p", "X"}
 
-    def compute(self, key, X, theta, forward_circuit, device=None, batch_size=64,
-                p=None, force=False):
+    def compute(
+        self,
+        key,
+        X,
+        theta,
+        forward_circuit,
+        device=None,
+        batch_size=64,
+        p=None,
+        force=False,
+    ):
         """Run circuit once over X; cache (z, rho) under `key` (idempotent unless force=True)."""
         if key in self._entries and not force:
             return self._entries[key]
@@ -59,7 +69,7 @@ class ForwardCache:
         z_chunks, rho_chunks = [], []
         with torch.no_grad():
             for i in range(0, len(X_np), batch_size):
-                x_chunk = to_torch_batch_x(X_np[i:i + batch_size], device=device)
+                x_chunk = to_torch_batch_x(X_np[i : i + batch_size], device=device)
                 z_chunk, rho_chunk = forward_circuit(x_chunk, theta)
                 z_chunks.append(expectations_to_tensor(z_chunk).to(self.store_device))
                 rho_chunks.append(rho_chunk.detach().to(self.store_device))
@@ -67,7 +77,9 @@ class ForwardCache:
         entry = {
             "z": torch.cat(z_chunks, dim=0) if z_chunks else torch.empty(0),
             "rho": torch.cat(rho_chunks, dim=0) if rho_chunks else torch.empty(0),
-            "n": len(X_np), "p": p, "X": X_np,
+            "n": len(X_np),
+            "p": p,
+            "X": X_np,
         }
         self._entries[key] = entry
         return entry
@@ -103,12 +115,21 @@ class ForwardCache:
                 entry["rho"].element_size() * entry["rho"].nelement()
                 + entry["z"].element_size() * entry["z"].nelement()
             )
-            rows.append({"key": key, "n_samples": entry["n"], "p": entry["p"], "MB": nbytes / 1e6})
+            rows.append(
+                {
+                    "key": key,
+                    "n_samples": entry["n"],
+                    "p": entry["p"],
+                    "MB": nbytes / 1e6,
+                }
+            )
         return rows
+
 
 # --------------------------------------------------------------------------------------
 # Cached conformal / F_max helpers (rho; no circuit)
 # --------------------------------------------------------------------------------------
+
 
 def cached_f_max(entry, prototypes, device=None, batch_size=256):
     """F_max(x) for every sample in entry['rho']."""
@@ -117,10 +138,12 @@ def cached_f_max(entry, prototypes, device=None, batch_size=256):
     n = len(rho_all)
     out = np.empty(n, dtype=np.float64)
     for i in range(0, n, batch_size):
-        rho_chunk = rho_all[i:i + batch_size]
+        rho_chunk = rho_all[i : i + batch_size]
         rho_chunk = rho_chunk.to(device=device) if device is not None else rho_chunk
-        max_f = max_fidelity_to_prototypes(rho_chunk, proto_stack.to(device=rho_chunk.device))
-        out[i:i + batch_size] = max_f.detach().cpu().numpy()
+        max_f = max_fidelity_to_prototypes(
+            rho_chunk, proto_stack.to(device=rho_chunk.device)
+        )
+        out[i : i + batch_size] = max_f.detach().cpu().numpy()
     return out
 
 
@@ -129,32 +152,50 @@ def cached_nonconformity_scores(entry, prototypes, device=None, batch_size=256):
     return 1.0 - cached_f_max(entry, prototypes, device=device, batch_size=batch_size)
 
 
-def cached_calibrate_threshold(entry, prototypes, alpha=DEFAULT_ALPHA, device=None, batch_size=256):
+def cached_calibrate_threshold(
+    entry, prototypes, alpha=DEFAULT_ALPHA, device=None, batch_size=256
+):
     """Calibrate conformal q from cached scores."""
-    scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
+    scores = cached_nonconformity_scores(
+        entry, prototypes, device=device, batch_size=batch_size
+    )
     return threshold_from_scores(scores, alpha=alpha)
 
 
-def cached_conformal_alpha_sweep(entry_cal, entry_test_known, prototypes,
-                                  alphas=(0.01, 0.05, 0.1, 0.2), device=None, batch_size=256):
+def cached_conformal_alpha_sweep(
+    entry_cal,
+    entry_test_known,
+    prototypes,
+    alphas=(0.01, 0.05, 0.1, 0.2),
+    device=None,
+    batch_size=256,
+):
     """Alpha sweep of q and empirical FAR using cached cal/test scores."""
-    cal_scores = cached_nonconformity_scores(entry_cal, prototypes, device=device, batch_size=batch_size)
-    test_scores = cached_nonconformity_scores(entry_test_known, prototypes, device=device, batch_size=batch_size)
+    cal_scores = cached_nonconformity_scores(
+        entry_cal, prototypes, device=device, batch_size=batch_size
+    )
+    test_scores = cached_nonconformity_scores(
+        entry_test_known, prototypes, device=device, batch_size=batch_size
+    )
     rows = []
     for alpha in alphas:
         q, _ = threshold_from_scores(cal_scores, alpha=alpha)
-        rows.append({
-            "alpha": alpha,
-            "q": q,
-            "empirical_false_alarm_rate": float(np.mean(test_scores > q)),
-            "min_calibration_size": min_calibration_size(alpha),
-            "n_cal": len(cal_scores),
-        })
+        rows.append(
+            {
+                "alpha": alpha,
+                "q": q,
+                "empirical_false_alarm_rate": float(np.mean(test_scores > q)),
+                "min_calibration_size": min_calibration_size(alpha),
+                "n_cal": len(cal_scores),
+            }
+        )
     return rows
+
 
 # --------------------------------------------------------------------------------------
 # Cached inference helpers (z / rho; no circuit)
 # --------------------------------------------------------------------------------------
+
 
 def cached_predict_labels(entry, y_true, head, device=None, batch_size=1024):
     """
@@ -167,13 +208,24 @@ def cached_predict_labels(entry, y_true, head, device=None, batch_size=1024):
     preds = []
     with torch.no_grad():
         for i in range(0, len(z_all), batch_size):
-            z_chunk = z_all[i:i + batch_size].to(device=head_device)
+            z_chunk = z_all[i : i + batch_size].to(device=head_device)
             preds.append(head(z_chunk).argmax(dim=1).cpu().numpy())
-    return to_np_y(y_true).astype(int), (np.concatenate(preds) if preds else np.array([], dtype=int))
+    return to_np_y(y_true).astype(int), (
+        np.concatenate(preds) if preds else np.array([], dtype=int)
+    )
 
 
-def cached_qsnet_infer(entry, prototypes, q, p=DEFAULT_NOISE_RATE, L_phi=None, Cf=DEFAULT_CF,
-                        zero_day=ZERO_DAY, device=None, batch_size=256):
+def cached_qsnet_infer(
+    entry,
+    prototypes,
+    q,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+    batch_size=256,
+):
     """
     Cached variant of `inference.qsnet_infer_batch()`.
 
@@ -192,11 +244,13 @@ def cached_qsnet_infer(entry, prototypes, q, p=DEFAULT_NOISE_RATE, L_phi=None, C
 
     with torch.no_grad():
         for i in range(0, n, batch_size):
-            rho_chunk = rho_all[i:i + batch_size]
+            rho_chunk = rho_all[i : i + batch_size]
             rho_chunk = rho_chunk.to(device=device) if device is not None else rho_chunk
             for j in range(rho_chunk.shape[0]):
                 rho_x = rho_chunk[j]
-                f_map = {c: float(fidelity(rho_x, proto_on_device[c])) for c in class_ids}
+                f_map = {
+                    c: float(fidelity(rho_x, proto_on_device[c])) for c in class_ids
+                }
                 f_vals = [f_map[c] for c in class_ids]
                 c_star = class_ids[int(np.argmax(f_vals))]
                 s = 1.0 - f_map[c_star]
@@ -206,7 +260,9 @@ def cached_qsnet_infer(entry, prototypes, q, p=DEFAULT_NOISE_RATE, L_phi=None, C
                     radii.append(0.0)
                 else:
                     sorted_f = sorted(f_vals, reverse=True)
-                    margin = sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    margin = (
+                        sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    )
                     radius = margin / (2.0 * (1.0 - p) * L_phi * Cf)
                     labels.append(c_star)
                     radii.append(float(radius))
@@ -216,8 +272,17 @@ def cached_qsnet_infer(entry, prototypes, q, p=DEFAULT_NOISE_RATE, L_phi=None, C
     return np.array(labels), np.array(radii), np.array(scores), f_maps
 
 
-def cached_qsnet_infer_per_class(entry, prototypes, q_by_class, p=DEFAULT_NOISE_RATE, L_phi=None, Cf=DEFAULT_CF,
-                                  zero_day=ZERO_DAY, device=None, batch_size=256):
+def cached_qsnet_infer_per_class(
+    entry,
+    prototypes,
+    q_by_class,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+    batch_size=256,
+):
     """
     Cached variant of `inference.qsnet_infer_batch_per_class()`.
 
@@ -241,11 +306,13 @@ def cached_qsnet_infer_per_class(entry, prototypes, q_by_class, p=DEFAULT_NOISE_
 
     with torch.no_grad():
         for i in range(0, n, batch_size):
-            rho_chunk = rho_all[i:i + batch_size]
+            rho_chunk = rho_all[i : i + batch_size]
             rho_chunk = rho_chunk.to(device=device) if device is not None else rho_chunk
             for j in range(rho_chunk.shape[0]):
                 rho_x = rho_chunk[j]
-                f_map = {c: float(fidelity(rho_x, proto_on_device[c])) for c in class_ids}
+                f_map = {
+                    c: float(fidelity(rho_x, proto_on_device[c])) for c in class_ids
+                }
                 f_vals = [f_map[c] for c in class_ids]
                 c_star = class_ids[int(np.argmax(f_vals))]
                 s = 1.0 - f_map[c_star]
@@ -256,7 +323,9 @@ def cached_qsnet_infer_per_class(entry, prototypes, q_by_class, p=DEFAULT_NOISE_
                     radii.append(0.0)
                 else:
                     sorted_f = sorted(f_vals, reverse=True)
-                    margin = sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    margin = (
+                        sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    )
                     radius = margin / (2.0 * (1.0 - p) * L_phi * Cf)
                     labels.append(c_star)
                     radii.append(float(radius))
@@ -265,11 +334,15 @@ def cached_qsnet_infer_per_class(entry, prototypes, q_by_class, p=DEFAULT_NOISE_
 
     return np.array(labels), np.array(radii), np.array(scores), f_maps
 
+
 # --------------------------------------------------------------------------------------
 # Cached Lipschitz diagnostic (rho pairs; no circuit)
 # --------------------------------------------------------------------------------------
 
-def cached_lipschitz_percentile(entry, n_pairs=300, min_dist=1e-4, seed=0, percentile=95):
+
+def cached_lipschitz_percentile(
+    entry, n_pairs=300, min_dist=1e-4, seed=0, percentile=95
+):
     """
     (Section 3.1, A1) - (Section 4, Lemma 1)
     Cached variant of `theory.estimate_lipschitz_percentile()`.
@@ -286,23 +359,41 @@ def cached_lipschitz_percentile(entry, n_pairs=300, min_dist=1e-4, seed=0, perce
     idx1, idx2 = idx1[keep], idx2[keep]
     dists = np.linalg.norm(X_np[idx1] - X_np[idx2], axis=1)
     keep2 = dists > min_dist
-    idx1, idx2, dists = idx1[keep2][:n_pairs], idx2[keep2][:n_pairs], dists[keep2][:n_pairs]
+    idx1, idx2, dists = (
+        idx1[keep2][:n_pairs],
+        idx2[keep2][:n_pairs],
+        dists[keep2][:n_pairs],
+    )
 
-    ratios = np.array([
-        float(trace_distance(rho_all[i1], rho_all[i2])) / d
-        for i1, i2, d in zip(idx1, idx2, dists)
-    ]) if len(idx1) else np.array([])
+    ratios = (
+        np.array(
+            [
+                float(trace_distance(rho_all[i1], rho_all[i2])) / d
+                for i1, i2, d in zip(idx1, idx2, dists)
+            ]
+        )
+        if len(idx1)
+        else np.array([])
+    )
 
     return {
         "ratios": ratios,
-        f"p{percentile}": float(np.percentile(ratios, percentile)) if len(ratios) else float("nan"),
+        f"p{percentile}": float(np.percentile(ratios, percentile))
+        if len(ratios)
+        else float("nan"),
         "max": float(ratios.max()) if len(ratios) else float("nan"),
     }
 
 
-
-def cached_class_conditional_calibrate(entry, y_cal, prototypes, alpha=DEFAULT_ALPHA,
-                                        device=None, batch_size=256, fallback="global"):
+def cached_class_conditional_calibrate(
+    entry,
+    y_cal,
+    prototypes,
+    alpha=DEFAULT_ALPHA,
+    device=None,
+    batch_size=256,
+    fallback="global",
+):
     """
     Cached variant of `conformal.class_conditional_calibrate()`.
 
@@ -327,7 +418,9 @@ def cached_class_conditional_calibrate(entry, y_cal, prototypes, alpha=DEFAULT_A
     y_cal = np.asarray(y_cal)
     class_ids = sorted(prototypes.keys())
 
-    global_scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
+    global_scores = cached_nonconformity_scores(
+        entry, prototypes, device=device, batch_size=batch_size
+    )
     global_q, _ = threshold_from_scores(global_scores, alpha=alpha)
 
     q_by_class, meta = {}, {}
@@ -342,15 +435,24 @@ def cached_class_conditional_calibrate(entry, y_cal, prototypes, alpha=DEFAULT_A
         except ValueError as e:
             if fallback == "abstain":
                 raise ValueError(f"Class {c}: {e}") from e
-            meta[c] = {"n": n_c, "status": f"insufficient for alpha={alpha} -- used GLOBAL threshold ({e})",
-                       "q": global_q}
+            meta[c] = {
+                "n": n_c,
+                "status": f"insufficient for alpha={alpha} -- used GLOBAL threshold ({e})",
+                "q": global_q,
+            }
             q_by_class[c] = global_q
 
-    meta["_global"] = {"q": global_q, "n": len(global_scores), "status": "marginal (Proposition 3 baseline)"}
+    meta["_global"] = {
+        "q": global_q,
+        "n": len(global_scores),
+        "status": "marginal (Proposition 3 baseline)",
+    }
     return q_by_class, meta
 
 
-def cached_per_class_far(entry, y_known, prototypes, q_by_class, device=None, batch_size=256):
+def cached_per_class_far(
+    entry, y_known, prototypes, q_by_class, device=None, batch_size=256
+):
     """
     Cached variant of `conformal.per_class_empirical_far()`.
 
@@ -364,31 +466,38 @@ def cached_per_class_far(entry, y_known, prototypes, q_by_class, device=None, ba
     - compare the spread across classes.
     """
     y_known = np.asarray(y_known)
-    scores = cached_nonconformity_scores(entry, prototypes, device=device, batch_size=batch_size)
+    scores = cached_nonconformity_scores(
+        entry, prototypes, device=device, batch_size=batch_size
+    )
     rows = []
     for c in sorted(prototypes.keys()):
         mask = y_known == c
         n_c = int(mask.sum())
         if n_c == 0:
-            rows.append({
-                "class": c,
-                "n": 0,
-                "q": q_by_class.get(c, float("nan")),
-                "empirical_far": float("nan"),
-            })
+            rows.append(
+                {
+                    "class": c,
+                    "n": 0,
+                    "q": q_by_class.get(c, float("nan")),
+                    "empirical_far": float("nan"),
+                }
+            )
             continue
         far_c = float(np.mean(scores[mask] > q_by_class[c]))
-        rows.append({
-            "class": c,
-            "n": n_c,
-            "q": q_by_class[c],
-            "empirical_far": far_c,
-        })
+        rows.append(
+            {
+                "class": c,
+                "n": n_c,
+                "q": q_by_class[c],
+                "empirical_far": far_c,
+            }
+        )
     return rows
 
 
-def cached_class_conditional_f_in_f_out(entry_known, y_known, entry_zeroday, prototypes,
-                                         device=None, batch_size=256):
+def cached_class_conditional_f_in_f_out(
+    entry_known, y_known, entry_zeroday, prototypes, device=None, batch_size=256
+):
     """
     Cached, per-class extension of Proposition 2's F_in / F_out (Section 3.1/3.5).
 
@@ -397,7 +506,7 @@ def cached_class_conditional_f_in_f_out(entry_known, y_known, entry_zeroday, pro
     - F_out_c = worst-case (max) fidelity that ANY zero-day sample achieves against
                 THAT class's prototype rho_c (not the pooled F_max over all classes).
 
-    Computed entirely from cached `rho` (no circuit calls). 
+    Computed entirely from cached `rho` (no circuit calls).
 
     Returns a list of dict rows: {"class", "n_known", "F_in_c", "F_out_c"}.
     """
@@ -408,23 +517,34 @@ def cached_class_conditional_f_in_f_out(entry_known, y_known, entry_zeroday, pro
 
     rows = []
     for c in class_ids:
-        proto_c = prototypes[c].to(device=device) if device is not None else prototypes[c]
-        mask_c = (y_known == c)
+        proto_c = (
+            prototypes[c].to(device=device) if device is not None else prototypes[c]
+        )
+        mask_c = y_known == c
         n_c = int(mask_c.sum())
 
         if n_c == 0:
-            rows.append({"class": c, "n_known": 0, "F_in_c": float("nan"), "F_out_c": float("nan")})
+            rows.append(
+                {
+                    "class": c,
+                    "n_known": 0,
+                    "F_in_c": float("nan"),
+                    "F_out_c": float("nan"),
+                }
+            )
             continue
 
         # F_in_c: min fidelity of class-c's own samples to rho_c
         f_own_vals = []
         idx_c = np.where(mask_c)[0]
         for i in range(0, len(idx_c), batch_size):
-            chunk = idx_c[i:i + batch_size]
+            chunk = idx_c[i : i + batch_size]
             rho_chunk = rho_known_all[chunk]
             rho_chunk = rho_chunk.to(device=device) if device is not None else rho_chunk
             proto_b = proto_c.unsqueeze(0).expand(rho_chunk.shape[0], -1, -1)
-            f_own_vals.append(fidelity_pairwise(rho_chunk, proto_b).detach().cpu().numpy())
+            f_own_vals.append(
+                fidelity_pairwise(rho_chunk, proto_b).detach().cpu().numpy()
+            )
         f_own_c = np.concatenate(f_own_vals)
         F_in_c = float(f_own_c.min())
 
@@ -432,10 +552,12 @@ def cached_class_conditional_f_in_f_out(entry_known, y_known, entry_zeroday, pro
         f_zday_vals = []
         n_z = len(rho_zday_all)
         for i in range(0, n_z, batch_size):
-            rho_chunk = rho_zday_all[i:i + batch_size]
+            rho_chunk = rho_zday_all[i : i + batch_size]
             rho_chunk = rho_chunk.to(device=device) if device is not None else rho_chunk
             proto_b = proto_c.unsqueeze(0).expand(rho_chunk.shape[0], -1, -1)
-            f_zday_vals.append(fidelity_pairwise(rho_chunk, proto_b).detach().cpu().numpy())
+            f_zday_vals.append(
+                fidelity_pairwise(rho_chunk, proto_b).detach().cpu().numpy()
+            )
         f_zday_c = np.concatenate(f_zday_vals)
         F_out_c = float(f_zday_c.max())
 

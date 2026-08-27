@@ -18,6 +18,7 @@ Outputs (CSV v1 = 17 unified features + `label_multiclass`/`label_binary`/`label
 
 Run (venv, after the Week-1 unified pipeline): python week2/scripts/make_partitions.py
 """
+
 from __future__ import annotations
 
 import json
@@ -35,15 +36,24 @@ SEED = 42
 TRIO = ["CICIoT2023", "BoT-IoT", "UNSW-NB15"]
 LABELS = ["label_multiclass", "label_binary", "label_family"]
 # Week-2 conformal layout: train (=train+val), calibration, test, zeroday
-SRC_FOR = {"train": ["train", "val"], "calibration": ["calibration"], "test": ["test"], "zeroday": ["zeroday"]}
+SRC_FOR = {
+    "train": ["train", "val"],
+    "calibration": ["calibration"],
+    "test": ["test"],
+    "zeroday": ["zeroday"],
+}
 
 
-def log(m): print(f"[{time.strftime('%H:%M:%S')}] {m}", flush=True)
+def log(m):
+    print(f"[{time.strftime('%H:%M:%S')}] {m}", flush=True)
 
 
 def run(name: str) -> dict:
     src = DATA / name
-    parts = {s: pd.read_parquet(src / f"{s}.parquet") for s in ["train", "val", "calibration", "test", "zeroday"]}
+    parts = {
+        s: pd.read_parquet(src / f"{s}.parquet")
+        for s in ["train", "val", "calibration", "test", "zeroday"]
+    }
     outdir = OUT / name
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -55,37 +65,74 @@ def run(name: str) -> dict:
 
     feats = [c for c in splits["train"].columns if c not in LABELS]
     known = sorted(set(splits["train"]["label_multiclass"].unique()))
-    zd_fams = sorted(set(splits["zeroday"]["label_multiclass"].unique())) if len(splits["zeroday"]) else []
+    zd_fams = (
+        sorted(set(splits["zeroday"]["label_multiclass"].unique()))
+        if len(splits["zeroday"])
+        else []
+    )
     # invariants
     assert set(zd_fams).isdisjoint(known), f"{name}: zero-day family leaked into train"
     for s in ("calibration", "test"):
-        assert set(splits[s]["label_multiclass"].unique()).isdisjoint(zd_fams), f"{name}: zero-day in {s}"
+        assert set(splits[s]["label_multiclass"].unique()).isdisjoint(zd_fams), (
+            f"{name}: zero-day in {s}"
+        )
 
     meta = {
-        "dataset": name, "seed": SEED, "n_features": len(feats), "features": feats,
+        "dataset": name,
+        "seed": SEED,
+        "n_features": len(feats),
+        "features": feats,
         "layout": "train(=train+val) / calibration / test / zeroday",
-        "known_classes": known, "n_known_classes": len(known), "zero_day_families": zd_fams,
+        "known_classes": known,
+        "n_known_classes": len(known),
+        "zero_day_families": zd_fams,
         "rows": {s: len(v) for s, v in splits.items()},
-        "class_membership": {s: v["label_multiclass"].value_counts().sort_index().to_dict()
-                             for s, v in splits.items()},
-        "calibration_known_only": bool(set(splits["calibration"]["label_multiclass"].unique()).issubset(known)),
+        "class_membership": {
+            s: v["label_multiclass"].value_counts().sort_index().to_dict()
+            for s, v in splits.items()
+        },
+        "calibration_known_only": bool(
+            set(splits["calibration"]["label_multiclass"].unique()).issubset(known)
+        ),
     }
-    (outdir / "partition_meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
-    log(f"  {name}: train={len(splits['train']):,} cal={len(splits['calibration']):,} "
+    (outdir / "partition_meta.json").write_text(
+        json.dumps(meta, indent=1), encoding="utf-8"
+    )
+    log(
+        f"  {name}: train={len(splits['train']):,} cal={len(splits['calibration']):,} "
         f"test={len(splits['test']):,} zeroday={len(splits['zeroday']):,} | "
-        f"{len(known)} known + zero-day {zd_fams}")
+        f"{len(known)} known + zero-day {zd_fams}"
+    )
     return meta
 
 
 def main():
     GEN.mkdir(parents=True, exist_ok=True)
-    log("Week-2 Day-8 partitions (CIC / BoT / UNSW) — Train/Calibration/Test/Zero-Day CSVs")
+    log(
+        "Week-2 Day-8 partitions (CIC / BoT / UNSW) — Train/Calibration/Test/Zero-Day CSVs"
+    )
     summary = {name: run(name) for name in TRIO}
     (GEN / "partition_summary.json").write_text(
-        json.dumps({n: {k: m[k] for k in ("rows", "n_known_classes", "zero_day_families",
-                                          "calibration_known_only")} for n, m in summary.items()}, indent=1),
-        encoding="utf-8")
-    log(f"done -> week2/partitions/<name>/*.csv + partition_meta.json ({len(TRIO)} datasets)")
+        json.dumps(
+            {
+                n: {
+                    k: m[k]
+                    for k in (
+                        "rows",
+                        "n_known_classes",
+                        "zero_day_families",
+                        "calibration_known_only",
+                    )
+                }
+                for n, m in summary.items()
+            },
+            indent=1,
+        ),
+        encoding="utf-8",
+    )
+    log(
+        f"done -> week2/partitions/<name>/*.csv + partition_meta.json ({len(TRIO)} datasets)"
+    )
 
 
 if __name__ == "__main__":

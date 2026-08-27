@@ -33,7 +33,15 @@ def focal_ce(logits, targets, gamma=DEFAULT_FOCAL_GAMMA):
     return ((1 - pt) ** gamma * ce).mean()
 
 
-def ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+def ce_loss_term(
+    y_t,
+    z,
+    classifier_head,
+    ce_loss_fn,
+    device,
+    use_focal=DEFAULT_FOCAL,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+):
     """
     Cross-entropy or focal loss term (L_CE) from batched circuit expectations + linear head.
     """
@@ -106,14 +114,25 @@ def prototype_pair_separation(prototypes, device=None):
     return -torch.stack(inter_pairs).mean()
 
 
-def compute_l_ce(theta, classifier_head, ce_loss_fn, X_batch, y_batch, forward_circuit, device=None,
-                  use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+def compute_l_ce(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    forward_circuit,
+    device=None,
+    use_focal=DEFAULT_FOCAL,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+):
     """
     Unit-testable L_CE over a batch.
     """
     device = device or theta.device
     y_t, z, _ = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
-    return ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
+    return ce_loss_term(
+        y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma
+    )
 
 
 def compute_l_intra(theta, X_batch, y_batch, prototypes, forward_circuit, device=None):
@@ -134,16 +153,29 @@ def compute_l_inter(theta, X_batch, y_batch, prototypes, forward_circuit, device
     return inter_loss_term(y_t, rho, prototypes, device)
 
 
-def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
-            forward_circuit, lambda1=DEFAULT_LAMBDA1, lambda2=DEFAULT_LAMBDA2,
-            device=None, use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+def maqt_loss(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    lambda1=DEFAULT_LAMBDA1,
+    lambda2=DEFAULT_LAMBDA2,
+    device=None,
+    use_focal=DEFAULT_FOCAL,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+):
     """
     MAQT loss: L = L_CE + lambda1 * L_intra + lambda2 * L_inter.
     """
     device = device or theta.device
     y_t, z, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
 
-    l_ce = ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
+    l_ce = ce_loss_term(
+        y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma
+    )
     l_intra = intra_loss_term(y_t, rho, prototypes, device)
     l_inter = inter_loss_term(y_t, rho, prototypes, device)
 

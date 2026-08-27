@@ -34,7 +34,15 @@ def focal_ce(logits, targets, gamma=DEFAULT_FOCAL_GAMMA):
     return ((1 - pt) ** gamma * ce).mean()
 
 
-def ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+def ce_loss_term(
+    y_t,
+    z,
+    classifier_head,
+    ce_loss_fn,
+    device,
+    use_focal=DEFAULT_FOCAL,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+):
     """
     Cross-entropy or focal loss term (L_CE) from batched circuit expectations + linear head.
     """
@@ -70,7 +78,9 @@ def intra_loss_term(y_t, rho, prototypes, device):
     return l_intra
 
 
-def inter_loss_term(y_t, rho, prototypes, device, margin=DEFAULT_INTER_MARGIN, hardest_only=True):
+def inter_loss_term(
+    y_t, rho, prototypes, device, margin=DEFAULT_INTER_MARGIN, hardest_only=True
+):
     """
     Inter-class term (L_inter): hinge repulsion of each live sample from its
     NEAREST wrong-class prototype (hardest negative).
@@ -93,23 +103,36 @@ def inter_loss_term(y_t, rho, prototypes, device, margin=DEFAULT_INTER_MARGIN, h
         if not neg_classes:
             continue
 
-        neg_d = torch.stack([trace_distance(rho[i], prototypes[cc]) for cc in neg_classes])
+        neg_d = torch.stack(
+            [trace_distance(rho[i], prototypes[cc]) for cc in neg_classes]
+        )
         d_ref = neg_d.min() if hardest_only else neg_d.mean()
-        terms.append(torch.relu(margin - d_ref))  
+        terms.append(torch.relu(margin - d_ref))
 
     if not terms:
         return torch.tensor(0.0, device=device)
     return torch.stack(terms).mean()
 
 
-def compute_l_ce(theta, classifier_head, ce_loss_fn, X_batch, y_batch, forward_circuit, device=None,
-                  use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+def compute_l_ce(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    forward_circuit,
+    device=None,
+    use_focal=DEFAULT_FOCAL,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+):
     """
     Unit-testable L_CE over a batch.
     """
     device = device or theta.device
     y_t, z, _ = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
-    return ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
+    return ce_loss_term(
+        y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma
+    )
 
 
 def compute_l_intra(theta, X_batch, y_batch, prototypes, forward_circuit, device=None):
@@ -121,21 +144,43 @@ def compute_l_intra(theta, X_batch, y_batch, prototypes, forward_circuit, device
     return intra_loss_term(y_t, rho, prototypes, device)
 
 
-def compute_l_inter(theta, X_batch, y_batch, prototypes, forward_circuit, device=None,
-                     margin=DEFAULT_INTER_MARGIN, hardest_only=True):
+def compute_l_inter(
+    theta,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    device=None,
+    margin=DEFAULT_INTER_MARGIN,
+    hardest_only=True,
+):
     """
     Unit-testable L_inter over a batch.
 
     """
     device = device or theta.device
     y_t, _, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
-    return inter_loss_term(y_t, rho, prototypes, device, margin=margin, hardest_only=hardest_only)
+    return inter_loss_term(
+        y_t, rho, prototypes, device, margin=margin, hardest_only=hardest_only
+    )
 
 
-def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
-            forward_circuit, lambda1=DEFAULT_LAMBDA1, lambda2=DEFAULT_LAMBDA2,
-            margin=DEFAULT_INTER_MARGIN, hardest_only=True, device=None,
-            use_focal=DEFAULT_FOCAL, focal_gamma=DEFAULT_FOCAL_GAMMA):
+def maqt_loss(
+    theta,
+    classifier_head,
+    ce_loss_fn,
+    X_batch,
+    y_batch,
+    prototypes,
+    forward_circuit,
+    lambda1=DEFAULT_LAMBDA1,
+    lambda2=DEFAULT_LAMBDA2,
+    margin=DEFAULT_INTER_MARGIN,
+    hardest_only=True,
+    device=None,
+    use_focal=DEFAULT_FOCAL,
+    focal_gamma=DEFAULT_FOCAL_GAMMA,
+):
     """
     MAQT loss: L = L_CE + lambda1 * L_intra + lambda2 * L_inter.
 
@@ -145,9 +190,13 @@ def maqt_loss(theta, classifier_head, ce_loss_fn, X_batch, y_batch, prototypes,
     device = device or theta.device
     y_t, z, rho = _forward_batch(theta, X_batch, y_batch, forward_circuit, device)
 
-    l_ce = ce_loss_term(y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma)
+    l_ce = ce_loss_term(
+        y_t, z, classifier_head, ce_loss_fn, device, use_focal, focal_gamma
+    )
     l_intra = intra_loss_term(y_t, rho, prototypes, device)
-    l_inter = inter_loss_term(y_t, rho, prototypes, device, margin=margin, hardest_only=hardest_only)
+    l_inter = inter_loss_term(
+        y_t, rho, prototypes, device, margin=margin, hardest_only=hardest_only
+    )
 
     loss = l_ce + lambda1 * l_intra + lambda2 * l_inter
     return loss, l_ce, l_intra, l_inter, y_t, rho

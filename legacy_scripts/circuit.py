@@ -32,7 +32,9 @@ def build_forward_circuit(dev, num_qubits, num_layers, noise_rate=DEFAULT_NOISE_
         """
         for layer in range(num_layers):
             qp.AngleEmbedding(x, wires=range(num_qubits), rotation="Y")
-            qp.StronglyEntanglingLayers(theta[layer : layer + 1], wires=range(num_qubits))
+            qp.StronglyEntanglingLayers(
+                theta[layer : layer + 1], wires=range(num_qubits)
+            )
             for w in range(num_qubits):
                 qp.DepolarizingChannel(noise_rate, wires=w)
         z = [qp.expval(qp.PauliZ(w)) for w in range(num_qubits)]

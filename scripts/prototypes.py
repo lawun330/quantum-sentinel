@@ -17,7 +17,9 @@ class PrototypeBank:
         self.classes = sorted(classes)
         self.protos = {}
 
-    def compute(self, theta, X, y, forward_circuit, device=None, batch_size=DEFAULT_BATCH_SIZE):
+    def compute(
+        self, theta, X, y, forward_circuit, device=None, batch_size=DEFAULT_BATCH_SIZE
+    ):
         """Fill self.protos with exact class means. Returns self.protos."""
         self.protos = {}
         y_labels = to_np_y(y).astype(int)
@@ -30,7 +32,7 @@ class PrototypeBank:
                 proto_sum = None
                 count = 0
                 for i in range(0, len(X_c), batch_size):
-                    x_chunk = to_torch_batch_x(X_c[i:i + batch_size], device=device)
+                    x_chunk = to_torch_batch_x(X_c[i : i + batch_size], device=device)
                     _, rho_chunk = forward_circuit(x_chunk, theta)
                     chunk_sum = rho_chunk.sum(dim=0)
 
@@ -41,10 +43,10 @@ class PrototypeBank:
 
                     count += len(x_chunk)
 
-                    del rho_chunk, chunk_sum    # free memory
+                    del rho_chunk, chunk_sum  # free memory
 
                 self.protos[c] = proto_sum / count
-                del proto_sum   # free memory
+                del proto_sum  # free memory
 
         return self.protos
 
@@ -54,8 +56,8 @@ class EMAPrototypeBank:
     Note: EMA-target methods such as MoCo and DINO avoid using a same-step updated target,
     instead employing a delayed target to reduce the risk of representational collapse.
 
-    Exponential-moving-average class-means (prototypes) of rho(x), updated every minibatch. 
-    
+    Exponential-moving-average class-means (prototypes) of rho(x), updated every minibatch.
+
     For the live supervision signal inside the training loop's loss.
     """
 
@@ -99,9 +101,11 @@ def prototype_summary(prototypes, class_names=None):
     for c in sorted(prototypes):
         rho_c = prototypes[c]
         name = class_names[c] if class_names is not None else str(c)
-        rows.append({
-            "class": name,
-            "dim": int(rho_c.shape[0]),
-            "trace": float(torch.trace(rho_c).real.item()),
-        })
+        rows.append(
+            {
+                "class": name,
+                "dim": int(rho_c.shape[0]),
+                "trace": float(torch.trace(rho_c).real.item()),
+            }
+        )
     return rows

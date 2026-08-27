@@ -32,7 +32,9 @@ def to_torch_batch_x(X, device=None):
         device = get_torch_device()
     if torch.is_tensor(X):
         return X.detach().clone().to(device=device, dtype=torch.float32)
-    return torch.tensor(np.asarray(X, dtype=np.float32), dtype=torch.float32, device=device)
+    return torch.tensor(
+        np.asarray(X, dtype=np.float32), dtype=torch.float32, device=device
+    )
 
 
 def to_np_x(x):
@@ -90,10 +92,12 @@ def _as_bound_tensor(bound, device):
     Transforms a bound (None / a python scalar / a tensor) into a device-matched tensor (or None).
     """
     if bound is None:
-        return None    # None -> None
+        return None  # None -> None
     if torch.is_tensor(bound):
-        return bound.to(device=device) if device is not None else bound    # tensor -> tensor
-    return torch.tensor(float(bound), device=device)    # scalar -> tensor
+        return (
+            bound.to(device=device) if device is not None else bound
+        )  # tensor -> tensor
+    return torch.tensor(float(bound), device=device)  # scalar -> tensor
 
 
 def _clear_cuda_cache_if_needed(device):

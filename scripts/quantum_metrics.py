@@ -17,11 +17,15 @@ def fidelity(rho_a, rho_b, eps=DEFAULT_EPS):
     squared_f = qp.math.fidelity(rho_a, rho_b)
     if torch.is_tensor(squared_f):
         squared_f = squared_f.real if torch.is_complex(squared_f) else squared_f
-        squared_f = torch.clamp(squared_f, min=0.0) # ensure non-negative before taking the square root
-        f = torch.sqrt(squared_f) # take the square root
+        squared_f = torch.clamp(
+            squared_f, min=0.0
+        )  # ensure non-negative before taking the square root
+        f = torch.sqrt(squared_f)  # take the square root
         return torch.clamp(f, 0.0, 1.0 - eps)
-    squared_f = max(float(squared_f), 0.0) # ensure non-negative before taking the square root
-    f = squared_f ** 0.5 # take the square root
+    squared_f = max(
+        float(squared_f), 0.0
+    )  # ensure non-negative before taking the square root
+    f = squared_f**0.5  # take the square root
     return min(f, 1.0 - eps)
 
 
@@ -68,7 +72,7 @@ def fidelity_pairwise_psd(rho, sigma, eps=DEFAULT_EPS):
     mid = _stabilize_psd(sqrt_rho @ sigma @ sqrt_rho, eps=eps)
     evals = torch.linalg.eigvalsh(mid)
     evals = torch.clamp(evals.real, min=0.0)
-    fid = torch.sqrt(evals).sum(dim=-1) # no squaring
+    fid = torch.sqrt(evals).sum(dim=-1)  # no squaring
     return torch.clamp(fid.real, 0.0, 1.0 - eps)
 
 
@@ -83,7 +87,7 @@ def fidelity_pairwise(rho, sigma, eps=DEFAULT_EPS):
         f = torch.sqrt(squared_f)
         return torch.clamp(f, 0.0, 1.0 - eps)
     squared_f = max(float(squared_f), 0.0)
-    return min(squared_f ** 0.5, 1.0 - eps)
+    return min(squared_f**0.5, 1.0 - eps)
 
 
 def stack_prototypes(prototypes, device=None, dtype=None):
@@ -143,9 +147,13 @@ def max_fidelity_to_prototypes(rho_batch, proto_stack, eps=DEFAULT_EPS):
         squeezed = True
 
     proto_stack = proto_stack.to(device=rho_batch.device)
-    max_f = torch.zeros(rho_batch.shape[0], device=rho_batch.device, dtype=torch.float32)
+    max_f = torch.zeros(
+        rho_batch.shape[0], device=rho_batch.device, dtype=torch.float32
+    )
     for c in range(proto_stack.shape[0]):
-        f_c = fidelity(rho_batch, proto_stack[c], eps=eps)  # use fidelity function instead of fidelity_pairwise to avoid broadcasting
+        f_c = fidelity(
+            rho_batch, proto_stack[c], eps=eps
+        )  # use fidelity function instead of fidelity_pairwise to avoid broadcasting
         if f_c.ndim == 0:  # if f_c is a scalar, expand it to the batch size
             f_c = f_c.expand(rho_batch.shape[0])
         max_f = torch.maximum(max_f, f_c.float())

@@ -21,14 +21,16 @@ from scripts.utils import (
 )
 
 
-def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE):
+def predict_labels(
+    X, y, theta, classifier_head, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE
+):
     """
     Batched prediction of class labels using circuit expectations + classical head.
     """
     preds = []
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             z, _ = forward_circuit(x_chunk, theta)
             logits = classifier_head(expectations_to_tensor(z))
             preds.append(logits.argmax(dim=1).cpu().numpy())
@@ -36,8 +38,17 @@ def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_
     return y_true, np.concatenate(preds)
 
 
-def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta=DEFAULT_DELTA,
-                       device=None, batch_size=DEFAULT_BATCH_SIZE, percentile=None, return_ratios=False):
+def estimate_lipschitz(
+    X,
+    theta,
+    forward_circuit,
+    n_probe=DEFAULT_N_PROBE,
+    delta=DEFAULT_DELTA,
+    device=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+    percentile=None,
+    return_ratios=False,
+):
     """
     Batched estimation of encoder Lipschitz constant from data.
 
@@ -45,7 +56,7 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
     D_tr(ρ(x), ρ(x+δξ)) / δ.
 
     - By default returns the max ratio (legacy).
-    - Pass percentile (e.g. 95) for the Day-16 robust estimator; 
+    - Pass percentile (e.g. 95) for the Day-16 robust estimator;
     - Set return_ratios=True to also get the full ratio distribution.
     """
     X_np = to_np_batch_x(X)
@@ -61,8 +72,8 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
     ratios = []
     with torch.no_grad():
         for i in range(0, len(indices), batch_size):
-            _, r1 = forward_circuit(x_probe[i:i + batch_size], theta)
-            _, r2 = forward_circuit(x_probe_pert[i:i + batch_size], theta)
+            _, r1 = forward_circuit(x_probe[i : i + batch_size], theta)
+            _, r2 = forward_circuit(x_probe_pert[i : i + batch_size], theta)
             for j in range(r1.shape[0]):
                 ratios.append(trace_distance(r1[j], r2[j]) / delta)
 
@@ -79,8 +90,18 @@ def estimate_lipschitz(X, theta, forward_circuit, n_probe=DEFAULT_N_PROBE, delta
     return L_phi
 
 
-def qsnet_infer_single(x, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_RATE,
-                L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None):
+def qsnet_infer_single(
+    x,
+    theta,
+    prototypes,
+    q,
+    forward_circuit,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+):
     """
     Single-sample unified inference with disentangled rejection.
     """
@@ -107,8 +128,19 @@ def qsnet_infer_single(x, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE
     return c_star, float(radius), s, f_map
 
 
-def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_RATE,
-                       L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None, batch_size=DEFAULT_BATCH_SIZE):
+def qsnet_infer_batch(
+    X,
+    theta,
+    prototypes,
+    q,
+    forward_circuit,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+):
     """
     Batched unified inference with disentangled rejection.
     """
@@ -120,23 +152,29 @@ def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_
 
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
 
             for j in range(rho_chunk.shape[0]):
                 rho_x = rho_chunk[j]
-                f_map = {c: float(fidelity(rho_x, prototypes[c]).item()) for c in class_ids}
+                f_map = {
+                    c: float(fidelity(rho_x, prototypes[c]).item()) for c in class_ids
+                }
                 f_vals = [f_map[c] for c in class_ids]
                 c_star = class_ids[int(np.argmax(f_vals))]
                 s = 1.0 - f_map[c_star]
 
                 if s > q:
-                    labels.append(zero_day); radii.append(0.0)
+                    labels.append(zero_day)
+                    radii.append(0.0)
                 else:
                     sorted_f = sorted(f_vals, reverse=True)
-                    margin = sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    margin = (
+                        sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    )
                     radius = margin / (2.0 * (1.0 - p) * L_phi * Cf)
-                    labels.append(c_star); radii.append(float(radius))
+                    labels.append(c_star)
+                    radii.append(float(radius))
 
                 scores.append(s)
                 f_maps.append(f_map)
@@ -144,11 +182,19 @@ def qsnet_infer_batch(X, theta, prototypes, q, forward_circuit, p=DEFAULT_NOISE_
     return np.array(labels), np.array(radii), np.array(scores), f_maps
 
 
-
-
-def qsnet_infer_batch_per_class(X, theta, prototypes, q_by_class, forward_circuit, p=DEFAULT_NOISE_RATE,
-                                 L_phi=None, Cf=DEFAULT_CF, zero_day=ZERO_DAY, device=None,
-                                 batch_size=DEFAULT_BATCH_SIZE):
+def qsnet_infer_batch_per_class(
+    X,
+    theta,
+    prototypes,
+    q_by_class,
+    forward_circuit,
+    p=DEFAULT_NOISE_RATE,
+    L_phi=None,
+    Cf=DEFAULT_CF,
+    zero_day=ZERO_DAY,
+    device=None,
+    batch_size=DEFAULT_BATCH_SIZE,
+):
     """
     Class-conditional (Mondrian) variant of qsnet_infer_batch: identical Algorithm-3
     mechanics (p(x) -> per-class fidelity -> nearest class c_star -> conformal test ->
@@ -172,24 +218,30 @@ def qsnet_infer_batch_per_class(X, theta, prototypes, q_by_class, forward_circui
 
     with torch.no_grad():
         for i in range(0, len(X), batch_size):
-            x_chunk = to_torch_batch_x(X[i:i + batch_size], device=device)
+            x_chunk = to_torch_batch_x(X[i : i + batch_size], device=device)
             _, rho_chunk = forward_circuit(x_chunk, theta)
 
             for j in range(rho_chunk.shape[0]):
                 rho_x = rho_chunk[j]
-                f_map = {c: float(fidelity(rho_x, prototypes[c]).item()) for c in class_ids}
+                f_map = {
+                    c: float(fidelity(rho_x, prototypes[c]).item()) for c in class_ids
+                }
                 f_vals = [f_map[c] for c in class_ids]
                 c_star = class_ids[int(np.argmax(f_vals))]
                 s = 1.0 - f_map[c_star]
                 q_c = q_by_class[c_star]
 
                 if s > q_c:
-                    labels.append(zero_day); radii.append(0.0)
+                    labels.append(zero_day)
+                    radii.append(0.0)
                 else:
                     sorted_f = sorted(f_vals, reverse=True)
-                    margin = sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    margin = (
+                        sorted_f[0] - sorted_f[1] if len(sorted_f) > 1 else sorted_f[0]
+                    )
                     radius = margin / (2.0 * (1.0 - p) * L_phi * Cf)
-                    labels.append(c_star); radii.append(float(radius))
+                    labels.append(c_star)
+                    radii.append(float(radius))
 
                 scores.append(s)
                 f_maps.append(f_map)
