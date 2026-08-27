@@ -1,0 +1,47 @@
+[tool.ruff]
+# matches conda_environment.yaml (python=3.12.x, ruff==0.16.4)
+target-version = "py312"
+line-length = 88
+
+# never apply unsafe autofixes; unsafe findings stay as lint issues
+unsafe-fixes = false
+
+include = [
+    "**/pyproject.toml",
+    "**/*.py",
+    "**/*.pyi",
+]
+
+exclude = [
+    ".git",
+    ".venv",
+    ".ruff_cache",
+    ".ipynb_checkpoints",
+    "build",
+    "dist",
+    "caches",
+    "data",
+    "artifacts",
+    "logs",
+    "img",
+    "documents",
+]
+
+[tool.ruff.lint]
+# E/F: correctness; I: import order; UP: pyupgrade for py312
+select = ["E", "F", "I", "UP"]
+ignore = [
+    "E501",  # line length errors -> defer to formatter
+    "E741",  # allow I/l/O
+    "E722",  # bare except
+]
+
+# allow auto-fixing for all enabled rules
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = false

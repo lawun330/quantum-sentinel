@@ -1,0 +1,29 @@
+name: Ruff
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ruff-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # install only; do not rewrite the tree in CI
+      - uses: astral-sh/ruff-action@v3
+        with:
+          # keep in sync with conda_environment.yaml / .pre-commit-config.yaml
+          version: "0.16.4"
+          args: "--version"
+
+      - name: Ruff lint (report issues; no --fix / no unsafe fixes)
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .

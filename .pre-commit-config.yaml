@@ -1,0 +1,16 @@
+# install once:  pip install pre-commit && pre-commit install
+# run manually:  pre-commit run --all-files
+#
+# ruff check --fix applies SAFE fixes only (unsafe-fixes=false in pyproject.toml).
+# remaining lint issues (incl. unsafe-only fixes) fail the hook.
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # pin to same major/minor as conda_environment.yaml (ruff==0.16.4)
+    rev: v0.16.4
+    hooks:
+      - id: ruff-check
+        args: ["--fix"]
+        types_or: ["python", "pyi"]
+      - id: ruff-format
+        types_or: ["python", "pyi"]

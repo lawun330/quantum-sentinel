@@ -8,6 +8,8 @@
 .env.production.local
 */__pycache__/
 *.zip
+.ruff_cache/
+.mypy_cache/
 
 # crash report files from MAQT training
 *-crash-*.json
