@@ -84,7 +84,7 @@ def read_jsonl(name, log_dir=DEFAULT_LOG_DIR):
     log_path = Path(log_dir) / f"{name}.jsonl"
     if not log_path.exists():
         return []
-    with open(log_path, "r", encoding="utf-8") as f:
+    with open(log_path, encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
 
 

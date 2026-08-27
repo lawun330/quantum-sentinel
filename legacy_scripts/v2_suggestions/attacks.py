@@ -180,6 +180,7 @@ def train_plain_baseline(
         "Wire this to your project's theta/head init (see train.py's train_maqt for the pattern); "
         "kept as a stub here since layer count isn't known inside attacks.py."
     )
+    return theta
 
 
 def robustness_ablation(

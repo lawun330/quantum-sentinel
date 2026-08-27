@@ -179,7 +179,7 @@ def train_maqt(
         device=device,
     )
 
-    return theta, head, final_prototypes, ema_protos, history
+    return theta, head, final_prototypes, ema_protos, history, static_bank
 
 
 def train_plain_vqc(

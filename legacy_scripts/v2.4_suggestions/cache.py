@@ -29,6 +29,7 @@ from scripts.conformal import (
 from scripts.constants import DEFAULT_ALPHA, DEFAULT_CF, DEFAULT_NOISE_RATE, ZERO_DAY
 from scripts.quantum_metrics import (
     fidelity,
+    fidelity_pairwise,
     max_fidelity_to_prototypes,
     stack_prototypes,
     trace_distance,
