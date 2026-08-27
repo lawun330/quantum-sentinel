@@ -64,9 +64,9 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 ├── 03.training-iris.ipynb              # day 3 deliverable
 │
 ├── final_notebooks/                    # day (4-9, 14) deliverables ## NEW NOTEBOOKS
-│   ├── final-bot-iot-{maqt,vqc}-train.ipynb    ## REAL: MAQT, VQC Training ## BoT-IoT
-│   ├── final-ciciot2023-{maqt,vqc}-train.ipynb ## REAL: MAQT, VQC Training ## CICIoT2023
-│   └── final-unsw-nb15-{maqt,vqc}-train.ipynb  ## REAL: MAQT, VQC Training ## UNSW-NB15
+│   ├── final-bot-iot-{maqt,vqc}-train.ipynb    ## REAL: MAQT, VQC Training     ## BoT-IoT
+│   ├── final-ciciot2023-{maqt,vqc}-train.ipynb ## REAL: MAQT, VQC Training     ## CICIoT2023
+│   └── final-unsw-nb15-{maqt,vqc}-train.ipynb  ## REAL: MAQT, VQC Training     ## UNSW-NB15
 │
 ├── 10.maqt-loss-unit-test-iris.ipynb                   # day 10 deliverable
 ├── 11.hilbert-geometry-diagnostics_v2-bot-iot.ipynb    # day 11 deliverable    ## cap(50) train BoT-IoT
@@ -80,7 +80,7 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 ├── 13.tune-lambdas-unsw-nb15.ipynb             # day 13 deliverable ## DPP cap(1000), ~5600 train UNSW-NB15
 ├── 15.depolarizing-channel.ipynb               # day 15 deliverable ## NO DATASET
 │
-├── final_notebooks/                    # day (15-29) deliverables  ## REAL: Full Algo.3 Pipeline
+├── final_notebooks/                            # day (15-29) deliverables
 │   ├── the-final-bot-iot-{maqt,vqc}-results.ipynb
 │   ├── the-final-ciciot2023-{maqt,vqc}-results-{part1,part2}.ipynb
 │   ├── the-final-unsw-nb15-{maqt,vqc}-results.ipynb
@@ -99,7 +99,6 @@ Together, these stages yield a hybrid quantum–classical pipeline that learns k
 
 ## Days with Missing Deliverables
 
-- Day 13 (partial): CICIoT2023
 - Day 26 (partial): MAQT ablation
 - Day 30
 - Day 31
