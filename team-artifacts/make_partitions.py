@@ -65,7 +65,7 @@ def run(name: str) -> dict:
         "dataset": name, "seed": SEED, "n_features": len(feats), "features": feats,
         "layout": "train(=train+val) / calibration / test / zeroday",
         "known_classes": known, "n_known_classes": len(known), "zero_day_families": zd_fams,
-        "rows": {s: int(len(v)) for s, v in splits.items()},
+        "rows": {s: len(v) for s, v in splits.items()},
         "class_membership": {s: v["label_multiclass"].value_counts().sort_index().to_dict()
                              for s, v in splits.items()},
         "calibration_known_only": bool(set(splits["calibration"]["label_multiclass"].unique()).issubset(known)),

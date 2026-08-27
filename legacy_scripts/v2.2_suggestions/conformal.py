@@ -3,7 +3,7 @@
 import numpy as np
 import torch
 
-from scripts.constants import DEFAULT_BATCH_SIZE, DEFAULT_ALPHA
+from scripts.constants import DEFAULT_ALPHA, DEFAULT_BATCH_SIZE
 from scripts.quantum_metrics import max_fidelity_to_prototypes, stack_prototypes
 from scripts.utils import to_torch_batch_x
 

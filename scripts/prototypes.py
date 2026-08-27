@@ -2,8 +2,8 @@
 
 import torch
 
-from scripts.utils import to_torch_batch_x, to_torch_y, to_np_y
 from scripts.constants import DEFAULT_BATCH_SIZE, DEFAULT_EMA_MOMENTUM
+from scripts.utils import to_np_y, to_torch_batch_x, to_torch_y
 
 
 class PrototypeBank:

@@ -5,7 +5,13 @@ import torch
 
 from scripts.constants import DEFAULT_CF, DEFAULT_NOISE_RATE, ZERO_DAY
 from scripts.quantum_metrics import fidelity, trace_distance
-from scripts.utils import expectations_to_tensor, to_np_2d, to_np_x, to_torch_batch, to_torch_x
+from scripts.utils import (
+    expectations_to_tensor,
+    to_np_2d,
+    to_np_x,
+    to_torch_batch,
+    to_torch_x,
+)
 
 
 def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_size=64):

@@ -3,7 +3,11 @@
 import pennylane as qp
 import torch
 
-from scripts.constants import DEFAULT_NOISE_RATE, DEFAULT_WEIGHT_INIT_EPS, DEFAULT_REUPLOAD
+from scripts.constants import (
+    DEFAULT_NOISE_RATE,
+    DEFAULT_REUPLOAD,
+    DEFAULT_WEIGHT_INIT_EPS,
+)
 
 
 def create_quantum_device(num_qubits, backend="default.mixed"):

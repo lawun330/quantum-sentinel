@@ -2,8 +2,8 @@
 
 import numpy as np
 import torch
-import torch.nn as nn
 from sklearn.metrics import f1_score
+from torch import nn
 
 from scripts.utils import expectations_to_tensor, to_np_x, to_torch_x
 

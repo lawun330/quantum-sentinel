@@ -3,12 +3,16 @@
 import torch
 import torch.nn.functional as F
 
-from scripts.quantum_metrics import fidelity, trace_distance
-from scripts.utils import expectations_to_tensor, to_torch_batch_x, to_torch_y, to_np_y
 from scripts.constants import (
-    DEFAULT_FOCAL, DEFAULT_FOCAL_GAMMA, DEFAULT_LAMBDA1, DEFAULT_LAMBDA2,
-    DEFAULT_INTER_MARGIN, DEFAULT_WARMUP_FRAC,
+    DEFAULT_FOCAL,
+    DEFAULT_FOCAL_GAMMA,
+    DEFAULT_INTER_MARGIN,
+    DEFAULT_LAMBDA1,
+    DEFAULT_LAMBDA2,
+    DEFAULT_WARMUP_FRAC,
 )
+from scripts.quantum_metrics import fidelity, trace_distance
+from scripts.utils import expectations_to_tensor, to_np_y, to_torch_batch_x, to_torch_y
 
 
 def _forward_batch(theta, X_batch, y_batch, forward_circuit, device):

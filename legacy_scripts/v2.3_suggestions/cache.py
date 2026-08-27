@@ -24,10 +24,18 @@ cache holds exactly the encoder's own outputs on the real dataset, nothing else.
 import numpy as np
 import torch
 
+from scripts.conformal import (
+    min_calibration_size,
+    threshold_from_scores,
+)
 from scripts.constants import DEFAULT_ALPHA, DEFAULT_CF, DEFAULT_NOISE_RATE, ZERO_DAY
-from scripts.conformal import threshold_from_scores, min_calibration_size  # noqa: F401  (re-exported)
-from scripts.quantum_metrics import fidelity, max_fidelity_to_prototypes, stack_prototypes, trace_distance
-from scripts.utils import to_torch_batch_x, to_np_y, expectations_to_tensor
+from scripts.quantum_metrics import (
+    fidelity,
+    max_fidelity_to_prototypes,
+    stack_prototypes,
+    trace_distance,
+)
+from scripts.utils import expectations_to_tensor, to_np_y, to_torch_batch_x
 
 
 class ForwardCache:

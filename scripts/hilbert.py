@@ -3,9 +3,9 @@
 import numpy as np
 import torch
 
+from scripts.constants import DEFAULT_BATCH_SIZE, DEFAULT_SEED
 from scripts.quantum_metrics import fidelity, trace_distance
 from scripts.utils import to_np_y, to_torch_batch_x
-from scripts.constants import DEFAULT_SEED, DEFAULT_BATCH_SIZE
 
 
 @torch.no_grad()
@@ -150,7 +150,7 @@ def hilbert_geometry_diagnostics(theta, X, y, prototypes, forward_circuit, class
         mean_intra_fid_c = float(np.mean(fids))
         name = class_names[c] if class_names is not None else str(c)
         per_class[name] = {
-            "n": int(len(fids)),
+            "n": len(fids),
             "mean_intra_fid_c": mean_intra_fid_c,
             "mean_intra_infidelity_c": 1.0 - mean_intra_fid_c,  # same spirit as L_intra
         }

@@ -47,11 +47,24 @@ import math
 import numpy as np
 import torch
 
-from scripts.constants import DEFAULT_BETA, DEFAULT_NOISE_RATE, PROP1_RESIDUAL_TOL, INPUT_DIM_D
-from scripts.quantum_metrics import fidelity, fidelity_pairwise, trace_distance, max_fidelity_to_prototypes, stack_prototypes
-from scripts.conformal import nonconformity_score, min_calibration_size  # noqa: F401  (re-exported)
+from scripts.conformal import (  # noqa: F401  (re-exported)
+    min_calibration_size,
+    nonconformity_score,
+)
+from scripts.constants import (
+    DEFAULT_BETA,
+    DEFAULT_NOISE_RATE,
+    INPUT_DIM_D,
+    PROP1_RESIDUAL_TOL,
+)
+from scripts.quantum_metrics import (
+    fidelity,
+    fidelity_pairwise,
+    max_fidelity_to_prototypes,
+    stack_prototypes,
+    trace_distance,
+)
 from scripts.utils import to_torch_batch_x
-
 
 # --------------------------------------------------------------------------------------
 # Fidelity-convention self-check (SOFTWARE unit test -- see module docstring)

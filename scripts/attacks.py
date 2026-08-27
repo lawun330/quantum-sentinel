@@ -2,11 +2,11 @@
 
 import numpy as np
 import torch
-import torch.nn as nn
 from sklearn.metrics import f1_score
+from torch import nn
 
-from scripts.utils import expectations_to_tensor, to_torch_batch_x, to_torch_y, to_np_y
 from scripts.constants import DEFAULT_BATCH_SIZE, DEFAULT_CONTROL_BATCH_SIZE
+from scripts.utils import expectations_to_tensor, to_np_y, to_torch_batch_x, to_torch_y
 
 
 def logits_from_batch(X, theta, classifier_head, forward_circuit):
@@ -133,7 +133,6 @@ def train_plain_baseline(X_train, y_train, n_classes, forward_circuit, n_qubits,
     #     "Wire this to your project's theta/head init (see train.py's train_maqt for the pattern); "
     #     "kept as a stub here since layer count isn't known inside attacks.py."
     # )
-    pass
 
 
 def robustness_ablation(X_test, y_test, theta_maqt, head_maqt, theta_plain, head_plain,

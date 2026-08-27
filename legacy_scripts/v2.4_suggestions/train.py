@@ -27,7 +27,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import WeightedRandomSampler
 
 from scripts.circuit import initialize_random_weights
@@ -45,18 +45,24 @@ from scripts.constants import (
     DEFAULT_WARMUP_FRAC,
     DEFAULT_WEIGHT_INIT_EPS,
 )
+
 try:
     from scripts.constants import DEFAULT_PATIENCE
 except ImportError:  # constants.py doesn't define it yet -- see one-line addition above
     DEFAULT_PATIENCE = 3
 
 from scripts.data import class_weights_for_sampler
+from scripts.logging import append_jsonl, gpu_memory_snapshot, write_crash_log
 from scripts.loss import curriculum_weight, maqt_loss
 from scripts.prototypes import EMAPrototypeBank, PrototypeBank
 from scripts.quantum_metrics import trace_distance
-from scripts.utils import expectations_to_tensor, to_np_batch_x, to_np_y, to_torch_batch_x, to_torch_y
-from scripts.logging import append_jsonl, write_crash_log, gpu_memory_snapshot
-
+from scripts.utils import (
+    expectations_to_tensor,
+    to_np_batch_x,
+    to_np_y,
+    to_torch_batch_x,
+    to_torch_y,
+)
 
 # ============================================================================
 # Graceful-shutdown machinery
@@ -590,13 +596,13 @@ def train_maqt(
                 print(f"restored best MAQT weights from epoch {early_stop.best_epoch} "
                       f"(train loss={early_stop.best_score:.4f})")
 
-        history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else int(len(history["loss"]))
+        history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else len(history["loss"])
         history["best_score"] = (
             float(early_stop.best_score) if (early_stopping and early_stop.best_score is not None)
             else (float(history["loss"][-1]) if history["loss"] else float("nan"))
         )
         history["stopped_early"] = bool(early_stopping and early_stop.should_stop)
-        history["epochs_ran"] = int(len(history["loss"]))
+        history["epochs_ran"] = len(history["loss"])
         history["interrupted"] = bool(interrupted)
         history["stop_reason"] = (
             "time_budget" if stopped_time_budget else
@@ -849,13 +855,13 @@ def train_plain_vqc(
                 print(f"restored best plain-VQC weights from epoch {early_stop.best_epoch} "
                       f"(train loss={early_stop.best_score:.4f})")
 
-        history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else int(len(history["loss"]))
+        history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else len(history["loss"])
         history["best_score"] = (
             float(early_stop.best_score) if (early_stopping and early_stop.best_score is not None)
             else (float(history["loss"][-1]) if history["loss"] else float("nan"))
         )
         history["stopped_early"] = bool(early_stopping and early_stop.should_stop)
-        history["epochs_ran"] = int(len(history["loss"]))
+        history["epochs_ran"] = len(history["loss"])
         history["interrupted"] = bool(interrupted)
         history["stop_reason"] = (
             "time_budget" if stopped_time_budget else

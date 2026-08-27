@@ -10,14 +10,18 @@ THIS TRAIN.PY NOT BE INSIDE IN THE SCRIPTS -->LA WUN CAREFUL WHEN YOU R RUNNING.
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import WeightedRandomSampler
 
 from scripts.circuit import initialize_weights_random_identity
+from scripts.constants import (
+    DEFAULT_EMA_MOMENTUM,
+    DEFAULT_FOCAL_GAMMA,
+    DEFAULT_WARMUP_FRAC,
+)
 from scripts.data import class_weights_for_sampler
 from scripts.loss import curriculum_weight, maqt_loss
 from scripts.prototypes import EMAPrototypeBank, PrototypeBank, compute_prototypes
-from scripts.constants import DEFAULT_EMA_MOMENTUM, DEFAULT_FOCAL_GAMMA, DEFAULT_WARMUP_FRAC
 
 
 def train_maqt(X_train, y_train, n_classes, n_qubits, n_layers, forward_circuit, device,

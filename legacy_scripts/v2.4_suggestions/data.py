@@ -3,12 +3,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.decomposition import PCA
 
-from scripts.constants import DEFAULT_SEED, DEFAULT_MIN_PCT
+from scripts.constants import DEFAULT_MIN_PCT, DEFAULT_SEED
 from scripts.utils import to_np_y
 
 

@@ -7,10 +7,9 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import WeightedRandomSampler
-from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from scripts.circuit import initialize_random_weights
 from scripts.constants import (
@@ -34,7 +33,13 @@ from scripts.loss import curriculum_weight, maqt_loss
 from scripts.memory import free_memory, peak_gpu_mb, run_with_oom_retry
 from scripts.prototypes import EMAPrototypeBank, PrototypeBank
 from scripts.quantum_metrics import trace_distance
-from scripts.utils import expectations_to_tensor, to_np_batch_x, to_np_y, to_torch_batch_x, to_torch_y
+from scripts.utils import (
+    expectations_to_tensor,
+    to_np_batch_x,
+    to_np_y,
+    to_torch_batch_x,
+    to_torch_y,
+)
 
 # ============================================================================
 # Graceful-shutdown machinery
@@ -294,14 +299,14 @@ def _finalize_history(history, early_stop, early_stopping, interrupted, stopped_
     """
     Add final summary fields to the training history before returning.
     """
-    history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else int(len(history["loss"]))
+    history["best_epoch"] = int(early_stop.best_epoch) if early_stopping else len(history["loss"])
     history["best_score"] = (
         float(early_stop.best_score)
         if (early_stopping and early_stop.best_score is not None)
         else (float(history["loss"][-1]) if history["loss"] else float("nan"))
     )
     history["stopped_early"] = bool(early_stopping and early_stop.should_stop)
-    history["epochs_ran"] = int(len(history["loss"]))
+    history["epochs_ran"] = len(history["loss"])
     history["interrupted"] = bool(interrupted)
     history["stop_reason"] = (
         "time_budget" if stopped_time_budget else

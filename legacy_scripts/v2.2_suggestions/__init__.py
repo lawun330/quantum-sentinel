@@ -26,7 +26,11 @@ from scripts.data import (
     stratified_head,
 )
 from scripts.gradient import gradient_variance, gradient_variance_probe
-from scripts.hilbert import fidelity_gap_proxy, hilbert_geometry_diagnostics, print_h1_report
+from scripts.hilbert import (
+    fidelity_gap_proxy,
+    hilbert_geometry_diagnostics,
+    print_h1_report,
+)
 from scripts.inference import (
     estimate_lipschitz,
     predict_labels,
@@ -72,9 +76,9 @@ from scripts.utils import (
 __all__ = [
     "DEFAULT_CF",
     "DEFAULT_NOISE_RATE",
+    "ZERO_DAY",
     "EMAPrototypeBank",
     "PrototypeBank",
-    "ZERO_DAY",
     "balanced_sample",
     "build_forward_circuit",
     "calibrate_threshold",

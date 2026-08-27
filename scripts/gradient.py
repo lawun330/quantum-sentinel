@@ -1,10 +1,15 @@
 """Gradient variance helpers."""
 
-from pennylane import numpy as np
 import torch
+from pennylane import numpy as np
 
 from scripts.circuit import initialize_random_weights
-from scripts.constants import DEFAULT_LAMBDA1, DEFAULT_LAMBDA2, DEFAULT_N_TRIALS, DEFAULT_WEIGHT_INIT_EPS
+from scripts.constants import (
+    DEFAULT_LAMBDA1,
+    DEFAULT_LAMBDA2,
+    DEFAULT_N_TRIALS,
+    DEFAULT_WEIGHT_INIT_EPS,
+)
 from scripts.loss import maqt_loss
 from scripts.utils import get_torch_device, to_torch_batch_x
 

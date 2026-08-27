@@ -22,18 +22,20 @@ Original -> uses; discards
 import numpy as np
 import torch
 
+from scripts.conformal import (
+    min_calibration_size,
+    threshold_from_scores,
+)
 from scripts.constants import DEFAULT_ALPHA, DEFAULT_CF, DEFAULT_NOISE_RATE, ZERO_DAY
-from scripts.conformal import threshold_from_scores, min_calibration_size  # noqa: F401  (re-exported)
+from scripts.inference import algo3_postprocess_f_mat, f_maps_from_f_mat
 from scripts.quantum_metrics import (
     all_fidelities_to_prototypes,
-    fidelity,
     fidelity_pairwise,
     max_fidelity_to_prototypes,
     stack_prototypes,
     trace_distance,
 )
-from scripts.inference import algo3_postprocess_f_mat, f_maps_from_f_mat
-from scripts.utils import to_torch_batch_x, to_np_y, expectations_to_tensor
+from scripts.utils import expectations_to_tensor, to_np_y, to_torch_batch_x
 
 # --------------------------------------------------------------------------------------
 # ForwardCache
@@ -149,7 +151,7 @@ def conformal_alpha_sweep_from_scores(cal_scores, test_scores, alphas=(0.01, 0.0
             "q": q,
             "empirical_false_alarm_rate": float(np.mean(test_scores > q)),
             "min_calibration_size": min_calibration_size(alpha),
-            "n_cal": int(len(cal_scores)),
+            "n_cal": len(cal_scores),
         })
     return rows
 

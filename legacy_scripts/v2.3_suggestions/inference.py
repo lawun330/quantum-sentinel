@@ -3,9 +3,22 @@
 import numpy as np
 import torch
 
-from scripts.constants import DEFAULT_BATCH_SIZE, DEFAULT_CF, DEFAULT_NOISE_RATE, DEFAULT_N_PROBE, DEFAULT_DELTA, ZERO_DAY
+from scripts.constants import (
+    DEFAULT_BATCH_SIZE,
+    DEFAULT_CF,
+    DEFAULT_DELTA,
+    DEFAULT_N_PROBE,
+    DEFAULT_NOISE_RATE,
+    ZERO_DAY,
+)
 from scripts.quantum_metrics import fidelity, trace_distance
-from scripts.utils import expectations_to_tensor, to_np_batch_x, to_torch_batch_x, to_torch_x, to_np_y
+from scripts.utils import (
+    expectations_to_tensor,
+    to_np_batch_x,
+    to_np_y,
+    to_torch_batch_x,
+    to_torch_x,
+)
 
 
 def predict_labels(X, y, theta, classifier_head, forward_circuit, device, batch_size=DEFAULT_BATCH_SIZE):

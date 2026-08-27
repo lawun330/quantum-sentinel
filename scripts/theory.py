@@ -27,8 +27,11 @@ Notice: Prefer `cache.ForwardCache` to avoid recomputing density matrices.
 """
 
 import math
+
 import numpy as np
 import torch
+
+from scripts.conformal import nonconformity_score
 from scripts.constants import (
     DEFAULT_ALPHA,
     DEFAULT_BATCH_SIZE,
@@ -50,12 +53,17 @@ from scripts.quantum_metrics import (
     _as_complex_hermitian,
     fidelity,
     fidelity_pairwise,
-    trace_distance,
     max_fidelity_to_prototypes,
     stack_prototypes,
+    trace_distance,
 )
-from scripts.conformal import nonconformity_score
-from scripts.utils import get_torch_device, to_torch_batch_x, to_np_y, _as_bound_tensor, _clear_cuda_cache_if_needed
+from scripts.utils import (
+    _as_bound_tensor,
+    _clear_cuda_cache_if_needed,
+    get_torch_device,
+    to_np_y,
+    to_torch_batch_x,
+)
 
 # --------------------------------------------------------------------------------------
 # Fidelity-convention self-check

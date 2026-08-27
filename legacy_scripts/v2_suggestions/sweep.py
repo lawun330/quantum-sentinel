@@ -1,6 +1,5 @@
 """NEW MODULE: generalized hyperparameter sweep (from friend's ad hoc run_lambda_sweep)."""
 
-import numpy as np
 import pandas as pd
 
 
