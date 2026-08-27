@@ -117,7 +117,7 @@ Under that matched protocol, the 3000 / class run was on par with (slightly abov
 | Classes | 4 (DDoS, DoS, Normal, Reconnaissance) |
 | Train data | full FROZEN known train (no per-class cap) |
 | LR | cosine schedule, start \(0.01\) |
-| Notebooks / artefacts | `4class-all-lr0.01auto-lambda2-maqt` (+ algo3 / cached variants) |
+| Notebooks / artifacts | `4class-all-lr0.01auto-lambda2-maqt` (+ algo3 / cached variants) |
 
 ---
 
